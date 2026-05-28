@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "How many unique IPv4 addresses exist in total?",
+      "options": [
+        "About 4.3 billion (2^32)",
+        "About 340 undecillion (2^128)",
+        "Exactly 1 million",
+        "About 65,536 (2^16)"
+      ],
+      "correct": 0,
+      "explanation": "IPv4 uses 32-bit addresses, so 2^32 = 4,294,967,296 unique addresses exist. This scarcity (4.3 billion sounds like a lot, but many are reserved) is exactly why IPv6 with 128-bit addresses was created. IPv6's 2^128 is the 340 undecillion figure."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the purpose of the subnet mask?",
+      "options": [
+        "It encrypts the address so routers cannot read it",
+        "It separates the network portion of an address from the host portion",
+        "It converts dotted-decimal to binary",
+        "It assigns a default gateway to a host"
+      ],
+      "correct": 1,
+      "explanation": "The subnet mask (or prefix length) defines which bits of an IP address identify the network and which bits identify the individual host. A router performs a bitwise AND between a destination address and the mask to extract the network address, which it then looks up in its routing table."
+    },
+    {
+      "stage": "post",
+      "question": "Given address 192.168.5.130 and mask 255.255.255.128 (/25), what is the network address?",
+      "options": [
+        "192.168.5.0",
+        "192.168.5.128",
+        "192.168.5.1",
+        "192.168.5.255"
+      ],
+      "correct": 1,
+      "explanation": "255.255.255.128 in binary is 11111111.11111111.11111111.10000000. Bitwise AND with 192.168.5.130 (last octet 10000010): 10000010 AND 10000000 = 10000000 = 128. So the network address is 192.168.5.128. This is a /25 split of the .0/24 block — two /25 subnets exist: .0–.127 and .128–.255."
+    },
+    {
+      "stage": "post",
+      "question": "A /26 subnet has how many usable host addresses?",
+      "options": [
+        "64",
+        "63",
+        "62",
+        "60"
+      ],
+      "correct": 2,
+      "explanation": "A /26 leaves 32 - 26 = 6 host bits. 2^6 = 64 total addresses. We subtract 2: one for the network address (all host bits 0) and one for the broadcast address (all host bits 1). 64 - 2 = 62 usable hosts. This subtraction of 2 is a constant rule for any subnet regardless of prefix length."
+    },
+    {
+      "stage": "post",
+      "question": "Why did address classes become obsolete and get replaced by CIDR?",
+      "options": [
+        "Classes used hexadecimal notation which routers could not parse",
+        "Classes forced fixed-size allocations (8, 16, or 24 network bits) that wasted enormous numbers of addresses",
+        "Classes required every host to know the class of every other host",
+        "CIDR added encryption that classes lacked"
+      ],
+      "correct": 1,
+      "explanation": "Classful addressing had only three sizes: Class A (/8, ~16 million hosts), Class B (/16, ~65,000 hosts), and Class C (/24, 254 hosts). If you needed 300 hosts you were forced to take a Class B, wasting ~65,000 addresses. CIDR allows any prefix length, so you can allocate a /23 (510 hosts) or a /22 (1,022 hosts) — exactly the right size."
+    }
+  ]
+}

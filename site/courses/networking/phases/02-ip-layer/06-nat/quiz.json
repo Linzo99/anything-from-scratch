@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't a device with the IP address 192.168.1.50 communicate directly with servers on the public internet?",
+      "options": [
+        "192.168.x.x addresses are too short to route across multiple autonomous systems",
+        "RFC 1918 private addresses are not routed on the public internet — any internet router receiving such a packet drops it",
+        "192.168.x.x addresses cannot be used with TCP, only UDP",
+        "The device would need IPv6 to access the public internet"
+      ],
+      "correct": 1,
+      "explanation": "RFC 1918 reserves three address ranges (10/8, 172.16/12, 192.168/16) as private. Routers on the public internet are configured to drop packets with these source or destination addresses. This is by design — these addresses are not globally unique, so routing them on the internet would cause conflicts. NAT converts them to unique public addresses at the network edge."
+    },
+    {
+      "stage": "pre",
+      "question": "How does a NAT gateway know which private host a reply packet should be sent to?",
+      "options": [
+        "It uses the destination port in the reply to look up the original private host in a connection tracking table",
+        "It broadcasts the reply to all private hosts and lets them decide",
+        "The reply packet contains the private IP in an IP option field",
+        "The gateway assigns sequential private IPs and remembers which public port maps to which sequence number"
+      ],
+      "correct": 0,
+      "explanation": "The NAT gateway maintains a connection tracking (conntrack) table. Each entry maps (public IP, public port) ↔ (private IP, private port). When a reply arrives with destination port 40001, the gateway looks up that port, finds the corresponding private host (192.168.1.10:54321), rewrites the destination, and forwards it internally. Without this table, NAT would be impossible."
+    },
+    {
+      "stage": "post",
+      "question": "In the lab, the iptables rule is placed in the POSTROUTING chain with `-o veth-gw2`. Why POSTROUTING and not PREROUTING?",
+      "options": [
+        "PREROUTING only handles IPv6; POSTROUTING handles IPv4",
+        "POSTROUTING runs after the routing decision, so the outgoing interface is known — allowing the rule to match on `-o veth-gw2`",
+        "MASQUERADE is not supported in PREROUTING by Linux",
+        "POSTROUTING packets have already been checksummed, so NAT is safer there"
+      ],
+      "correct": 1,
+      "explanation": "PREROUTING runs before the routing decision — the kernel doesn't yet know which interface the packet will leave on. POSTROUTING runs after routing, when the outgoing interface is determined. Since MASQUERADE must know the outgoing interface's IP address (to use as the new source), it must run in POSTROUTING. Placing it here also means only packets actually leaving via veth-gw2 are masqueraded."
+    },
+    {
+      "stage": "post",
+      "question": "In the lab, when the public-server tries to ping the private host (10.0.1.2) directly, it fails. What is the correct explanation?",
+      "options": [
+        "The private namespace has a firewall blocking all inbound ICMP",
+        "There is no NAT table entry for an unsolicited inbound connection from the public side; the gateway has no rule telling it where to forward it",
+        "10.0.1.2 is a broadcast address in the /24 subnet",
+        "The public server's routing table does not have a route to 10.0.1.2"
+      ],
+      "correct": 1,
+      "explanation": "NAT maintains state for connections initiated from the private side. When the private host pings the public server, conntrack creates an entry: (10.0.1.2:id) ↔ (203.0.113.1:id). Replies match this entry and are forwarded. But the public server initiating a NEW ping to 10.0.1.2 has no matching conntrack entry. The gateway receives the packet but does not know which (or whether any) private host should receive it — so it drops it."
+    },
+    {
+      "stage": "post",
+      "question": "What is the difference between MASQUERADE and SNAT in iptables?",
+      "options": [
+        "MASQUERADE encrypts the source address; SNAT leaves it in plaintext",
+        "MASQUERADE automatically uses the outgoing interface's current IP; SNAT requires a static IP specified in the rule",
+        "MASQUERADE only works for UDP; SNAT works for TCP",
+        "MASQUERADE rewrites ports as well; SNAT only rewrites the IP address"
+      ],
+      "correct": 1,
+      "explanation": "SNAT (--to-source) requires you to specify the public IP explicitly in the rule: `-j SNAT --to-source 203.0.113.1`. This is slightly faster because the kernel does not need to look up the interface's current address per packet. MASQUERADE looks up the outgoing interface's IP at packet time, making it suitable for dynamic IPs (DHCP). For static IPs, SNAT is preferred in high-throughput scenarios."
+    }
+  ]
+}

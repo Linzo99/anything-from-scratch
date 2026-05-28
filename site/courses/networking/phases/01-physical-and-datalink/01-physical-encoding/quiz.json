@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't you reliably transmit a long sequence of identical bits (e.g., 16 ones in a row) using simple NRZ encoding without a separate clock signal?",
+      "options": [
+        "Because NRZ can only represent 0s, not 1s",
+        "Because the wire's resistance increases with longer transmissions",
+        "Because 16 identical bits produce no transitions, so the receiver cannot count bits if its clock drifts even slightly",
+        "Because NRZ requires a preamble that limits run lengths to 8"
+      ],
+      "correct": 2,
+      "explanation": "NRZ represents bit values as voltage levels — high for 1, low for 0. A long run of identical bits produces a flat, unchanging voltage. Without transitions, the receiver can only count bits by measuring time relative to its own clock. If the receiver's clock is even 0.1% off, after 1000 bits it will have miscounted and all subsequent bits will be wrong. This is the fundamental clock recovery problem that Manchester encoding and modern line codes solve."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the difference between 'bit rate' and 'baud rate'?",
+      "options": [
+        "They are the same thing — both measure bits per second",
+        "Bit rate measures data bits; baud rate measures including overhead bits",
+        "Bit rate is the number of bits per second; baud rate is the number of signal changes per second — they differ when one symbol carries multiple bits or multiple symbols carry one bit",
+        "Baud rate is always higher than bit rate because of encoding overhead"
+      ],
+      "correct": 2,
+      "explanation": "Baud rate (symbol rate) counts signal transitions per second. Bit rate counts information bits per second. In NRZ, each symbol carries one bit, so they are equal. In Manchester encoding, each bit requires 2 symbols (minimum), so the baud rate is at least 2× the bit rate. In modern QAM (used in cable modems and Wi-Fi), one symbol can encode 6, 8, or even 12 bits, so the bit rate can be much higher than the baud rate."
+    },
+    {
+      "stage": "post",
+      "question": "In IEEE 802.3 Manchester encoding, what does a low-to-high transition in the middle of a bit period represent?",
+      "options": [
+        "A bit value of 1",
+        "A bit value of 0",
+        "A clock synchronization pulse, not a data bit",
+        "The end of a frame"
+      ],
+      "correct": 1,
+      "explanation": "In IEEE 802.3 Manchester encoding: a high-to-low transition in the middle of the bit period = bit 1; a low-to-high transition in the middle = bit 0. This is sometimes called 'differential Manchester' when the transition direction (rather than its occurrence) carries the data. The key insight is that the transition is mandatory regardless of the bit value — this is what guarantees clock recovery. The receiver looks for the mid-period transition and uses it to re-synchronize."
+    },
+    {
+      "stage": "post",
+      "question": "Manchester encoding guarantees clock recovery but has a bandwidth disadvantage over NRZ. What is that disadvantage?",
+      "options": [
+        "Manchester requires three wires instead of two",
+        "Manchester needs at least 2× the signal frequency (baud rate) to carry the same bit rate as NRZ",
+        "Manchester cannot encode IPv6 addresses",
+        "Manchester requires a minimum cable length of 10 meters"
+      ],
+      "correct": 1,
+      "explanation": "Each Manchester bit period contains at least one transition (and sometimes two). This means the minimum signal frequency required is at least equal to the bit rate, and the maximum is 2× the bit rate. NRZ only needs up to half the bit rate in signal frequency (for alternating 1-0-1-0 patterns). So to achieve 10 Mbps with Manchester encoding, the physical layer needs to support up to 20 MHz signal transitions. This is why modern Gigabit and faster Ethernet switched to 4B5B, 8B10B, and PAM4 encoding — they recover the clock with fewer transitions."
+    },
+    {
+      "stage": "post",
+      "question": "Your Python `manchester_encode()` function produces [1.0, 0.0] for a bit value of 1, and [0.0, 1.0] for a bit value of 0. What physical phenomenon does this simulate?",
+      "options": [
+        "Each bit is split across two packets on the network",
+        "The voltage of the wire transitions in the middle of the bit period — first half is one level, second half is the other",
+        "The bit is sent twice for error correction",
+        "The first sample is the actual bit, the second is its complement for verification"
+      ],
+      "correct": 1,
+      "explanation": "The two voltage samples represent the two halves of a single bit period. In a real wire, the voltage is held at the first level for the first half of the bit period, then transitions to the second level for the second half. The list [1.0, 0.0] for bit 1 means: voltage is HIGH for the first half, then drops to LOW at the midpoint — this is the high-to-low transition that the receiver recognizes as a 1. The transition itself is the clock signal — a receiver with any reasonable clock will detect it."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What happens during a normal TCP three-way handshake that a SYN scan deliberately avoids?",
+      "options": [
+        "The initial SYN packet — SYN scans skip the SYN",
+        "The ACK that completes the connection — SYN scans send RST after receiving SYN-ACK",
+        "The FIN teardown — SYN scans skip the close sequence",
+        "DNS resolution — SYN scans use raw IP addresses only"
+      ],
+      "correct": 1,
+      "explanation": "A normal handshake: SYN → SYN-ACK → ACK. A SYN scan sends SYN, receives SYN-ACK (if port open), then sends RST instead of ACK. The connection is never completed. This is 'half-open' — the scanner never establishes a full session, so it often doesn't appear in the target's application logs."
+    },
+    {
+      "stage": "pre",
+      "question": "nmap reports a port as 'filtered'. What does this mean?",
+      "options": [
+        "The port is open but nmap needs a password to probe it further",
+        "nmap sent a probe but received no response — likely a firewall is silently dropping packets",
+        "The port uses a non-standard protocol that nmap cannot identify",
+        "The port is closed and the OS returned an ICMP unreachable error"
+      ],
+      "correct": 1,
+      "explanation": "Filtered means nmap sent a probe and got nothing back. The probe was dropped — no RST, no ICMP unreachable, nothing. This is typically a DROP rule in iptables. Compare to 'closed': a closed port actively sends back a RST (for TCP) or ICMP port unreachable (for UDP), revealing that the host is present and the port has no listener."
+    },
+    {
+      "stage": "post",
+      "question": "You run: sudo nmap -sS -sV 10.0.0.1. The output shows: '22/tcp open ssh OpenSSH 8.2p1'. How did nmap determine the exact version string?",
+      "options": [
+        "It completed a full SSH login and read the server's version from the session",
+        "It sent a version-specific probe to port 22, and the SSH server returned a banner containing the version",
+        "It read the version from the target's /etc/os-release file via an HTTP request",
+        "OS fingerprinting automatically identifies all service versions"
+      ],
+      "correct": 1,
+      "explanation": "SSH servers send a cleartext protocol identification banner immediately upon connection: 'SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.11'. nmap's service version detection (-sV) triggers this banner and matches it against nmap-service-probes. No authentication is needed — the version is in the pre-auth banner."
+    },
+    {
+      "stage": "post",
+      "question": "Why does a SYN scan (-sS) require root privileges while a connect scan (-sT) does not?",
+      "options": [
+        "Root is needed to resolve DNS names for the target",
+        "SYN scans require raw socket access to craft packets with custom TCP flags; normal sockets only support complete connections",
+        "The kernel blocks port scanning unless the user is root",
+        "Service version detection (-sV) requires root to read /etc/services"
+      ],
+      "correct": 1,
+      "explanation": "A connect scan uses the OS's normal connect() system call — available to any user. A SYN scan sends a raw IP packet with a SYN flag set, then handles the response manually (sending RST). Constructing and sending raw packets requires a raw socket (SOCK_RAW), which requires root/CAP_NET_RAW privilege on Linux."
+    },
+    {
+      "stage": "post",
+      "question": "A host is running a service on port 8888 that is not in nmap's 1000 most common ports. You run 'sudo nmap -sS 192.168.1.50' and the port does not appear. How do you find it?",
+      "options": [
+        "Run nmap with -O to enable OS fingerprinting, which finds all ports",
+        "Run nmap with -p- to scan all 65535 ports, or -p 8888 to scan that specific port",
+        "Port 8888 cannot be discovered by nmap — it requires a different tool",
+        "Run nmap with -T5 to increase speed enough to find the port"
+      ],
+      "correct": 1,
+      "explanation": "By default, nmap only scans the 1000 most common ports. To scan all ports, use -p- (shorthand for -p 1-65535). This takes longer but finds services on non-standard ports. If you already know or suspect port 8888, use -p 8888 to scan just that port. Timing (-T5) and OS fingerprinting (-O) have no effect on which ports are scanned."
+    }
+  ]
+}

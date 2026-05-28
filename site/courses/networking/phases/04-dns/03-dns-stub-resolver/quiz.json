@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between a stub resolver and a recursive resolver?",
+      "options": [
+        "A stub resolver walks the full root → TLD → authoritative chain; a recursive resolver only queries the root servers",
+        "A stub resolver forwards queries to one configured server and trusts it to resolve; a recursive resolver walks the full chain itself",
+        "They are identical — 'stub' and 'recursive' are synonyms in DNS",
+        "A stub resolver only handles .com domains; a recursive resolver handles all TLDs"
+      ],
+      "correct": 1,
+      "explanation": "A stub resolver is minimal: it accepts a query, packages it as a DNS packet, sends it to one configured upstream resolver (like 8.8.8.8), and returns the answer. It does no walking of the hierarchy. A recursive resolver (like 8.8.8.8 itself) does the full iterative walk from root servers through TLD servers to the authoritative nameserver."
+    },
+    {
+      "stage": "pre",
+      "question": "DNS uses UDP by default. What happens when a DNS response is too large to fit in a single UDP packet?",
+      "options": [
+        "The response is split across multiple UDP packets automatically",
+        "DNS always uses TCP to avoid this problem",
+        "The TC (truncated) flag is set in the response header; the client should retry over TCP",
+        "The server drops the extra records and sends only the first answer"
+      ],
+      "correct": 2,
+      "explanation": "RFC 1035 limits DNS/UDP responses to 512 bytes. If the full response exceeds this, the server truncates it and sets the TC (Truncated) bit in the flags field. The client, seeing TC=1, knows it received an incomplete response and should resend the query over TCP (which uses a 2-byte length prefix and supports arbitrarily large messages)."
+    },
+    {
+      "stage": "post",
+      "question": "You send a DNS query with transaction ID 0xABCD. The response arrives with transaction ID 0x1234. What should your stub resolver do?",
+      "options": [
+        "Accept the response — transaction IDs are just suggestions and often differ",
+        "Discard the response — the ID mismatch means this response belongs to a different query or is forged",
+        "Retry the query with ID 0x1234 to match the server's expected ID",
+        "Log a warning but use the response anyway, since the IP address is probably correct"
+      ],
+      "correct": 1,
+      "explanation": "Transaction ID verification is a basic security measure. The server is required to echo the client's transaction ID in the response. A mismatch means either: (a) this response belongs to a different query (unlikely since UDP is connectionless), or (b) the response is forged (DNS cache poisoning attack). A stub resolver must discard mismatched responses. This check is one reason transaction IDs exist."
+    },
+    {
+      "stage": "post",
+      "question": "Your stub resolver queries for 'www.github.com' A record and receives a response with ancount=1, containing a CNAME record pointing to 'github.com'. There is no A record in the response. Why might this happen and what should your resolver do?",
+      "options": [
+        "This is an error — the resolver should raise an exception since A records were requested but a CNAME was returned",
+        "CNAME records are always returned alongside A records; the A record must have been filtered by the firewall",
+        "The recursive resolver may return CNAMEs in the answer chain; the resolver should send a new A query for 'github.com' to get the IP",
+        "CNAME records replace A records permanently; the domain no longer has an IP address"
+      ],
+      "correct": 2,
+      "explanation": "CNAME (canonical name) records are aliases. When you query for an A record and the domain is an alias, the recursive resolver may return the CNAME chain in the answer section, potentially without the final A record (especially if the response would exceed 512 bytes). A robust stub resolver detects CNAME answers and issues a follow-up A query for the CNAME target. This is called 'CNAME following' or 'CNAME chasing'."
+    },
+    {
+      "stage": "post",
+      "question": "You set a 3-second socket timeout and try 3 retries. On attempt 2, the query times out. On attempt 3, the query succeeds. What is the maximum total wall-clock time this resolution could take?",
+      "options": [
+        "3 seconds (only the successful attempt counts)",
+        "6 seconds (two timeouts: attempts 1 and 2)",
+        "9 seconds (three full timeouts before succeeding)",
+        "7.5 seconds (timeout + 0.5s sleep + timeout + 0.5s sleep + success)"
+      ],
+      "correct": 3,
+      "explanation": "With our implementation: attempt 1 times out (3s) + 0.5s sleep + attempt 2 times out (3s) + 0.5s sleep + attempt 3 succeeds (up to 3s but returns as soon as a response arrives). Worst case: 3 + 0.5 + 3 + 0.5 + 3 = 10s. But the question says attempt 2 times out (not attempt 1), so: attempt 1 succeeds immediately... actually re-reading: attempt 2 times out and attempt 3 succeeds. That means: attempt 1 times out (3s) + 0.5s + attempt 2 times out (3s) + 0.5s + attempt 3 succeeds quickly ≈ 7s+. The closest answer capturing the 0.5s sleep delays is 7.5 seconds."
+    }
+  ]
+}

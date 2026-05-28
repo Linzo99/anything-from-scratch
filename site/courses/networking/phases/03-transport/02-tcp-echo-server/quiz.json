@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A server calls `recv(4096)` and receives 400 bytes, even though the client called `send()` with a 4000-byte buffer. What does this tell you?",
+      "options": [
+        "The remaining 3600 bytes were lost and need to be retransmitted",
+        "TCP delivered the data in a partial chunk; the remaining bytes will arrive in subsequent recv() calls",
+        "The client's send() silently truncated the message to 400 bytes",
+        "recv(4096) only reads the first 10% of any message as a safety limit"
+      ],
+      "correct": 1,
+      "explanation": "TCP is a byte stream, not a message protocol. A single send() may result in multiple recv() calls, or multiple send() calls may be received in one recv(). The OS and network stack split and coalesce data freely. The correct approach is to loop on recv() until you have received all expected bytes. The 3600 remaining bytes are buffered in the kernel and will be returned on subsequent recv() calls."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the difference between the socket returned by `listen()` and the socket returned by `accept()`?",
+      "options": [
+        "They are the same socket — accept() just activates the listening socket",
+        "listen() modifies the socket state; accept() returns a brand-new socket dedicated to the specific client connection",
+        "The listen socket uses TCP; the accept socket switches to UDP for data transfer",
+        "accept() returns the same socket but changes its port number to match the client"
+      ],
+      "correct": 1,
+      "explanation": "There are two distinct socket types on a server. The listening socket (on which you called bind/listen) exists for the lifetime of the server and accepts all incoming connections. Each call to accept() creates a completely new socket connected to one specific client, with its own send/receive buffers, sequence numbers, and file descriptor. The listening socket is never used to send or receive application data."
+    },
+    {
+      "stage": "post",
+      "question": "Your echo server receives `b''` from `recv()`. What should it do?",
+      "options": [
+        "Retry recv() in a loop until non-empty data arrives",
+        "The connection was closed by the client — close the connection socket and stop the handler loop",
+        "Send a keepalive packet and continue waiting",
+        "This indicates a recv() buffer overflow — increase the buffer size"
+      ],
+      "correct": 1,
+      "explanation": "recv() returns an empty bytes object b'' exactly when the remote peer has closed (or half-closed) the connection — the peer sent a TCP FIN. Retrying recv() on a closed connection will return b'' again immediately, causing an infinite loop and 100% CPU usage. The correct response is to break out of the receive loop and close the connection socket."
+    },
+    {
+      "stage": "post",
+      "question": "Why is `setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)` called before `bind()` in the server?",
+      "options": [
+        "It enables the socket to accept connections from multiple clients",
+        "It allows the server to bind to a port that may still be in TIME_WAIT state from a previous run, preventing 'Address already in use' errors on restart",
+        "It disables the Nagle algorithm for lower latency",
+        "It increases the socket's receive buffer to 1 MB"
+      ],
+      "correct": 1,
+      "explanation": "After a server closes a connection, the OS keeps the port in TIME_WAIT state for 2× MSL (Maximum Segment Lifetime, typically 60-120 seconds) to catch any delayed duplicate packets. Without SO_REUSEADDR, restarting the server during this window fails with 'Address already in use'. SO_REUSEADDR tells the OS it's safe to reuse the address/port anyway. This must be called BEFORE bind(), not after."
+    },
+    {
+      "stage": "post",
+      "question": "The echo server uses `sendall()` instead of `send()`. Why?",
+      "options": [
+        "sendall() is faster because it uses a different kernel path",
+        "send() may send fewer bytes than requested if the kernel buffer is full; sendall() loops until all bytes are sent or an error occurs",
+        "sendall() works with UDP while send() only works with TCP",
+        "sendall() sets the PSH flag to force immediate delivery to the application"
+      ],
+      "correct": 1,
+      "explanation": "send() returns the number of bytes actually sent, which may be less than len(data) if the socket's send buffer is full. If you only call send() once, the remaining bytes are silently lost. sendall() handles this correctly: it loops internally, advancing through the buffer and calling send() until all bytes are sent or an exception is raised. In Python, always prefer sendall() over send() for application code."
+    }
+  ]
+}

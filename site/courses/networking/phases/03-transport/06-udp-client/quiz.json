@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What happens when a UDP packet is lost in transit?",
+      "options": [
+        "The kernel automatically retransmits it",
+        "The sender gets an error from sendto()",
+        "Nothing — the sender never knows unless the application checks",
+        "The receiver sends a NAK (negative acknowledgement)"
+      ],
+      "correct": 2,
+      "explanation": "UDP has no delivery confirmation. sendto() returns successfully as soon as the kernel hands the datagram to the network interface — it has no idea whether it arrived. If you need to know about loss, your application must implement its own acknowledgement scheme."
+    },
+    {
+      "stage": "pre",
+      "question": "Why do DNS queries use UDP instead of TCP?",
+      "options": [
+        "DNS requires message boundaries that only UDP preserves",
+        "UDP queries are smaller than TCP because there's no header",
+        "DNS queries are short and latency matters — no need for connection overhead",
+        "TCP cannot handle the volume of DNS traffic on the internet"
+      ],
+      "correct": 2,
+      "explanation": "A DNS query/response round trip is typically under 512 bytes. Setting up a TCP connection (3-way handshake) adds a full RTT of latency before the query is even sent. For a one-shot question-and-answer exchange, UDP's lower overhead wins. If the response is too large, DNS falls back to TCP."
+    },
+    {
+      "stage": "post",
+      "question": "What does SOCK_DGRAM tell the OS when creating a socket?",
+      "options": [
+        "Use the TCP transport protocol",
+        "Use the UDP transport protocol (datagram mode)",
+        "Create a raw socket that bypasses the transport layer",
+        "Create a Unix domain socket for IPC"
+      ],
+      "correct": 1,
+      "explanation": "SOCK_DGRAM selects UDP (datagram-oriented) semantics. SOCK_STREAM selects TCP (stream-oriented). You combine this with AF_INET (IPv4) or AF_INET6 (IPv6) to get the full socket type: socket(AF_INET, SOCK_DGRAM) = a UDP/IPv4 socket."
+    },
+    {
+      "stage": "post",
+      "question": "Why does the UDP echo server use recvfrom() instead of recv()?",
+      "options": [
+        "recvfrom() is required for UDP; recv() only works on TCP",
+        "recvfrom() is faster for large datagrams",
+        "recvfrom() returns the sender's address, needed to send the reply",
+        "recv() would block forever on a UDP socket"
+      ],
+      "correct": 2,
+      "explanation": "Unlike TCP, a UDP server has no persistent connection, so it doesn't know who sent the datagram from the socket state alone. recvfrom() returns (data, sender_address), which the server uses in sendto(data, sender_address) to reply. You could also use recv() if the server doesn't need to reply."
+    },
+    {
+      "stage": "post",
+      "question": "In the UDP client, why is the send timestamp packed into the payload instead of recorded in a separate variable?",
+      "options": [
+        "struct.pack() is more accurate than time.time()",
+        "So the server can measure the RTT on its side",
+        "So the RTT measurement works even if replies arrive out of order",
+        "To reduce the number of system calls"
+      ],
+      "correct": 2,
+      "explanation": "UDP datagrams can arrive out of order. If seq=5 arrives before seq=4, a simple 'record send time in a list' approach would match the wrong timestamp. Embedding the timestamp in the payload means each reply carries its own t_send, so RTT = t_recv - payload.t_send regardless of arrival order."
+    }
+  ]
+}

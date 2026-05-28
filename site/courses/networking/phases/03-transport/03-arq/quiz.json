@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You send a UDP packet with ARQ — the packet arrives, but your ACK gets lost. What happens next without sequence numbers?",
+      "options": [
+        "The sender knows the ACK was lost because UDP tracks delivery",
+        "The sender retransmits the packet, and the receiver delivers it to the application a second time — a duplicate",
+        "The receiver detects the missing ACK and resends it automatically",
+        "Nothing — the sender assumes success after a timeout"
+      ],
+      "correct": 1,
+      "explanation": "Without sequence numbers, the receiver cannot distinguish a retransmission from new data. When the sender times out and retransmits, the receiver sees an identical packet — it has no way to know it already delivered this data. It delivers the payload again, causing application-level data corruption. Sequence numbers solve this: the receiver remembers the last sequence it accepted and discards packets with the same number."
+    },
+    {
+      "stage": "pre",
+      "question": "Stop-and-wait ARQ has a sender utilisation of about 1% on a 100ms RTT, 100 Mbps link with 1500-byte packets. Why?",
+      "options": [
+        "Stop-and-wait uses 99% of bandwidth for headers and control traffic",
+        "The sender is idle for most of the RTT, waiting for each ACK before it can send the next packet",
+        "The protocol limits transmission to 1% of link speed by design",
+        "1500-byte packets are too small for 100 Mbps links"
+      ],
+      "correct": 1,
+      "explanation": "Throughput = packet_size / (RTT + transmission_time). For 1500 bytes over 100 Mbps: transmission_time = 0.12ms. RTT = 100ms. Time per packet ≈ 100.12ms. Throughput = 1500 / 0.10012 ≈ 14,980 bytes/s ≈ 120 Kbps. Utilisation = 120 Kbps / 100 Mbps ≈ 0.12%. The sender spends 99.88% of each cycle waiting. The sliding window (pipelining) protocol fixes this by allowing multiple packets in flight simultaneously."
+    },
+    {
+      "stage": "post",
+      "question": "In the alternating-bit protocol, the sender sends seq=0, the receiver ACKs seq=0, but the ACK is lost. The sender retransmits seq=0. What does the receiver do?",
+      "options": [
+        "It delivers the retransmitted data to the application again",
+        "It discards the duplicate (seq=0 was already accepted) and re-sends ACK seq=0",
+        "It sends a NACK (negative acknowledgment) telling the sender to start over",
+        "It waits for the original ACK to arrive before responding to the retransmit"
+      ],
+      "correct": 1,
+      "explanation": "The receiver accepted seq=0 and advanced its expected sequence to 1. When it sees another packet with seq=0, it knows this is a retransmit of something already delivered. It discards the payload (to avoid duplicates) but still sends ACK seq=0 — this un-blocks the sender. Without this re-ACK, the sender would timeout and retransmit forever, never progressing to seq=1."
+    },
+    {
+      "stage": "post",
+      "question": "In our ARQ implementation, why does the sender call `sock.settimeout(TIMEOUT)` instead of using a separate timer thread?",
+      "options": [
+        "Thread-based timers are less accurate than socket timeouts",
+        "settimeout makes recv() raise socket.timeout after the specified time, which naturally triggers the retransmit logic in the same code path",
+        "Python does not support timer threads in network programs",
+        "Socket timeouts automatically retransmit the packet; a thread timer would not"
+      ],
+      "correct": 1,
+      "explanation": "Setting a socket timeout makes blocking calls like recv() raise socket.timeout after the specified duration. This is clean and simple: the sender calls recv() to wait for an ACK, and if it doesn't arrive within TIMEOUT seconds, the exception is caught and we retransmit. A separate timer thread would add complexity (coordination, shared state, thread safety). The socket timeout approach keeps all the ARQ logic in a single sequential loop."
+    },
+    {
+      "stage": "post",
+      "question": "What is the maximum number of distinct in-flight packets that stop-and-wait ARQ can support?",
+      "options": [
+        "Unlimited — the sequence number range determines throughput",
+        "Exactly 1 — the sender must wait for an ACK before sending the next packet",
+        "2 — one per direction (bidirectional)",
+        "The window size, which defaults to 4"
+      ],
+      "correct": 1,
+      "explanation": "Stop-and-wait allows exactly one unacknowledged packet at a time. The sender transmits a packet and halts until the ACK arrives (or it times out and retransmits). This is what makes it 'stop and wait' — it stops after each packet. Pipelining protocols (Go-Back-N, Selective Repeat, TCP) allow a window of N unacknowledged packets, which is what enables high throughput on high-latency links."
+    }
+  ]
+}

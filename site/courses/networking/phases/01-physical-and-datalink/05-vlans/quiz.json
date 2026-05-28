@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Two hosts are connected to the same physical switch but assigned to different VLANs (VLAN 10 and VLAN 20). Can they communicate directly?",
+      "options": [
+        "Yes — they share the same physical switch so they can always reach each other",
+        "Yes — if they are on the same subnet, the switch will route between VLANs automatically",
+        "No — VLANs create isolated Layer 2 domains; traffic cannot cross VLAN boundaries without a router",
+        "No — but only if the switch is managed; unmanaged switches ignore VLAN tags"
+      ],
+      "correct": 2,
+      "explanation": "VLANs create separate Layer 2 broadcast domains. Even on the same physical switch, hosts on VLAN 10 and VLAN 20 are in completely isolated segments. An ARP request on VLAN 10 is never seen by VLAN 20 hosts. A frame destined for a VLAN-20 MAC address from a VLAN-10 host will simply not be forwarded. To communicate, traffic must go through a Layer 3 device (router or Layer 3 switch) that has interfaces in both VLANs."
+    },
+    {
+      "stage": "pre",
+      "question": "Where in an Ethernet frame is the 802.1Q VLAN tag inserted?",
+      "options": [
+        "Before the destination MAC address (at the very start of the frame)",
+        "Between the source MAC address and the EtherType field",
+        "After the EtherType field, before the IP header",
+        "At the very end of the frame, after the FCS"
+      ],
+      "correct": 1,
+      "explanation": "The 802.1Q tag is inserted between the source MAC address (bytes 6-11) and the EtherType field (normally at bytes 12-13). The tag starts with the TPID 0x8100, which is itself a valid EtherType value — a switch that does not recognize 0x8100 treats the frame as having a non-standard EtherType. The actual EtherType (e.g., 0x0800 for IPv4) moves to bytes 16-17, after the 4-byte tag."
+    },
+    {
+      "stage": "post",
+      "question": "You run `ip link add link eth0 name eth0.10 type vlan id 10`. What does this command create?",
+      "options": [
+        "A new physical network interface bound to VLAN 10 hardware",
+        "A VLAN subinterface that automatically tags outgoing frames with VLAN ID 10 and accepts only VLAN-10 tagged frames from eth0",
+        "A bridge that combines eth0 with a new virtual VLAN interface",
+        "A tunnel that encapsulates VLAN 10 traffic inside UDP"
+      ],
+      "correct": 1,
+      "explanation": "A VLAN subinterface (eth0.10) is a virtual interface that sits on top of a physical interface (eth0). When you send traffic through eth0.10, the kernel automatically inserts the 802.1Q tag with VLAN ID 10 into the Ethernet frame before it goes out on eth0. When a VLAN-10 tagged frame arrives on eth0, the kernel strips the tag and delivers the frame to eth0.10. Traffic with other VLAN IDs (or untagged) is NOT delivered to eth0.10."
+    },
+    {
+      "stage": "post",
+      "question": "In the 4-byte 802.1Q tag, how many bits are used for the VLAN ID, and what is the maximum number of VLANs this allows?",
+      "options": [
+        "8 bits → maximum 256 VLANs",
+        "12 bits → maximum 4094 usable VLANs (0 and 4095 are reserved)",
+        "16 bits → maximum 65534 VLANs",
+        "24 bits → maximum 16 million VLANs (like VXLAN)"
+      ],
+      "correct": 1,
+      "explanation": "The 802.1Q VID (VLAN Identifier) field is 12 bits, giving values 0-4095. VLAN 0 means 'no VLAN' (only the priority bits are used), and VLAN 4095 is reserved. This leaves VLANs 1-4094 as usable — a maximum of 4094 VLANs per Ethernet network. For larger deployments (cloud data centers), this is not enough, which is why VXLAN extends the ID to 24 bits (16 million VNIs)."
+    },
+    {
+      "stage": "post",
+      "question": "What is the difference between a trunk port and an access port, and which one would you use to connect an end-user's workstation?",
+      "options": [
+        "Trunk = faster, access = slower; use trunk for workstations to maximize bandwidth",
+        "Trunk carries multiple VLANs with tags; access belongs to one VLAN without tags — use access for workstations (they do not understand 802.1Q)",
+        "Trunk is for uplinks between switches; access is for servers only, not workstations",
+        "Access ports are encrypted; trunk ports are unencrypted — use access for security"
+      ],
+      "correct": 1,
+      "explanation": "An access port belongs to exactly one VLAN and strips the 802.1Q tag before delivering frames to the connected host — the host sees normal untagged Ethernet and does not need to know anything about VLANs. A trunk port carries multiple VLANs with 802.1Q tags, requiring the connected device to understand VLAN tags. Workstations and printers use access ports. Trunks are used between switches, between a switch and a router, and on hypervisor server NICs where one physical NIC carries many VMs across many VLANs."
+    }
+  ]
+}

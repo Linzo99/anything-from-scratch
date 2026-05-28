@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What problem does HTTP/2 multiplexing solve that HTTP/1.1 cannot?",
+      "options": [
+        "HTTP/1.1 doesn't support encryption",
+        "HTTP/1.1 causes head-of-line blocking — one slow response blocks all others on the connection",
+        "HTTP/1.1 doesn't support binary data",
+        "HTTP/1.1 cannot reuse connections between requests"
+      ],
+      "correct": 1,
+      "explanation": "HTTP/1.1 pipelining sends multiple requests but responses must arrive in order. If the first response is slow (large image, slow database query), every response behind it waits — head-of-line blocking. HTTP/2 multiplexes independent streams so a slow stream doesn't block others."
+    },
+    {
+      "stage": "pre",
+      "question": "How many TCP connections does a browser typically open to load a modern web page with HTTP/1.1?",
+      "options": [
+        "1 — keep-alive reuses it",
+        "2 — one for HTML, one for assets",
+        "6–8 — browsers work around head-of-line blocking by opening multiple connections",
+        "One per resource"
+      ],
+      "correct": 2,
+      "explanation": "Browsers open 6 connections per origin (RFC 7230 suggests up to 2, browsers ignore this). Each connection avoids head-of-line blocking for its own requests. HTTP/2 eliminates this need — one connection handles all resources in parallel streams."
+    },
+    {
+      "stage": "post",
+      "question": "What is an HTTP/2 stream?",
+      "options": [
+        "A persistent TCP connection to the server",
+        "A binary WebSocket channel",
+        "An independent, bidirectional sequence of frames within a single TCP connection",
+        "A server-sent event channel"
+      ],
+      "correct": 2,
+      "explanation": "In HTTP/2, each request/response pair gets a stream ID. Frames for different streams are interleaved on the same TCP connection. The receiver reassembles each stream by ID. This is multiplexing: many logical channels over one physical connection."
+    },
+    {
+      "stage": "post",
+      "question": "What does HPACK do in HTTP/2?",
+      "options": [
+        "Compresses the request body using gzip",
+        "Encrypts headers before TLS",
+        "Compresses HTTP headers using a shared dynamic table to avoid sending repeated headers",
+        "Packs multiple requests into a single frame to reduce round trips"
+      ],
+      "correct": 2,
+      "explanation": "HPACK is HTTP/2's header compression format. Both client and server maintain a dynamic table of header name/value pairs seen in previous requests. Repeated headers (like Cookie, Accept-Encoding) are replaced by a small index reference instead of being sent in full every time."
+    },
+    {
+      "stage": "post",
+      "question": "Why does HTTP/2 still suffer from head-of-line blocking at the TCP level?",
+      "options": [
+        "HTTP/2 does not use TCP",
+        "TCP delivers bytes in order — a lost packet stalls all HTTP/2 streams until it's retransmitted",
+        "HTTP/2 streams share a flow control window that gets exhausted",
+        "TLS adds head-of-line blocking for all encrypted protocols"
+      ],
+      "correct": 1,
+      "explanation": "HTTP/2 solved application-layer head-of-line blocking, but TCP still delivers bytes in order. If one packet is lost, TCP holds back all subsequent data (including data for unrelated HTTP/2 streams) until the retransmit arrives. HTTP/3 (QUIC) solves this by using UDP and implementing per-stream reliability."
+    }
+  ]
+}

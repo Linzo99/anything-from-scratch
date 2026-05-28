@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What happens to the TTL field as a packet travels across the internet?",
+      "options": [
+        "It increases by 1 at each router to track hop count",
+        "It is decremented by 1 at each router; when it reaches 0 the packet is discarded",
+        "It is set to 0 by the destination host when the packet arrives",
+        "It does not change — it is only set by the source"
+      ],
+      "correct": 1,
+      "explanation": "Every router that forwards a packet decrements TTL by exactly 1. This prevents routing loops from circulating packets forever. When TTL reaches 0, the router discards the packet and sends an ICMP Time Exceeded message back to the original source. Traceroute exploits this by sending packets with TTL=1, TTL=2, etc. to discover each hop."
+    },
+    {
+      "stage": "pre",
+      "question": "The IHL (Internet Header Length) field of an IPv4 header contains the value 6. How long is the header in bytes?",
+      "options": [
+        "6 bytes",
+        "24 bytes",
+        "20 bytes",
+        "32 bytes"
+      ],
+      "correct": 1,
+      "explanation": "IHL is measured in 32-bit words (4 bytes each). To get the byte count, multiply IHL by 4. IHL=6 means 6 × 4 = 24 bytes. The minimum is IHL=5 = 20 bytes (no options). IHL=6 means 4 bytes of IP options are present after the standard 20-byte base header."
+    },
+    {
+      "stage": "post",
+      "question": "In the struct format string `!BBHHHBBH4s4s` used to parse an IPv4 header, what does the `!` prefix mean?",
+      "options": [
+        "It marks the format as invalid and triggers an exception",
+        "It specifies big-endian (network) byte order for all multi-byte fields",
+        "It makes all fields optional",
+        "It enables strict bounds checking on each field"
+      ],
+      "correct": 1,
+      "explanation": "In Python's struct module, `!` means network byte order, which is big-endian. Network protocols transmit the most-significant byte first (big-endian), so you must always use `!` (or `>`) when parsing network data. Without it, multi-byte fields like Total Length and Identification would be byte-swapped on little-endian machines (x86/ARM), giving wrong values."
+    },
+    {
+      "stage": "post",
+      "question": "A packet arrives with Flags=0x4000 (binary 0100000000000000). What does this mean?",
+      "options": [
+        "The More Fragments (MF) bit is set — more fragments follow",
+        "The Don't Fragment (DF) bit is set — do not fragment this packet",
+        "This is the last fragment of a fragmented datagram",
+        "The Reserved bit is set — this packet should be dropped"
+      ],
+      "correct": 1,
+      "explanation": "The 16-bit flags+fragment-offset field has bit 15 (MSB) reserved=0, bit 14=DF, bit 13=MF, bits 12-0=fragment offset. 0x4000 = bit 14 set = DF flag. This tells every router: if the packet is too large for the outgoing link, do NOT fragment it — drop it and send an ICMP 'Fragmentation Needed' error back to the sender. This is used by Path MTU Discovery."
+    },
+    {
+      "stage": "post",
+      "question": "When parsing an Ethernet-encapsulated IPv4 packet from a pcap file, at which byte offset does the IPv4 header begin?",
+      "options": [
+        "Byte 0 — the packet data starts directly with the IPv4 header",
+        "Byte 4 — after a 4-byte Ethernet preamble",
+        "Byte 14 — after the 6-byte dst MAC, 6-byte src MAC, and 2-byte EtherType",
+        "Byte 16 — after the pcap record header"
+      ],
+      "correct": 2,
+      "explanation": "An Ethernet frame starts with: 6 bytes destination MAC, 6 bytes source MAC, 2 bytes EtherType (0x0800 for IPv4). That is 14 bytes total. The IPv4 header begins immediately after. The 16-byte pcap record header is already consumed before you receive the packet bytes, so it does not count. Always skip 14 bytes of Ethernet header before calling your IPv4 parser."
+    }
+  ]
+}

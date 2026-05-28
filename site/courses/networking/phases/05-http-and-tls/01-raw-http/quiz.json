@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What separates the headers from the body in an HTTP/1.1 response?",
+      "options": [
+        "A line containing only '---'",
+        "A blank line (CRLF CRLF, i.e. \\r\\n\\r\\n)",
+        "The Content-Length header value",
+        "A special byte 0xFF indicating end of headers"
+      ],
+      "correct": 1,
+      "explanation": "HTTP/1.1 uses a blank line — two consecutive CRLFs (\\r\\n\\r\\n) — to separate the header section from the body. The last header line ends with \\r\\n, and then another \\r\\n forms the empty blank line. Everything after those four bytes is body data. This is defined in RFC 7230 and has been part of HTTP since version 1.0."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is the 'Host' header required in HTTP/1.1 but did not exist in HTTP/1.0?",
+      "options": [
+        "It was added for security to prevent cross-site request forgery",
+        "HTTP/1.0 servers only supported one domain per IP; HTTP/1.1 added virtual hosting so the server needs to know which domain was requested",
+        "The Host header replaces DNS in HTTP/1.1 — the browser skips DNS if it's present",
+        "It was a mistake in the HTTP/1.1 spec; it's technically optional"
+      ],
+      "correct": 1,
+      "explanation": "In HTTP/1.0, one IP address served one website. By the mid-1990s, IP address exhaustion and hosting costs made virtual hosting necessary: one IP would serve hundreds of domains. HTTP/1.1 made the Host header mandatory so servers could determine which virtual host the client wanted. Without it, a server handling 100 domains on one IP wouldn't know which site to serve."
+    },
+    {
+      "stage": "post",
+      "question": "You send: 'GET / HTTP/1.1\\r\\nHost: example.com\\r\\n\\r\\n' and receive a response with no Content-Length header and no Transfer-Encoding header. How do you know when the body ends?",
+      "options": [
+        "You count the HTML closing tags — when you see </html> the body is complete",
+        "You read until the socket is closed by the server (EOF), which signals the end of the body",
+        "You read exactly 4096 bytes, which is the default HTTP/1.1 buffer size",
+        "The body always ends exactly at the next \\r\\n\\r\\n sequence"
+      ],
+      "correct": 1,
+      "explanation": "When a server uses neither Content-Length nor Transfer-Encoding: chunked, the only way to signal end-of-body in HTTP/1.1 is to close the TCP connection. The client reads until recv() returns empty bytes (EOF). This is why sending 'Connection: close' is helpful — it guarantees the server will close after the response. Without this, HTTP/1.1 persistent connections would leave the socket open and the client would hang waiting for more data."
+    },
+    {
+      "stage": "post",
+      "question": "Your raw HTTP client receives this status line: 'HTTP/1.1 301 Moved Permanently'. What should a well-behaved client do next?",
+      "options": [
+        "Treat it as an error and return an exception to the caller",
+        "Read the response body and display it to the user",
+        "Look for a 'Location' header in the response and send a new GET request to that URL",
+        "Retry the same request up to 3 times until it gets a 200"
+      ],
+      "correct": 2,
+      "explanation": "Status 301 means the resource has permanently moved. The server includes a 'Location' header with the new URL. A compliant client reads this header and sends a new GET request to the URL in Location. This is why browsers redirect automatically when you type 'http://example.com' — the server returns 301 with Location: https://example.com, and the browser follows it. Without redirect handling, many real-world requests would appear to fail."
+    },
+    {
+      "stage": "post",
+      "question": "You write the request as a Python string with '\\n' newlines and encode it. The server responds with '400 Bad Request'. What is the most likely cause?",
+      "options": [
+        "The server only accepts POST requests, not GET",
+        "HTTP headers must use CRLF (\\r\\n) line endings; bare \\n is malformed per RFC 7230",
+        "Python's encode() method converts \\n to \\r\\n automatically but added extra newlines",
+        "The Host header was missing from the request"
+      ],
+      "correct": 1,
+      "explanation": "HTTP/1.1 (RFC 7230) requires CRLF (\\r\\n, bytes 0x0D 0x0A) as the line terminator in the message headers. Sending bare LF (\\n, 0x0A) without CR (0x0D) is technically invalid. Many servers are lenient and accept LF-only headers, but strict servers return 400 Bad Request. The fix is to use \\r\\n in your request string, not just \\n."
+    }
+  ]
+}

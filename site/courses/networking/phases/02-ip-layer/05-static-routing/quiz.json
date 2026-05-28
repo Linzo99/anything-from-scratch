@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A host on subnet 10.1.0.0/24 wants to reach a host on 10.2.0.0/24. Both subnets are connected to a router. The sending host sends the packet but it never arrives. What is the MOST likely missing configuration?",
+      "options": [
+        "The destination host does not have a firewall exception",
+        "The router does not have IP forwarding enabled",
+        "The sending host needs a DNS entry for the destination",
+        "The subnets are too small to communicate across a router"
+      ],
+      "correct": 1,
+      "explanation": "On Linux, IP forwarding is disabled by default. A router with correct routes will still silently drop packets between interfaces if net.ipv4.ip_forward=0. This is one of the most common misconfiguration mistakes. The fix is `sysctl -w net.ipv4.ip_forward=1`. Routing table entries alone are not enough."
+    },
+    {
+      "stage": "pre",
+      "question": "A routing table has two entries that match the same destination: 10.0.0.0/8 and 10.1.0.0/16. Which one is selected for a packet to 10.1.2.3?",
+      "options": [
+        "10.0.0.0/8 because it was added first",
+        "10.1.0.0/16 because it has the longer (more specific) prefix",
+        "Both routes are used in round-robin order",
+        "Neither — the router drops the packet when there is ambiguity"
+      ],
+      "correct": 1,
+      "explanation": "Routers use longest prefix match: the route with the most network bits wins. 10.1.0.0/16 has 16 network bits; 10.0.0.0/8 has 8. Both match 10.1.2.3, but /16 is more specific. The order routes were added does not matter. This algorithm is fundamental to how the internet works — a host route (/32) always beats a subnet route (/24) which beats a default route (/0)."
+    },
+    {
+      "stage": "post",
+      "question": "In the lab, what is the purpose of the `ip netns exec router` prefix before every router configuration command?",
+      "options": [
+        "It grants root privileges only within the router namespace",
+        "It runs the command inside the router network namespace, affecting only that namespace's interfaces and routing table",
+        "It logs the command output to the router namespace's journal",
+        "It prevents the command from affecting the host's network configuration"
+      ],
+      "correct": 1,
+      "explanation": "Network namespaces are completely isolated networking environments. Without `ip netns exec router`, any `ip` command would modify the host (root) namespace's interfaces and routing table — not the router namespace. The `exec` subcommand is how you 'enter' a namespace to run commands within its context. This is exactly analogous to how containers isolate their network stacks."
+    },
+    {
+      "stage": "post",
+      "question": "After the lab setup, `ip netns exec hostA ip route show` displays: `default via 10.0.1.1 dev veth-a`. What does this mean?",
+      "options": [
+        "hostA's only interface is 10.0.1.1",
+        "hostA will send all packets for unknown destinations to 10.0.1.1 via the veth-a interface",
+        "All traffic on veth-a is blocked except to 10.0.1.1",
+        "10.0.1.1 is the DNS server for hostA"
+      ],
+      "correct": 1,
+      "explanation": "The `default` route matches 0.0.0.0/0 — every possible destination. `via 10.0.1.1` means the next hop (gateway) is 10.0.1.1 (the router). `dev veth-a` is the outgoing interface. So when hostA sends to 10.0.2.2 (which has no more-specific route), it consults `default`, sends the packet to 10.0.1.1 on veth-a, and the router forwards it to hostB."
+    },
+    {
+      "stage": "post",
+      "question": "What is a veth pair and why is it used in this lab?",
+      "options": [
+        "A VLAN-tagged Ethernet interface that spans multiple subnets",
+        "Two virtual interfaces connected back-to-back; packets sent into one end emerge from the other — used to link network namespaces",
+        "A pair of physical NICs bonded together for redundancy",
+        "A software bridge that copies packets between two namespaces"
+      ],
+      "correct": 1,
+      "explanation": "A veth (virtual Ethernet) pair is created as a matched pair: packets entering one end immediately emerge from the other, like a virtual cable. By creating a veth pair and moving one end into each namespace (e.g., one end into hostA, the other into router), we create an isolated link between them. This simulates a physical cable connecting two machines without any real hardware."
+    }
+  ]
+}

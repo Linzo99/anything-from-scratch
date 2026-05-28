@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the purpose of ARP on a local network?",
+      "options": [
+        "Assign IP addresses to hosts dynamically",
+        "Translate IP addresses to MAC addresses so frames can be addressed at Layer 2",
+        "Route packets between different subnets",
+        "Encrypt traffic between hosts on the same LAN"
+      ],
+      "correct": 1,
+      "explanation": "ARP (Address Resolution Protocol) answers the question 'I know the IP address of the destination — what is its MAC address?' IP packets are encapsulated in Ethernet frames, which need a MAC address. ARP resolves IP → MAC so the host can fill in the destination MAC field of the frame."
+    },
+    {
+      "stage": "pre",
+      "question": "Why does ARP have no built-in security?",
+      "options": [
+        "ARP was designed only for IPv6 networks",
+        "ARP was designed in 1982 for trusted LAN environments where spoofing wasn't a threat model",
+        "ARP uses TLS for all messages",
+        "The 802.11 Wi-Fi standard includes ARP encryption"
+      ],
+      "correct": 1,
+      "explanation": "ARP (RFC 826, 1982) was designed for small, trusted LANs. Security was not a design goal. Hosts accept any ARP reply from any source with no authentication or verification. This has never been fixed at the protocol level — defences (Dynamic ARP Inspection, static ARP entries) are implemented at the switch/OS layer."
+    },
+    {
+      "stage": "post",
+      "question": "What is a gratuitous ARP, and why is it dangerous?",
+      "options": [
+        "An ARP request sent to the broadcast address — safe because all hosts ignore duplicates",
+        "An ARP reply sent without a prior request — accepted by hosts and used to poison caches without any query",
+        "An ARP message encrypted with the sender's private key",
+        "An ARP request that includes the sender's full routing table"
+      ],
+      "correct": 1,
+      "explanation": "A gratuitous ARP is an ARP reply where the sender's IP and target IP are the same — it is announcing 'I own this IP, here is my MAC.' Hosts accept these and update their caches. Attackers exploit this: by sending gratuitous ARPs with a victim's IP but the attacker's MAC, they poison every host's cache without waiting for anyone to ask."
+    },
+    {
+      "stage": "post",
+      "question": "In the Python detector, what data structure is used to track IP-to-MAC mappings, and what triggers an alert?",
+      "options": [
+        "A list of MAC addresses; alert when a duplicate MAC appears",
+        "A dictionary mapping IP strings to ARPEntry objects; alert when the MAC for a known IP changes",
+        "A set of (IP, MAC) tuples; alert when the set exceeds 255 entries",
+        "A SQL database; alert when a row is deleted"
+      ],
+      "correct": 1,
+      "explanation": "The detector uses a dictionary (hash map) keyed by IP address, mapping to ARPEntry objects that store the current MAC. When a new ARP reply arrives, the detector looks up the sender's IP. If the IP exists with a different MAC, that is a change — the alert fires. The first observation of any IP is always stored silently."
+    },
+    {
+      "stage": "post",
+      "question": "An attacker sends 20 fake ARP replies per second for 10.0.0.1. Your detector fires a WARNING on the first change. What improvement makes repeated attacks escalate to a more severe alert?",
+      "options": [
+        "Checking the TTL field in the IP header",
+        "Tracking change_count per IP and escalating to CRITICAL after more than 3 changes",
+        "Using DNS to verify the MAC address",
+        "Blocking all ARP traffic on the interface"
+      ],
+      "correct": 1,
+      "explanation": "The ARPEntry.change_count field tracks how many times the MAC for a given IP has changed. A single change might be legitimate (new NIC, VM migration). But if the same IP has changed MAC 10 times in 30 seconds, that is almost certainly an active poisoning attack. Escalating severity based on change frequency reduces false positives while still catching real attacks."
+    }
+  ]
+}

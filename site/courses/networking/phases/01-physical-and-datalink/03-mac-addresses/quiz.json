@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A packet travels from your laptop to a web server in another country, crossing three routers. How many times does the destination MAC address change?",
+      "options": [
+        "Never — the destination MAC stays the same end-to-end, like the IP address",
+        "Once — the first router changes it and it stays fixed",
+        "Three times — it changes at every router hop to the next segment's destination MAC",
+        "It depends on whether the routers support MAC forwarding"
+      ],
+      "correct": 2,
+      "explanation": "MAC addresses only have meaning within a single network segment. When a packet crosses a router, the router removes the incoming Ethernet frame entirely and creates a new one for the outgoing link. The new frame has a new source MAC (the router's outgoing interface) and a new destination MAC (the next hop's MAC on the next segment). The IP addresses inside stay the same across all hops — that is the end-to-end addressing. Three routers = three new frames = three destination MAC changes."
+    },
+    {
+      "stage": "pre",
+      "question": "Your host wants to send an IP packet to 192.168.1.50, but its ARP cache has no entry for that IP. What happens first?",
+      "options": [
+        "The packet is dropped and an error is returned to the application",
+        "The kernel sends an ARP request broadcast to find the MAC address for 192.168.1.50",
+        "The kernel uses the gateway MAC address as a fallback",
+        "The kernel waits 30 seconds for the ARP entry to refresh automatically"
+      ],
+      "correct": 1,
+      "explanation": "When the kernel needs to send a packet to an IP on the local subnet but has no ARP entry, it queues the packet and sends an ARP request: an Ethernet broadcast (dst=ff:ff:ff:ff:ff:ff) asking 'who has 192.168.1.50?' The host at that IP responds with a unicast ARP reply containing its MAC. The kernel caches the mapping and sends the queued packet. If the IP is not on the local subnet, the kernel does NOT do ARP for it — instead it uses the default gateway's MAC."
+    },
+    {
+      "stage": "post",
+      "question": "The first byte of a destination MAC address is 0x01 (00000001 in binary). What type of frame is this?",
+      "options": [
+        "Broadcast — 0x01 means all devices on the segment",
+        "Unicast — 0x01 is a valid OUI prefix",
+        "Multicast — bit 0 (I/G bit) is 1, but it is not the all-ones broadcast address",
+        "Locally administered unicast — bit 1 (U/L bit) is 0"
+      ],
+      "correct": 2,
+      "explanation": "The I/G (Individual/Group) bit is the least significant bit (bit 0) of the first MAC address byte. When this bit is 1, the frame is addressed to a group — either multicast or broadcast. 0x01 = 00000001, so bit 0 is 1, making it a group address. Since it is not ff:ff:ff:ff:ff:ff (all ones), it is multicast, not broadcast. The MAC address 01:00:5e:xx:xx:xx is used for IPv4 multicast, and 33:33:xx:xx:xx:xx for IPv6 multicast."
+    },
+    {
+      "stage": "post",
+      "question": "You run `ip neigh show` and see `192.168.1.1 dev eth0 lladdr aa:bb:cc:11:22:33 STALE`. What does STALE mean?",
+      "options": [
+        "The entry is invalid and will be deleted immediately",
+        "The MAC address was never confirmed and was guessed by the kernel",
+        "The entry was confirmed reachable in the past but has not been confirmed recently; it will be re-verified on next use",
+        "ARP poisoning has been detected — the MAC address may be wrong"
+      ],
+      "correct": 2,
+      "explanation": "ARP cache entries have states: REACHABLE (recently confirmed), STALE (cache entry exists but confirmation has expired), DELAY (about to probe), PROBE (actively sending ARP to verify), FAILED (no reply received). STALE means the entry was once valid but the confirmation timer expired. When you next try to use this entry, the kernel will first send an ARP probe to re-confirm it is still valid. If the host responds, it moves back to REACHABLE. If not, it moves to FAILED."
+    },
+    {
+      "stage": "post",
+      "question": "Docker assigns MAC addresses starting with `02:42:`. What does the `02` first byte tell you about how this MAC was created?",
+      "options": [
+        "02 is Docker's OUI registered with the IEEE",
+        "02 in binary is 00000010 — bit 1 (U/L bit) is set, meaning this is a locally-administered address, not an IEEE-assigned OUI",
+        "02 means the interface is a Layer 2 bridge interface",
+        "02 is the maximum number of containers that can share this MAC"
+      ],
+      "correct": 1,
+      "explanation": "0x02 = 00000010 in binary. Bit 1 (the U/L bit — Universal/Local) is set to 1, which means the address is locally administered — not assigned by the IEEE to a manufacturer. Docker generates random locally-administered MAC addresses for containers to avoid conflicts with real NIC MACs. This is also why VMs (VMware, VirtualBox) use MACs starting with values like 0x02 — they are signaling 'this is a virtual, locally-managed address, not a real hardware address.'"
+    }
+  ]
+}

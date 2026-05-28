@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A fibre-optic link is physically cut. The local router's interface still shows 'up'. Which OSPF timer controls how long before the neighbor is declared dead?",
+      "options": [
+        "The SPF throttle delay",
+        "The Hello interval",
+        "The Dead interval",
+        "The LSA refresh timer"
+      ],
+      "correct": 2,
+      "explanation": "When there is no carrier-loss signal (the local interface stays up), OSPF cannot detect the failure directly. It must wait for the Dead interval — the time after the last received Hello — before declaring the neighbor down. The default is 40 seconds."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the default relationship between OSPF's Hello interval and Dead interval?",
+      "options": [
+        "Dead = Hello / 2",
+        "Dead = Hello × 4",
+        "Dead = Hello + 30",
+        "They are independent and unrelated"
+      ],
+      "correct": 1,
+      "explanation": "By convention (and RFC 2328 recommendation), the Dead interval is 4× the Hello interval. With the default 10-second Hello, the Dead interval is 40 seconds. Both ends of a link must agree on these values or they will not form an adjacency."
+    },
+    {
+      "stage": "post",
+      "question": "You take down veth12 in R1's namespace (ip link set veth12 down). How does OSPF on R1 detect the failure?",
+      "options": [
+        "It waits for the Dead interval to expire",
+        "It detects the interface-down kernel event immediately",
+        "It waits for the next Hello to time out",
+        "It runs a traceroute to R2 every second"
+      ],
+      "correct": 1,
+      "explanation": "When an interface loses carrier, the kernel generates an interface-down netlink event. ospfd (via zebra) receives this event immediately and reacts: it marks the link down, originates an updated Router LSA, and floods it. No timer wait is needed for carrier-loss failures."
+    },
+    {
+      "stage": "post",
+      "question": "What does 'ospf timers throttle spf 0 10 1000' mean?",
+      "options": [
+        "Run SPF every 10 milliseconds, up to 1000 times per second",
+        "Wait 0ms after a trigger, then hold 10ms before the next run, doubling up to 1000ms max",
+        "Delay all LSA flooding by 10ms to reduce CPU load",
+        "Set the Dead interval to 0ms and Hello to 1000ms"
+      ],
+      "correct": 1,
+      "explanation": "The three values are: initial delay before the first SPF run (0ms), initial hold between runs (10ms), and max hold (1000ms). If failures keep arriving, the hold doubles each time (10 → 20 → 40 → ... → 1000ms) to prevent CPU thrashing during topology storms."
+    },
+    {
+      "stage": "post",
+      "question": "You measure a 38-second outage when R2's ospfd process is killed (interface stays up). What single configuration change would most reduce this outage?",
+      "options": [
+        "Increase the SPF throttle max-hold to 10000ms",
+        "Add a second physical link between R1 and R2",
+        "Reduce the Dead interval from 40s to 4s on all interfaces",
+        "Increase the Hello interval from 10s to 20s"
+      ],
+      "correct": 2,
+      "explanation": "A 38-second outage is almost entirely the Dead interval. Reducing Dead interval to 4s (Hello=1s, Dead=4s) would cut the outage to ~4 seconds. Adding a second link helps resilience but does not change detection time. Increasing Hello or SPF hold makes things worse."
+    }
+  ]
+}

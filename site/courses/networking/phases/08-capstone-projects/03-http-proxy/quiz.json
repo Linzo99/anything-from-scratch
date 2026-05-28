@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between a forward proxy and a reverse proxy?",
+      "options": [
+        "Forward proxies use HTTP; reverse proxies use HTTPS",
+        "A forward proxy sits in front of clients; a reverse proxy sits in front of servers",
+        "Forward proxies cache responses; reverse proxies do not",
+        "A reverse proxy is just a forward proxy running in the opposite direction"
+      ],
+      "correct": 1,
+      "explanation": "A forward proxy is configured by the client and speaks to the internet on the client's behalf (corporate filtering, anonymization). A reverse proxy is configured by the server operator and receives client traffic on the servers' behalf (Nginx, Cloudflare). Clients typically don't know a reverse proxy exists."
+    },
+    {
+      "stage": "pre",
+      "question": "How does a browser tell a forward proxy which server to connect to?",
+      "options": [
+        "It sends a CONNECT request with the target hostname",
+        "It sends the full URL (http://host/path) in the HTTP request line instead of just the path",
+        "It adds a Proxy-Destination header",
+        "It opens a second TCP connection to the target and tunnels through the proxy"
+      ],
+      "correct": 1,
+      "explanation": "When a browser is configured to use a proxy, it changes the request from `GET /path HTTP/1.1` to `GET http://example.com/path HTTP/1.1`. The full URL in the request line tells the proxy where to connect. For HTTPS, browsers use the CONNECT method to establish a tunnel."
+    },
+    {
+      "stage": "post",
+      "question": "Why must the proxy rewrite `GET http://example.com/page HTTP/1.1` to `GET /page HTTP/1.1` before forwarding to the origin?",
+      "options": [
+        "The full URL form is invalid HTTP — the origin server will reject it",
+        "The origin server expects only the path; it already knows its own hostname",
+        "Including the full URL causes the origin to redirect to itself",
+        "HTTP/1.1 forbids the http:// scheme in request lines"
+      ],
+      "correct": 1,
+      "explanation": "The origin server knows it's example.com — it doesn't need the scheme and host in the request line. The absoluteURI form (full URL) is only understood by proxies. Sending it to the origin server will result in a 400 Bad Request from most servers."
+    },
+    {
+      "stage": "post",
+      "question": "What are hop-by-hop headers and why must the proxy strip them?",
+      "options": [
+        "Headers that contain binary data encoded in hops",
+        "Headers like Connection and Keep-Alive that apply only to the immediate connection, not end-to-end",
+        "Headers added by CDN edge nodes as the request hops across regions",
+        "Headers with a TTL field that expires after each proxy hop"
+      ],
+      "correct": 1,
+      "explanation": "Hop-by-hop headers (Connection, Keep-Alive, Transfer-Encoding, Upgrade) describe the current TCP connection, not the end-to-end request. If a proxy forwards them, the origin might misinterpret the connection state. RFC 7230 requires proxies to consume and strip these headers."
+    },
+    {
+      "stage": "post",
+      "question": "The proxy returns 502 to the client. What does this mean?",
+      "options": [
+        "The client sent a malformed request",
+        "The proxy refused to handle the request because the host is blocked",
+        "The proxy connected to the origin but got an invalid or no response",
+        "The requested resource was not found on the origin server"
+      ],
+      "correct": 2,
+      "explanation": "502 Bad Gateway means the server acting as a proxy or gateway received an invalid response from the upstream server. The proxy successfully accepted the client's request but something went wrong talking to the origin: connection refused, timeout, or a garbage response."
+    }
+  ]
+}

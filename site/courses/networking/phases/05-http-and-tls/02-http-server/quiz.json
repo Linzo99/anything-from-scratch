@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A client connects to your HTTP server and requests '/images/../../../etc/passwd'. What attack is this and how do you prevent it?",
+      "options": [
+        "SQL injection — prevent by sanitizing database queries",
+        "Path traversal — prevent by resolving the real filesystem path and verifying it starts with the intended root directory",
+        "XSS — prevent by escaping HTML in responses",
+        "CSRF — prevent by checking the Origin header"
+      ],
+      "correct": 1,
+      "explanation": "Path traversal (directory traversal) uses '../' components to escape the intended serving directory. The fix is to use os.path.realpath() to resolve all '..' and symlinks to an absolute path, then check that it starts with os.path.realpath(root_dir). If not, return 403 Forbidden. Simply stripping '../' from the path is insufficient because of encoding tricks and edge cases."
+    },
+    {
+      "stage": "pre",
+      "question": "Your server binds to port 8080, you stop it with Ctrl+C, and immediately try to restart it. You get 'OSError: [Errno 98] Address already in use'. What causes this and how do you fix it?",
+      "options": [
+        "Another process is using port 8080 permanently; use lsof to kill it",
+        "The OS keeps the port in TIME_WAIT state briefly after close; set SO_REUSEADDR on the socket before binding",
+        "Python's garbage collector hasn't run yet; call gc.collect() before socket.bind()",
+        "Ports below 1024 require root access; switch to a port above 1024"
+      ],
+      "correct": 1,
+      "explanation": "After a TCP connection closes, the OS keeps the port in TIME_WAIT state for ~60 seconds (2 * Maximum Segment Lifetime) to handle any late-arriving packets. Setting SO_REUSEADDR with server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) before calling bind() tells the OS it's okay to reuse the port even while it's in TIME_WAIT. This is standard practice for all TCP servers."
+    },
+    {
+      "stage": "post",
+      "question": "Your single-threaded server is serving a large file to Client A. While this is happening, Client B tries to connect. What happens to Client B?",
+      "options": [
+        "Client B gets an immediate connection refused error",
+        "Client B's connection is queued by the OS (up to the backlog size) and will be accepted after Client A's transfer completes",
+        "Client B shares the same TCP connection as Client A",
+        "Client B immediately gets a 503 Service Unavailable response"
+      ],
+      "correct": 1,
+      "explanation": "The OS TCP stack handles the accept queue (backlog) independently of your application. When you call listen(5), the OS can queue up to 5 pending connections. While your server is busy handling Client A, Client B's TCP handshake completes and its connection waits in the queue. Your server calls accept() again after finishing Client A, and Client B's connection is dequeued. If more than 'backlog' clients connect simultaneously, additional connections are refused at the TCP level."
+    },
+    {
+      "stage": "post",
+      "question": "A browser requests '/style.css' from your server. You serve the file but send 'Content-Type: text/plain'. What does the browser do?",
+      "options": [
+        "The browser applies the CSS rules normally — it detects CSS by file extension, ignoring Content-Type",
+        "The browser downloads the file as an attachment instead of applying it",
+        "The browser displays the raw CSS text as a plain text document instead of applying the stylesheet",
+        "The browser refuses to load the resource and logs a CORS error"
+      ],
+      "correct": 2,
+      "explanation": "Browsers use Content-Type (MIME sniffing) to decide how to handle a response. CSS served as 'text/plain' will be displayed as plain text, not applied as a stylesheet. The browser won't apply CSS rules from a resource with the wrong Content-Type. This is also a security feature — it prevents servers from accidentally serving HTML (which could contain scripts) as plain text. Always set 'text/css' for CSS files."
+    },
+    {
+      "stage": "post",
+      "question": "You want to serve an API endpoint at '/api/status' that returns JSON. Currently your server only serves files from a directory. Which code path should you add to handle this?",
+      "options": [
+        "Create a file named 'api/status' on disk containing the JSON",
+        "In handle_connection, check if the path starts with '/api/' before calling handle_get; if so, call a new handle_api() function that returns a JSON response",
+        "Add a CNAME DNS record pointing api.yourdomain.com to the file server",
+        "JSON must be served from a separate process on a different port"
+      ],
+      "correct": 1,
+      "explanation": "Route matching — deciding which handler to call based on the request path — is the foundation of all web frameworks. You add a conditional check in the request dispatcher (handle_connection in our case): if path starts with '/api/', call a dynamic handler; otherwise call handle_get for static files. This is exactly how Flask's @app.route('/api/status') decorator works — it registers a function to be called when that path is requested."
+    }
+  ]
+}

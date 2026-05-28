@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "An Ethernet frame arrives with EtherType = 0x0806. What does the payload contain?",
+      "options": [
+        "An IPv4 packet",
+        "An IPv6 packet",
+        "An ARP message",
+        "A VLAN tag"
+      ],
+      "correct": 2,
+      "explanation": "EtherType 0x0806 means ARP (Address Resolution Protocol). The Ethernet payload contains an ARP message, which will have fields for: hardware type, protocol type, hardware address length, protocol address length, operation (request or reply), sender MAC, sender IP, target MAC, target IP. Common EtherType values: 0x0800=IPv4, 0x0806=ARP, 0x86DD=IPv6, 0x8100=802.1Q VLAN."
+    },
+    {
+      "stage": "pre",
+      "question": "Why do pcap files typically NOT include the Ethernet FCS (Frame Check Sequence)?",
+      "options": [
+        "FCS was removed from the Ethernet standard in 2005",
+        "The NIC hardware checks the FCS and strips it before passing the frame to the OS kernel",
+        "tcpdump does not have permission to read the FCS bytes",
+        "FCS is only present on fiber Ethernet, not copper"
+      ],
+      "correct": 1,
+      "explanation": "The FCS is checked by the NIC hardware. If the FCS fails (indicating a corrupted frame), the NIC drops the frame before the kernel ever sees it. If the FCS passes, the NIC strips it off and passes only the clean payload up to the kernel's network stack. This means the kernel (and tcpdump, which reads from the kernel) never sees the FCS. It is handled entirely in hardware."
+    },
+    {
+      "stage": "post",
+      "question": "In Python, you read bytes 12–13 from an Ethernet frame: b'\\x86\\xdd'. What EtherType is this, and what does it tell you about the payload?",
+      "options": [
+        "0x86DD — the payload is an IPv6 packet",
+        "0x86DD — the payload is an ARP request",
+        "0x8100 — the frame contains a VLAN tag",
+        "0x0800 — the payload is an IPv4 packet (bytes are reversed)"
+      ],
+      "correct": 0,
+      "explanation": "Bytes 0x86 0xDD in network (big-endian) order equal 0x86DD, which is the EtherType for IPv6. In Python: `struct.unpack('!H', b'\\x86\\xdd')[0]` returns 34525, which is 0x86DD in decimal. The payload starting at byte 14 of the Ethernet frame contains an IPv6 packet header, beginning with version=6, traffic class, flow label, etc."
+    },
+    {
+      "stage": "post",
+      "question": "Your Python parser shows a frame with destination MAC `ff:ff:ff:ff:ff:ff`. What type of frame is this, and which layer-2 protocol commonly uses it?",
+      "options": [
+        "A unicast frame going to a device with MAC ff:ff:ff:ff:ff:ff",
+        "A broadcast frame sent to all devices on the segment; ARP requests use this",
+        "A multicast frame for IPv6 router discovery",
+        "An error frame indicating a corrupted FCS"
+      ],
+      "correct": 1,
+      "explanation": "The all-ones MAC address (ff:ff:ff:ff:ff:ff) is the Ethernet broadcast address. Every NIC on the local network segment will accept and process a frame with this destination — even if the frame is not addressed to them specifically. ARP requests use broadcast because the sender does not yet know the destination MAC (that is the whole point of ARP — to discover it). DHCP discovery also uses Ethernet broadcast."
+    },
+    {
+      "stage": "post",
+      "question": "What is the minimum valid Ethernet II frame size (in bytes, including the FCS), and why is there a minimum?",
+      "options": [
+        "14 bytes — just the header, no payload required",
+        "46 bytes — the minimum payload size",
+        "64 bytes — required for CSMA/CD collision detection to work correctly",
+        "128 bytes — required to fit at least one IP header"
+      ],
+      "correct": 2,
+      "explanation": "The minimum Ethernet frame size is 64 bytes (14-byte header + 46-byte minimum payload + 4-byte FCS). This minimum exists because of CSMA/CD (Carrier Sense Multiple Access with Collision Detection), used in half-duplex Ethernet. A collision can be detected and a jam signal sent within the time it takes a signal to travel the maximum cable length. If frames were shorter than 64 bytes, a sender might finish transmitting before hearing a collision at the far end — making collision detection unreliable. Short frames are padded to 46 bytes to meet this minimum. Modern full-duplex Ethernet does not have collisions, but the 64-byte minimum was kept for compatibility."
+    }
+  ]
+}

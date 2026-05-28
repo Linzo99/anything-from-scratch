@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does a distance-vector router tell its neighbors?",
+      "options": [
+        "The complete topology of the entire network",
+        "Only the distances and directions it knows to each destination",
+        "Its own hardware specifications",
+        "The IP addresses of all hosts it has ever seen"
+      ],
+      "correct": 1,
+      "explanation": "Distance-vector routers (like RIP) only share what they know: distances to destinations and which direction to go. They never see the full map. Link-state protocols like OSPF are different — every router floods its local links so everyone builds a complete map."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the main advantage of static routes over dynamic routing protocols?",
+      "options": [
+        "Static routes automatically reroute around failures",
+        "Static routes scale to thousands of routers with no configuration",
+        "Static routes are predictable and require no protocol overhead",
+        "Static routes detect link failures faster than any protocol"
+      ],
+      "correct": 2,
+      "explanation": "Static routes are simple, predictable, and have zero protocol overhead. Their fatal flaw is that they require manual updates whenever topology changes and they have no failure detection. Dynamic protocols trade some complexity for automatic adaptation."
+    },
+    {
+      "stage": "post",
+      "question": "In a fully converged OSPF network, what state should two adjacent routers show for each other?",
+      "options": [
+        "INIT",
+        "2WAY",
+        "EXCHANGE",
+        "FULL"
+      ],
+      "correct": 3,
+      "explanation": "FULL means both routers have successfully exchanged and synchronised their Link State Databases. Any earlier state (INIT, 2WAY, EXSTART, EXCHANGE, LOADING) means the adjacency is not complete and routes will not be computed correctly."
+    },
+    {
+      "stage": "post",
+      "question": "You add a new router to your OSPF domain. After convergence, which routers hold an LSA describing that new router's links?",
+      "options": [
+        "Only the new router itself",
+        "Only the new router's direct neighbors",
+        "Every router in the same OSPF area",
+        "Only the Designated Router on each segment"
+      ],
+      "correct": 2,
+      "explanation": "This is the core property of link-state routing: LSAs are flooded to every router in the area. Every router ends up with an identical LSDB containing the new router's LSA. That is what allows each router to independently run Dijkstra and compute correct paths."
+    },
+    {
+      "stage": "post",
+      "question": "You set ip ospf cost 100 on R1's link to R2, and the link to R3 via R2 still has cost 1 on R2's end. What metric will R1 compute for R3's loopback?",
+      "options": [
+        "1 (only R3's loopback cost counts)",
+        "100 (the outgoing link cost on R1)",
+        "102 (100 to R2 + 1 to R3 + 1 for loopback)",
+        "200 (OSPF doubles the cost for safety)"
+      ],
+      "correct": 2,
+      "explanation": "OSPF cost is cumulative along the path. R1 pays 100 to reach R2, then 1 more to reach R3, then 1 more for R3's loopback advertisement. Total: 102. The cost you set on an interface is the cost of the outgoing link from that router's perspective — OSPF adds them up along the shortest path tree."
+    }
+  ]
+}

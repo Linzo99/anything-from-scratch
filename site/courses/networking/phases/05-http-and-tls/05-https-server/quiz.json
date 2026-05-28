@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A self-signed certificate encrypts data just as strongly as a CA-signed certificate. Why do browsers show a warning for self-signed certs?",
+      "options": [
+        "Self-signed certificates use weaker encryption algorithms by definition",
+        "Self-signed certificates expire after 24 hours automatically",
+        "There is no trusted third party (CA) vouching that the public key in the certificate actually belongs to that domain — anyone could have generated it",
+        "Browsers only accept RSA certificates; self-signed certs always use DSA"
+      ],
+      "correct": 2,
+      "explanation": "The encryption provided by a self-signed cert is identical to a CA-signed cert — both use the same algorithms (RSA, ECDSA) for the same key lengths. The difference is authentication: a CA-signed cert has been independently verified — the CA checked that the applicant actually controls the domain. A self-signed cert has no such verification. A man-in-the-middle attacker could create their own self-signed cert for your domain, intercept the connection, and the client would have no way to distinguish it from the real server's cert."
+    },
+    {
+      "stage": "pre",
+      "question": "In Python, when you call ssl_context.wrap_socket(raw_sock, server_side=True), what happens?",
+      "options": [
+        "The socket's IP address is changed to use the HTTPS port",
+        "The TLS handshake is performed synchronously; if successful, the returned socket transparently encrypts all future sends and decrypts all receives",
+        "The function only configures encryption settings; the actual handshake happens on the first send()",
+        "A new TCP connection is opened on port 443, replacing the existing connection"
+      ],
+      "correct": 1,
+      "explanation": "wrap_socket() performs the complete TLS handshake before returning. If the handshake fails (certificate error, protocol mismatch, etc.), it raises ssl.SSLError. If it succeeds, the returned SSLSocket object is transparent to your application — sock.recv() and sock.sendall() work exactly like before, but all bytes are automatically encrypted on send and decrypted on receive. Your application code doesn't need to know TLS is happening."
+    },
+    {
+      "stage": "post",
+      "question": "You run your HTTPS server and test with 'curl https://localhost:8443/'. You get 'SSL certificate problem: self-signed certificate'. What is the correct fix for development testing?",
+      "options": [
+        "Use 'curl -k https://localhost:8443/' to skip all certificate verification",
+        "Use 'curl --cacert server.crt https://localhost:8443/' to tell curl to trust your specific certificate",
+        "Add 'localhost' to /etc/hosts with the correct IP address",
+        "Regenerate the certificate with a longer expiry date"
+      ],
+      "correct": 1,
+      "explanation": "The correct approach is '--cacert server.crt' which tells curl to trust that specific certificate as a CA. This maintains authentication (you're verifying the cert is the one you generated) while working around the 'no CA chain' issue. '-k' is dangerous because it skips ALL verification — meaning you can't tell if you're talking to your server or a man-in-the-middle. For development, '--cacert' is the right tool; for production, use a real CA-signed certificate."
+    },
+    {
+      "stage": "post",
+      "question": "After the ssl_context.wrap_socket() call succeeds, how does your handle_connection() function need to change to support HTTPS?",
+      "options": [
+        "It needs to call tls_sock.decrypt() before each recv() and tls_sock.encrypt() before each send()",
+        "It needs to use a different HTTP parsing function since TLS changes the header format",
+        "It does not need to change at all — the SSLSocket has the same API as a regular socket; recv() and sendall() work transparently",
+        "It needs to add a Content-Security-Policy header to all responses"
+      ],
+      "correct": 2,
+      "explanation": "This is the elegance of Python's ssl module: SSLSocket implements the same interface as a regular socket. The recv(), sendall(), and close() methods work identically. TLS encryption and decryption happen automatically inside the socket layer. Your application code is completely unaware that TLS is happening. This is the 'transparent wrapping' design — the same HTTP parsing and response-building code works for both HTTP and HTTPS."
+    },
+    {
+      "stage": "post",
+      "question": "You start the HTTPS server but a client connects using 'curl http://localhost:8443/' (HTTP, not HTTPS). What will happen?",
+      "options": [
+        "The server detects HTTP and automatically upgrades the connection to HTTPS",
+        "The server returns a 301 redirect to https://localhost:8443/",
+        "The TLS handshake fails because the client sends plaintext HTTP where TLS expects a ClientHello; ssl.SSLError is raised",
+        "The server serves the content normally — HTTP and HTTPS use the same protocol"
+      ],
+      "correct": 2,
+      "explanation": "When a client connects with plain HTTP, it sends the request line ('GET / HTTP/1.1\\r\\n...') immediately. Our HTTPS server calls wrap_socket() which expects the first bytes to be a TLS ClientHello message (which starts with 0x16 0x03...). Instead it sees plaintext HTTP bytes. The TLS layer sees garbage, the handshake fails, and ssl.SSLError is raised. The client gets a connection reset or garbled response. The fix: either serve only HTTPS, or run a separate HTTP server that redirects to HTTPS."
+    }
+  ]
+}

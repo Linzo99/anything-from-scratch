@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What causes TCP to slow down its sending rate?",
+      "options": [
+        "The receiver explicitly tells the sender to slow down",
+        "TCP detects congestion through packet loss or growing delay",
+        "A firewall throttles the connection",
+        "TCP slows down after a fixed number of bytes"
+      ],
+      "correct": 1,
+      "explanation": "TCP infers congestion from signals in the network — primarily packet loss (timeout or duplicate ACKs) and, in newer algorithms, increasing RTT. The receiver doesn't directly signal congestion; TCP figures it out from what it doesn't hear back."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the cwnd (congestion window)?",
+      "options": [
+        "The size of the receiver's buffer",
+        "The maximum segment size negotiated during the handshake",
+        "The sender's self-imposed limit on how much unacknowledged data can be in flight",
+        "The number of retransmission attempts before giving up"
+      ],
+      "correct": 2,
+      "explanation": "cwnd is a variable maintained by the sender, separate from the receiver's advertised window. The actual sending rate is limited by min(cwnd, rwnd). The sender adjusts cwnd based on congestion signals."
+    },
+    {
+      "stage": "post",
+      "question": "During slow start, how does cwnd grow after each ACK?",
+      "options": [
+        "It increases by 1 byte",
+        "It doubles every RTT (increases by one MSS per ACK)",
+        "It increases by a fixed 10% per second",
+        "It stays constant until the first loss event"
+      ],
+      "correct": 1,
+      "explanation": "In slow start, each ACK causes cwnd to grow by one MSS, which means cwnd roughly doubles per RTT — exponential growth. Despite the name 'slow start', it grows aggressively until it hits ssthresh."
+    },
+    {
+      "stage": "post",
+      "question": "What is AIMD and what does it stand for?",
+      "options": [
+        "Automatic Inbound Message Delivery — queuing strategy",
+        "Additive Increase Multiplicative Decrease — grow cwnd by 1 MSS/RTT, halve on loss",
+        "Adaptive Internet Message Delay — latency-based algorithm",
+        "Async Indexed Memory Dispatch — kernel buffer management"
+      ],
+      "correct": 1,
+      "explanation": "AIMD governs the congestion avoidance phase after slow start. cwnd grows by 1 MSS per RTT (additive) when no loss occurs, and is halved (multiplicative decrease) on a loss event. This produces the TCP sawtooth throughput pattern."
+    },
+    {
+      "stage": "post",
+      "question": "How does tc netem simulate packet loss on a Linux interface?",
+      "options": [
+        "It drops packets at the application layer using iptables DROP",
+        "It injects random loss at the qdisc level on the network interface",
+        "It pauses the sending socket for random intervals",
+        "It corrupts packet checksums so the receiver discards them"
+      ],
+      "correct": 1,
+      "explanation": "tc netem (Network Emulator) is a queueing discipline that manipulates packets as they leave a network interface. `tc qdisc add dev eth0 root netem loss 5%` tells the kernel to randomly drop 5% of outgoing packets at the qdisc level, before they enter the NIC."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't a simple TCP server use one thread per client for hundreds of connections?",
+      "options": [
+        "TCP doesn't support multiple simultaneous connections",
+        "Each thread consumes memory and CPU time; thousands of threads overwhelm the OS",
+        "Python's socket module is not thread-safe",
+        "TCP connections can only be managed from the main thread"
+      ],
+      "correct": 1,
+      "explanation": "A thread on Linux consumes ~8MB of stack by default plus kernel structures. 1000 clients = ~8GB just for stacks. Context switching overhead grows with thread count. select()/poll()/epoll() handle thousands of connections in a single thread by watching multiple sockets simultaneously."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the purpose of a length-prefixed message protocol over TCP?",
+      "options": [
+        "To encrypt messages before sending",
+        "To split long messages across multiple TCP segments automatically",
+        "To tell the receiver exactly how many bytes to read for each message",
+        "To add sequence numbers for ordering"
+      ],
+      "correct": 2,
+      "explanation": "TCP is a byte stream — recv() may return partial data. If you send 'hello' (5 bytes), recv() might give you 'hel' and 'lo' in two calls. A length prefix (e.g., 4 bytes containing the message length) lets the receiver loop until it has read exactly that many bytes before processing the message."
+    },
+    {
+      "stage": "post",
+      "question": "What does select() return and how do you use it?",
+      "options": [
+        "It returns the next client to connect; you call accept() on it",
+        "It returns three lists of sockets that are readable, writable, or in error",
+        "It returns a single socket that has data waiting",
+        "It blocks until all sockets in the input list have data"
+      ],
+      "correct": 1,
+      "explanation": "select(read_list, write_list, error_list, timeout) blocks until at least one socket is ready. It returns three subsets: sockets with data to read, sockets ready to accept writes, and sockets with errors. You iterate the readable list and call recv() only on sockets that have data — no blocking."
+    },
+    {
+      "stage": "post",
+      "question": "In the chat server, why do we include the server's listening socket in the select() read list?",
+      "options": [
+        "So we can read data from clients that haven't connected yet",
+        "A listening socket becomes readable when a new client is waiting to connect — we call accept() on it",
+        "To detect when the server should shut down",
+        "select() requires at least one server socket in the list"
+      ],
+      "correct": 1,
+      "explanation": "accept() on a listening socket blocks until a client connects. By including the listening socket in select()'s read list, it appears as 'readable' when a new connection is pending, letting us call accept() without blocking the rest of the event loop."
+    },
+    {
+      "stage": "post",
+      "question": "What should the server do when recv() returns an empty bytes object (b'')?",
+      "options": [
+        "Try recv() again — empty means no data was ready yet",
+        "The client has closed the connection — remove it from the active sockets list and close the socket",
+        "Send a keepalive message to re-establish the connection",
+        "Block until data arrives using a second recv() call"
+      ],
+      "correct": 1,
+      "explanation": "In TCP, recv() returning b'' means the remote end has performed an orderly shutdown (sent FIN). Continuing to loop on that socket wastes CPU and will keep returning b''. Remove the socket from your active set, call socket.close(), and clean up any state associated with that client."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In the TCP/IP four-layer model, which layer is responsible for end-to-end addressing across multiple networks?",
+      "options": [
+        "Link layer",
+        "Transport layer",
+        "Internet layer",
+        "Application layer"
+      ],
+      "correct": 2,
+      "explanation": "The Internet layer (IP) handles end-to-end addressing and routing across multiple networks. IP addresses identify hosts globally, and routers at this layer forward packets toward their destination. The Link layer handles only one hop at a time (local network segment), the Transport layer handles the connection between two processes, and the Application layer handles the meaning of the data."
+    },
+    {
+      "stage": "pre",
+      "question": "ARP (Address Resolution Protocol) translates IP addresses to MAC addresses. Which TCP/IP layer does ARP belong to?",
+      "options": [
+        "Application layer — it resolves names like DNS does",
+        "Transport layer — it manages connections",
+        "Internet layer — it works with IP addresses",
+        "Link layer — it operates between IP and physical addressing within one network segment"
+      ],
+      "correct": 3,
+      "explanation": "ARP is a Link layer protocol. It operates between the Internet layer (IP addresses) and the physical hardware (MAC addresses) within a single network segment. ARP cannot cross routers — it is only used to resolve 'which MAC address corresponds to this IP address on my local segment?' When you need a MAC across a router, IP routing takes over and ARP resolves the next-hop MAC."
+    },
+    {
+      "stage": "post",
+      "question": "The main difference between OSI and TCP/IP is that TCP/IP collapses certain layers. Which two OSI collapses does TCP/IP make?",
+      "options": [
+        "TCP/IP merges L3+L4 into Transport and L1+L2 into Physical",
+        "TCP/IP merges L1+L2 into Link and L5+L6+L7 into Application",
+        "TCP/IP merges L2+L3 into Network and L4+L5 into Transport",
+        "TCP/IP merges L1+L2+L3 into Network and L4+L5+L6+L7 into Application"
+      ],
+      "correct": 1,
+      "explanation": "TCP/IP makes exactly two collapses vs. OSI: the bottom two OSI layers (L1 Physical + L2 Data Link) merge into the TCP/IP Link layer, and the top three OSI layers (L5 Session + L6 Presentation + L7 Application) merge into the TCP/IP Application layer. OSI L3 (Network) becomes TCP/IP Internet, and OSI L4 (Transport) stays as TCP/IP Transport."
+    },
+    {
+      "stage": "post",
+      "question": "A 'Layer 7 load balancer' can route requests to different backends based on the URL path. Why can't a 'Layer 4 load balancer' do the same thing?",
+      "options": [
+        "Layer 4 load balancers are too slow to read HTTP headers",
+        "Layer 4 operates at TCP — it only sees port numbers, not the HTTP content inside the TCP stream",
+        "URL paths are encrypted and invisible at Layer 4",
+        "Layer 4 load balancers cannot maintain persistent connections"
+      ],
+      "correct": 1,
+      "explanation": "A Layer 4 load balancer operates on TCP/UDP headers — it sees source IP, destination IP, source port, and destination port. The HTTP content (including the URL path) is inside the TCP stream as opaque bytes. To read the URL, you must parse the HTTP protocol, which is an Application layer (L7) operation. This is why L7 load balancers are more expensive to run — they must fully parse each request — but can make smarter routing decisions."
+    },
+    {
+      "stage": "post",
+      "question": "QUIC is described as a 'cross-layer' protocol because it runs over UDP but re-implements reliable delivery. This violates the OSI model's design. Why is this acceptable in practice?",
+      "options": [
+        "It is not acceptable — QUIC is non-standard and should not be used",
+        "The OSI model is a conceptual reference, not a hard constraint; performance and practicality can justify cross-layer designs",
+        "QUIC actually follows the OSI model perfectly — it just uses different terminology",
+        "UDP is Layer 3, so QUIC is still within the Transport layer boundary"
+      ],
+      "correct": 1,
+      "explanation": "The OSI model is a reference framework, not a law. QUIC was designed to solve real problems: TCP's head-of-line blocking, slow connection establishment (TLS 1.3 over TCP requires 1-2 round trips; QUIC does it in 0-1 RTT), and ossification (middleboxes block TCP changes but pass UDP). By building on UDP and adding reliability in user space, QUIC sidesteps these constraints. The OSI model cannot and should not prevent better protocol designs."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A TCP connection has RTT=200ms and window size=65,535 bytes. What is the maximum throughput regardless of link speed?",
+      "options": [
+        "65,535 bytes/second",
+        "327,675 bytes/second (65,535 / 0.2s)",
+        "Unlimited — the window does not limit throughput",
+        "65,535 bits/second"
+      ],
+      "correct": 1,
+      "explanation": "Throughput is bounded by window_size / RTT. With window=65,535 bytes and RTT=200ms: 65,535 / 0.2 = 327,675 bytes/s ≈ 2.6 Mbps. This is the maximum even on a 1 Gbps link. This is why the TCP window scale option exists — the original 16-bit window field caps at 65,535 bytes, which becomes a bottleneck on high-bandwidth, high-latency connections."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the Bandwidth-Delay Product (BDP) for a 100 Mbps link with 50ms RTT?",
+      "options": [
+        "5,000 bytes",
+        "62,500 bytes (625 KB)",
+        "100,000 bytes",
+        "500,000 bytes"
+      ],
+      "correct": 1,
+      "explanation": "BDP = bandwidth × RTT = 100 Mbps × 0.05s = 5 Mb = 625,000 bytes ≈ 625 KB. This is the minimum window size needed to keep the link fully utilised. If the TCP window is smaller than the BDP, the sender runs out of window before the first ACK arrives, causing it to stall. Note: 100 Mbps = 12.5 MB/s; 12.5 MB/s × 0.05s = 625 KB."
+    },
+    {
+      "stage": "post",
+      "question": "In the sliding window simulation, SND.UNA=5 and window_size=4. Which packet sequence numbers can be sent next?",
+      "options": [
+        "Packets 0, 1, 2, 3 (from the beginning)",
+        "Packets 5, 6, 7, 8 (from SND.UNA to SND.UNA + window - 1)",
+        "Packets 9, 10, 11, 12 (beyond the current window)",
+        "Only packet 5 — one at a time until the window advances"
+      ],
+      "correct": 1,
+      "explanation": "The window covers sequence numbers [SND.UNA, SND.UNA + window_size - 1] = [5, 8]. Any packet in this range that hasn't been sent yet can be transmitted. Packets 0-4 are already acknowledged (before SND.UNA). Packets 9+ are beyond the window and must wait for ACKs to advance SND.UNA. As ACKs arrive and SND.UNA moves right, new sequence numbers enter the window."
+    },
+    {
+      "stage": "post",
+      "question": "What does a 'cumulative ACK' mean in the context of the sliding window?",
+      "options": [
+        "The receiver counts ACKs and sends a batch every 10 seconds",
+        "ACK N confirms receipt of ALL bytes up to and including N-1, not just packet N individually",
+        "The sender combines multiple ACKs into one before transmitting",
+        "ACKs accumulate in a buffer and are sent only when the buffer is full"
+      ],
+      "correct": 1,
+      "explanation": "A cumulative ACK of N means 'I have received every byte from 0 through N-1 contiguously; please send byte N next.' If the receiver has bytes 1, 2, and 4 but is missing 3, the ACK still says 3 (not 5) — it can only confirm a contiguous received stream. The sender cannot skip over the gap. SACK (Selective ACK) extends this by also reporting which out-of-order packets were received, allowing smarter retransmission."
+    },
+    {
+      "stage": "post",
+      "question": "In the simulation, doubling the window size from 4 to 8 roughly doubles the throughput (when loss=0). At what window size does doubling stop having this effect?",
+      "options": [
+        "It never stops — larger windows always double throughput",
+        "When the window exceeds the BDP — at that point the bottleneck shifts to link bandwidth or sender speed",
+        "When the window exceeds the receiver's buffer",
+        "At exactly 32 packets — TCP limits window growth to 32"
+      ],
+      "correct": 1,
+      "explanation": "Doubling the window doubles throughput only while the window is smaller than the bandwidth-delay product (BDP). Once the window equals the BDP, the sender can keep the pipe full continuously. Increasing the window further does not help because the bottleneck is now the link speed, not the window. In practice, other limits appear first: the receiver's receive buffer (rwnd), the congestion window (cwnd), or the application's ability to generate data."
+    }
+  ]
+}

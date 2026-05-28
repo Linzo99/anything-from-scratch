@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You want to configure your domain 'mycompany.com' so that emails sent to 'user@mycompany.com' are delivered to 'mail.mycompany.com'. Which DNS record type do you need?",
+      "options": [
+        "A record pointing mycompany.com to mail.mycompany.com",
+        "CNAME record aliasing mycompany.com to mail.mycompany.com",
+        "MX record for mycompany.com pointing to mail.mycompany.com with a priority",
+        "TXT record containing the mail server address"
+      ],
+      "correct": 2,
+      "explanation": "MX (Mail Exchanger) records control email delivery routing. An MX record for mycompany.com specifies which hostname (mail.mycompany.com) accepts email for that domain, along with a priority number. A records map to IPs, CNAME creates aliases, and TXT holds text data — none of these control email routing."
+    },
+    {
+      "stage": "pre",
+      "question": "You add a CNAME record: 'www.example.com CNAME example.com'. Now you also want to add an A record for 'www.example.com'. What happens?",
+      "options": [
+        "Both records coexist and clients use whichever they prefer",
+        "The A record overrides the CNAME since A records take precedence",
+        "This is invalid — a CNAME cannot coexist with any other record type at the same name",
+        "The CNAME is ignored for A record queries"
+      ],
+      "correct": 2,
+      "explanation": "RFC 1034 prohibits a CNAME from coexisting with any other record type at the same owner name. A CNAME says 'this name is an alias for that other name' — it replaces the name entirely. Adding an A record alongside a CNAME creates a contradiction: is this name an alias, or does it have its own IP? DNS implementations must reject this configuration."
+    },
+    {
+      "stage": "post",
+      "question": "You query 'dig gmail.com MX +short' and get: '5 gmail-smtp-in.l.google.com.' and '10 alt1.gmail-smtp-in.l.google.com.'. Which server receives email FIRST?",
+      "options": [
+        "alt1.gmail-smtp-in.l.google.com because 10 > 5 and higher numbers win",
+        "gmail-smtp-in.l.google.com because 5 < 10 and lower priority numbers indicate higher preference",
+        "Both servers receive equal amounts of email since MX priority is just for display",
+        "The server listed first in the response, regardless of priority number"
+      ],
+      "correct": 1,
+      "explanation": "MX priority is counterintuitively named: a LOWER number means HIGHER preference. The sending mail server will always try the MX record with the lowest priority number first. So gmail-smtp-in.l.google.com (priority 5) is tried before alt1.gmail-smtp-in.l.google.com (priority 10). The higher-numbered servers serve as backups if lower-numbered ones are unreachable."
+    },
+    {
+      "stage": "post",
+      "question": "You query 'dig example.com TXT' and see: '\"v=spf1 include:_spf.google.com -all\"'. What does the '-all' at the end mean?",
+      "options": [
+        "All email from this domain is rejected by default",
+        "The SPF record applies to all subdomains as well as the apex domain",
+        "Any sending server NOT explicitly authorized should be treated as a hard fail (mail is rejected)",
+        "The domain has disabled SPF enforcement"
+      ],
+      "correct": 2,
+      "explanation": "In SPF records, the 'all' mechanism matches any sender not covered by the earlier mechanisms. The qualifier before 'all' controls what happens: '-all' (hardfail) means reject mail from unauthorized servers; '~all' (softfail) means mark as suspicious but accept; '+all' means allow any server (dangerously permissive); '?all' means neutral. '-all' is the strictest setting, telling receiving servers to reject email from any IP not authorized by the SPF record."
+    },
+    {
+      "stage": "post",
+      "question": "The dig output for a query contains an 'ADDITIONAL SECTION' with A records for nameservers listed in the 'AUTHORITY SECTION'. What are these additional A records called, and why are they included?",
+      "options": [
+        "Cache records — previously resolved answers pre-fetched to speed up future queries",
+        "Glue records — A records for nameservers whose hostnames are within the same zone, preventing a circular dependency when resolving the nameserver's own address",
+        "Hint records — suggestions to the client about which servers to query next",
+        "Authority records — duplicates of the NS records in IP format for convenience"
+      ],
+      "correct": 1,
+      "explanation": "Glue records solve a bootstrapping problem: if a nameserver for 'example.com' is 'ns1.example.com', resolving ns1.example.com requires querying the example.com nameservers — but you don't know the IP yet. This is circular. Glue records break the cycle by having the PARENT zone (e.g., .com TLD) include the A record for ns1.example.com directly in the referral response. They appear in the additional section."
+    }
+  ]
+}

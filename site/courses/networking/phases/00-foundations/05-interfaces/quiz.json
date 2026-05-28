@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "An interface shows the flag `UP` but not `LOWER_UP`. What does this mean?",
+      "options": [
+        "The interface has no IP address assigned",
+        "The interface is administratively enabled but no physical link (carrier) is detected",
+        "The interface is operating at a lower speed than configured",
+        "The interface's MTU is too low for the network"
+      ],
+      "correct": 1,
+      "explanation": "The UP flag is set by an administrator (or DHCP client) with 'ip link set up'. It means 'I want this interface active.' The LOWER_UP flag is set by the kernel when the NIC detects a carrier signal — meaning a cable is plugged in and the other end is responding. Having UP without LOWER_UP means the interface is enabled but disconnected (or the peer device is powered off)."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the MTU of a standard Ethernet interface, and what happens to packets larger than this value?",
+      "options": [
+        "MTU is 1500 bytes; larger packets are silently dropped",
+        "MTU is 1500 bytes; larger packets are fragmented by the IP layer or dropped if the DF bit is set",
+        "MTU is 9000 bytes; Ethernet supports jumbo frames by default",
+        "MTU is 65535 bytes; TCP handles splitting large messages"
+      ],
+      "correct": 1,
+      "explanation": "Standard Ethernet MTU is 1500 bytes (the maximum payload in an Ethernet frame). IP packets larger than this are fragmented by routers along the path — split into smaller pieces and reassembled at the destination. If the IP header has the Don't Fragment (DF) bit set, the router drops the packet and sends an ICMP 'Fragmentation Needed' message back instead. This is how Path MTU Discovery works."
+    },
+    {
+      "stage": "post",
+      "question": "You run `sudo ip addr add 192.168.5.1/24 dev dummy0`. What side effect does this command have on the routing table?",
+      "options": [
+        "No effect — you must add routes manually with `ip route add`",
+        "A default route via 192.168.5.1 is added automatically",
+        "A connected route for 192.168.5.0/24 via dummy0 is added automatically",
+        "The entire routing table is rebuilt from scratch"
+      ],
+      "correct": 2,
+      "explanation": "When you assign an IP address to an interface, the kernel automatically adds a 'connected route' for the entire subnet. In this case: `192.168.5.0/24 dev dummy0 proto kernel scope link src 192.168.5.1`. This means 'to reach any address in 192.168.5.0/24, use dummy0 directly.' You can verify this with `ip route show`. The route is removed automatically when the address is removed or the interface goes DOWN."
+    },
+    {
+      "stage": "post",
+      "question": "What is the command to create a virtual dummy interface named `test0`?",
+      "options": [
+        "sudo ifconfig test0 create dummy",
+        "sudo ip link add dev test0 type dummy",
+        "sudo ip interface new test0 --virtual",
+        "sudo modprobe dummy test0"
+      ],
+      "correct": 1,
+      "explanation": "The `ip link add` command creates new virtual interfaces. The syntax is `ip link add dev <name> type <type>`. For a dummy interface: `sudo ip link add dev test0 type dummy`. Other useful types include `bridge` (for virtual switches), `vlan` (for 802.1Q VLAN subinterfaces), `veth` (virtual Ethernet pair used by containers), and `tun`/`tap` (for VPN tunnels). The dummy module must be loaded first with `sudo modprobe dummy`."
+    },
+    {
+      "stage": "post",
+      "question": "What is the fundamental reason `ifconfig` was deprecated in favor of `ip`?",
+      "options": [
+        "ifconfig was written in C; ip is written in a safer language",
+        "ifconfig cannot display IPv6 addresses",
+        "ifconfig uses an older kernel API (ioctl) that cannot represent modern networking features like VRFs and network namespaces",
+        "ifconfig was a security vulnerability and was patched out of the kernel"
+      ],
+      "correct": 2,
+      "explanation": "The core reason is the kernel API. ifconfig and other net-tools use the old ioctl() system call interface, which was designed in the early 1990s. It has a fixed structure and cannot be extended to support modern Linux networking features: network namespaces (used by containers), VRFs (Virtual Routing and Forwarding), MPLS, eBPF-based traffic control, and more. The iproute2 tools use the Netlink socket API, which is extensible and supports all modern kernel networking features."
+    }
+  ]
+}

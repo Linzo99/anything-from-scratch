@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A user submits a payment form. The browser double-submits accidentally (user clicked twice). Which HTTP method would cause a duplicate charge, and which would not?",
+      "options": [
+        "GET would cause a duplicate; POST would not, because POST is idempotent",
+        "POST would cause a duplicate charge; PUT would not, because PUT is idempotent",
+        "DELETE would cause a duplicate; GET would not, because GET is safe",
+        "Both POST and PUT cause duplicates because neither is safe"
+      ],
+      "correct": 1,
+      "explanation": "POST is not idempotent — each POST request is intended to create a new resource or trigger a new action. Submitting a payment POST twice creates two charges. PUT IS idempotent — PUT /payments/abc with the same body twice leaves exactly one payment record. This is why browsers warn 'Resubmit the form?' before retrying a POST, but will silently retry a GET. For payment APIs, idempotency keys are used to make POST effectively idempotent."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the correct HTTP status code when a client POSTs to create a new resource and the creation succeeds?",
+      "options": [
+        "200 OK — the operation succeeded",
+        "201 Created — a new resource was created",
+        "202 Accepted — the request was accepted for processing",
+        "204 No Content — the operation succeeded with no response"
+      ],
+      "correct": 1,
+      "explanation": "201 Created is the specific success code for resource creation. It signals more than 200 OK does — it tells the client that a new resource was created (not just that the operation succeeded). By convention, a 201 response also includes a Location header with the URL of the newly created resource, so the client can retrieve it. 200 is for general success, 202 for async processing, 204 for success-with-no-body."
+    },
+    {
+      "stage": "post",
+      "question": "Your server receives 'DELETE /items'. You support DELETE on '/items/{id}' but not on the collection '/items'. What response should you return?",
+      "options": [
+        "404 Not Found — the path /items doesn't exist",
+        "400 Bad Request — DELETE without an ID is malformed",
+        "405 Method Not Allowed — with an Allow header listing supported methods (GET, POST)",
+        "403 Forbidden — the client is not allowed to delete collections"
+      ],
+      "correct": 2,
+      "explanation": "405 Method Not Allowed is correct when the URL exists and is valid, but the requested HTTP method is not supported on that URL. RFC 7231 requires a 405 response to include an Allow header listing the methods that ARE supported. Here: 'Allow: GET, POST' since /items supports GET (list all) and POST (create new), but not DELETE. Using 404 would be incorrect — the path does exist."
+    },
+    {
+      "stage": "post",
+      "question": "A client sends 'PUT /items/5' with body '{\"name\": \"Widget\"}' three times. Assuming your server implements PUT correctly, how many items with id=5 exist in your store after all three requests?",
+      "options": [
+        "3 items — one per PUT request",
+        "1 item — PUT is idempotent; calling it multiple times produces the same result as once",
+        "0 items — PUT deletes before recreating, so the final call leaves nothing",
+        "It depends on timing — concurrent PUTs may cause race conditions"
+      ],
+      "correct": 1,
+      "explanation": "PUT is idempotent: it means 'set this resource to exactly this state.' Whether called once or ten times with the same body, the result is the same: item 5 exists with name 'Widget'. The first call creates it (returns 201), subsequent calls replace it with the same data (return 200). Only 1 item exists. Compare with POST: calling POST three times creates three new items with ids 1, 2, and 3."
+    },
+    {
+      "stage": "post",
+      "question": "A client sends a POST with 'Content-Type: application/json' but the body is '{invalid json}'. What is the most appropriate response?",
+      "options": [
+        "200 OK with an error message in the body",
+        "500 Internal Server Error — the server crashed trying to parse JSON",
+        "400 Bad Request — the client sent malformed data that the server cannot process",
+        "415 Unsupported Media Type — the server doesn't understand JSON"
+      ],
+      "correct": 2,
+      "explanation": "400 Bad Request is correct: the client sent data that the server cannot process due to client error. The JSON is syntactically invalid — that's the client's fault, not the server's. 500 is for server-side failures (unhandled exceptions in your own code, database down, etc.). 415 would mean the server doesn't understand JSON at all, which is wrong since Content-Type was correctly set. The fix is to wrap json.loads() in try/except and return 400 with a descriptive error."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "How do client and server agree on an encryption key over a network where an attacker can see all traffic?",
+      "options": [
+        "They don't — TLS requires a pre-shared secret configured out-of-band",
+        "The client generates a key and encrypts it with the server's public key, then sends it",
+        "They use Diffie-Hellman key exchange: each sends a public value, and both independently derive the same shared secret without it ever being transmitted",
+        "The CA provides the encryption key to both parties before the connection"
+      ],
+      "correct": 2,
+      "explanation": "Diffie-Hellman solves the key distribution problem. Each party generates a random private value and a corresponding public value. They exchange public values over the insecure network. Each then combines their own private value with the other's public value to arrive at the same shared secret — but the shared secret itself is never transmitted. An observer who sees both public values cannot easily compute the shared secret (requires solving the discrete logarithm problem)."
+    },
+    {
+      "stage": "pre",
+      "question": "You visit https://mybank.com. What does the TLS certificate prove?",
+      "options": [
+        "The website is secure and has no vulnerabilities",
+        "The server's public key is legitimately associated with the domain 'mybank.com', as vouched for by a trusted Certificate Authority",
+        "The website is owned by a legitimate bank and regulated by financial authorities",
+        "All traffic to this site is anonymous and cannot be traced"
+      ],
+      "correct": 1,
+      "explanation": "A TLS certificate proves one thing: that a trusted Certificate Authority has verified and signed a binding between a public key and a domain name (and sometimes organization identity for EV certificates). It does NOT prove the site is safe, legitimate, ethical, or owned by who you think. Phishing sites can have valid TLS certificates for their fraudulent domains. The certificate only means 'this public key really belongs to this domain.'"
+    },
+    {
+      "stage": "post",
+      "question": "In TLS 1.3, which messages are encrypted and which are sent in plaintext?",
+      "options": [
+        "All messages including ClientHello and ServerHello are encrypted",
+        "ClientHello and ServerHello are sent in plaintext; Certificate, CertificateVerify, and Finished are encrypted",
+        "Only the application data is encrypted; all handshake messages are plaintext",
+        "The Certificate is the only plaintext message; everything else is encrypted"
+      ],
+      "correct": 1,
+      "explanation": "In TLS 1.3, the ClientHello and ServerHello must be plaintext because they contain the information needed to establish the encryption keys (cipher suite, key shares). Once both sides have computed the shared secret from the key shares in Hello messages, all subsequent handshake messages (EncryptedExtensions, Certificate, CertificateVerify, Finished) are encrypted. This is an improvement over TLS 1.2 where the certificate was sent in plaintext."
+    },
+    {
+      "stage": "post",
+      "question": "A server hosts 50 HTTPS websites on one IP address. How does the server know which TLS certificate to present before the TLS handshake is complete?",
+      "options": [
+        "The server presents all 50 certificates and the client picks the right one",
+        "Each website must have its own dedicated IP address to use TLS",
+        "The client includes the target hostname in the SNI (Server Name Indication) extension of the ClientHello, which is sent in plaintext before any certificate negotiation",
+        "The HTTP Host header tells the server which certificate to use after TLS is established"
+      ],
+      "correct": 2,
+      "explanation": "SNI (Server Name Indication) is a TLS ClientHello extension where the client sends the target hostname in plaintext before the handshake proceeds. The server reads the SNI, selects the matching certificate, and includes it in the ServerHello chain. Without SNI, a server with multiple certificates on one IP would have to pick one blindly. The HTTP Host header comes later (after TLS is established), so it can't help the server choose a certificate."
+    },
+    {
+      "stage": "post",
+      "question": "TLS 1.3 requires 1 round trip to establish a connection; TLS 1.2 requires 2. What specific change in TLS 1.3 achieves this reduction?",
+      "options": [
+        "TLS 1.3 skips certificate verification to save a round trip",
+        "TLS 1.3 uses faster encryption algorithms that complete in half the time",
+        "TLS 1.3 includes the client's key share in the ClientHello itself, allowing both sides to derive the session key after just one round trip instead of needing a separate key exchange step",
+        "TLS 1.3 reuses the session key from the previous connection, skipping the handshake"
+      ],
+      "correct": 2,
+      "explanation": "In TLS 1.2, the handshake required: (1) ClientHello → ServerHello, then (2) client sends its key exchange material, then server sends Finished, then client sends Finished — two full round trips. TLS 1.3 combines the key exchange into the very first messages: the ClientHello includes key shares for likely cipher suites, and the ServerHello includes the server's key share. After one round trip, both sides have enough information to derive the session key and send encrypted data. This saves one full network latency."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does a router do when it receives a packet with TTL = 1?",
+      "options": [
+        "It forwards the packet normally to the next hop",
+        "It decrements TTL to 0, discards the packet, and sends ICMP Time Exceeded to the source",
+        "It returns the packet directly to the sender without modification",
+        "It increments TTL to prevent the packet from being dropped"
+      ],
+      "correct": 1,
+      "explanation": "When a router receives a packet with TTL=1, it decrements TTL to 0, discards the packet (does not forward it), and sends an ICMP Type 11 (Time Exceeded) message back to the original source address. This ICMP message includes the router's source IP — which is exactly what traceroute captures to identify that hop."
+    },
+    {
+      "stage": "pre",
+      "question": "Why do some hops in a traceroute output show `* * *` instead of an IP address?",
+      "options": [
+        "The router at that hop is running IPv6 and does not respond to IPv4 ICMP",
+        "The router does not send ICMP Time Exceeded messages (firewall rule or configuration)",
+        "Traceroute skipped that hop intentionally to save time",
+        "The packet arrived at the destination before reaching that hop"
+      ],
+      "correct": 1,
+      "explanation": "Many routers and firewalls are configured to not send ICMP Time Exceeded messages, either for security (avoiding disclosure of internal topology) or to reduce load. The probe is still discarded when TTL expires, but no response comes back — so the source times out and prints `*`. This does not mean the packets are not going through that router; they are, just silently."
+    },
+    {
+      "stage": "post",
+      "question": "The ICMP Time Exceeded response contains the first 28 bytes of the original discarded packet. What are those 28 bytes used for in traceroute?",
+      "options": [
+        "To verify the checksum of the response",
+        "To match the response to the specific probe that triggered it using the identifier and sequence number",
+        "To calculate the round-trip time using the embedded timestamp",
+        "To determine which TTL value caused the packet to be discarded"
+      ],
+      "correct": 1,
+      "explanation": "The 28 bytes = 20-byte original IP header + 8 bytes of the original ICMP payload (which starts with: type, code, checksum, identifier, sequence). By reading the identifier and sequence number from these bytes, traceroute can match the Time Exceeded response to the specific probe that triggered it. This is important because multiple probes may be in flight simultaneously."
+    },
+    {
+      "stage": "post",
+      "question": "In our traceroute implementation, why is a raw socket (SOCK_RAW) used instead of a regular ICMP socket?",
+      "options": [
+        "Raw sockets are faster than regular sockets for high-throughput scenarios",
+        "Regular ICMP sockets cannot set the TTL field; raw sockets allow full control over IP-layer headers",
+        "The OS blocks ICMP echo requests on regular sockets by default",
+        "Raw sockets automatically retry on timeout; regular sockets do not"
+      ],
+      "correct": 1,
+      "explanation": "The key operation in traceroute is setting the IP TTL to specific values (1, 2, 3...) for each probe. With a raw ICMP socket (SOCK_RAW, IPPROTO_ICMP), you can set IP_TTL via setsockopt(). Additionally, raw sockets let you receive all ICMP messages — including Time Exceeded responses that are directed at your probe but not explicitly addressed to your socket's port."
+    },
+    {
+      "stage": "post",
+      "question": "Traceroute sends multiple probes per TTL value (e.g. 3 probes). What does it measure with these probes?",
+      "options": [
+        "It increases the chance that at least one probe reaches the destination",
+        "It measures RTT variability and packet loss at each hop",
+        "It balances load across multiple paths to the destination",
+        "It tests both IPv4 and IPv6 paths simultaneously"
+      ],
+      "correct": 1,
+      "explanation": "Multiple probes per hop serve two purposes: they provide multiple RTT samples so you can see variability (a hop might show 1ms, 1ms, 50ms — indicating occasional congestion or rate limiting), and they reveal packet loss (if one of three probes shows `*` while the others succeed, there is 33% loss at that hop). This is much more diagnostic than a single probe."
+    }
+  ]
+}

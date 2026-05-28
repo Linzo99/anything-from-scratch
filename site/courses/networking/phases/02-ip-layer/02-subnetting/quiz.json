@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You need to create 6 subnets from a /24 block. How many bits must you borrow from the host portion?",
+      "options": [
+        "2 bits (gives 4 subnets)",
+        "3 bits (gives 8 subnets)",
+        "4 bits (gives 16 subnets)",
+        "6 bits (gives 64 subnets)"
+      ],
+      "correct": 1,
+      "explanation": "You always borrow ceil(log2(N)) bits. log2(6) ≈ 2.58, so ceil(2.58) = 3 bits. 2^3 = 8 subnets, which is the smallest power of 2 that is >= 6. You cannot borrow exactly 2.58 bits — bits come in whole numbers, and subnets always come in powers of two."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can't you assign the network address (all host bits = 0) or broadcast address (all host bits = 1) to a host?",
+      "options": [
+        "Routers block these addresses by default in their ACLs",
+        "The network address identifies the subnet itself; the broadcast is sent to all hosts — neither uniquely identifies a single device",
+        "These are reserved by IANA for special global routing",
+        "Operating systems refuse to configure interfaces with these addresses"
+      ],
+      "correct": 1,
+      "explanation": "The network address (all host bits zero) is used to identify the subnet in routing tables — it names the network, not a device. The broadcast address (all host bits one) is delivered to every host on the subnet, so it cannot belong to one specific host. Assigning these to an interface causes routing confusion and duplicate delivery."
+    },
+    {
+      "stage": "post",
+      "question": "What is the broadcast address of the subnet 172.16.4.0/22?",
+      "options": [
+        "172.16.4.255",
+        "172.16.7.255",
+        "172.16.5.255",
+        "172.16.8.0"
+      ],
+      "correct": 1,
+      "explanation": "A /22 has 32 − 22 = 10 host bits, so subnet size = 2^10 = 1024 addresses. Network address = 172.16.4.0 (integer). Broadcast = 172.16.4.0 + 1024 − 1. In the third octet: 4 * 256 = 1024 offset from x.x.0.0; 1024 + 1023 = 2047; 2047 / 256 = 7 remainder 255. So broadcast = 172.16.7.255."
+    },
+    {
+      "stage": "post",
+      "question": "Which statement correctly describes subnet alignment?",
+      "options": [
+        "Subnets must start at even addresses",
+        "The network address of a subnet must be a multiple of the subnet size",
+        "All subnets within a block must have the same number of hosts",
+        "The first octet of a subnet must match the first octet of its parent block"
+      ],
+      "correct": 1,
+      "explanation": "Alignment means the network address must be divisible by the subnet size. A /26 has size 64, so valid starts are 0, 64, 128, 192. This is enforced by the AND operation: masking any address with a /26 mask must produce one of those values. An unaligned starting point (e.g. 10.0.0.50/26) after masking gives 10.0.0.0, not 10.0.0.50 — it silently moves to the aligned boundary."
+    },
+    {
+      "stage": "post",
+      "question": "You split 10.0.0.0/24 into 4 equal subnets. A host is configured with IP 10.0.0.130 and mask 255.255.255.192 (/26). Which subnet does it belong to?",
+      "options": [
+        "10.0.0.0/26",
+        "10.0.0.64/26",
+        "10.0.0.128/26",
+        "10.0.0.192/26"
+      ],
+      "correct": 2,
+      "explanation": "AND 10.0.0.130 with 255.255.255.192: last octet 130 in binary is 10000010; mask last octet 192 = 11000000; AND = 10000000 = 128. So network address = 10.0.0.128, which is the third /26 subnet (range 10.0.0.128–10.0.0.191). The host is valid (not .128 or .191) and belongs in subnet #3."
+    }
+  ]
+}

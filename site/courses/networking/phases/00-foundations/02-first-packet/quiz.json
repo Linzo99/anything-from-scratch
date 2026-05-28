@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "If a ping packet is 84 bytes total, and the IP header is 20 bytes, and the ICMP header is 8 bytes, how many bytes is the actual ping data payload?",
+      "options": [
+        "84 bytes",
+        "64 bytes",
+        "56 bytes",
+        "72 bytes"
+      ],
+      "correct": 2,
+      "explanation": "84 total − 20 IP header − 8 ICMP header = 56 bytes of payload. This is the default ping data size (padding bytes used to fill the packet). You may see '56(84) bytes of data' in ping's output — 56 is the data, 84 is the full IP packet size."
+    },
+    {
+      "stage": "pre",
+      "question": "What does the TTL field in an IP header do?",
+      "options": [
+        "It sets the maximum size of the packet in bytes",
+        "It specifies how long (in seconds) the packet can exist on the network",
+        "It is decremented by each router; when it reaches 0 the packet is dropped",
+        "It controls how many times the packet can be retransmitted"
+      ],
+      "correct": 2,
+      "explanation": "TTL stands for Time To Live, but it is actually a hop count, not a time value. Each router that forwards the packet decrements TTL by 1. When TTL reaches 0, the router drops the packet and sends an ICMP 'Time Exceeded' message back to the source. This prevents packets from circling forever in a routing loop."
+    },
+    {
+      "stage": "post",
+      "question": "In a tcpdump hex dump, you see the bytes `08 00` at offset 12 in the Ethernet frame. What do these bytes tell you?",
+      "options": [
+        "The source MAC address ends with 08:00",
+        "The EtherType is 0x0800, meaning the payload is an IPv4 packet",
+        "The IP header is 8 bytes long with 0 options",
+        "The ICMP type is 8 (echo request) with code 0"
+      ],
+      "correct": 1,
+      "explanation": "Bytes at offset 12–13 in an Ethernet frame are the EtherType field. The value 0x0800 means IPv4. This tells the NIC driver which Layer 3 protocol to hand the payload to. Other common values: 0x0806 = ARP, 0x86DD = IPv6."
+    },
+    {
+      "stage": "post",
+      "question": "You capture an ICMP packet and the first byte of the ICMP header is `0x00`. What does this tell you?",
+      "options": [
+        "The packet was corrupted — ICMP type 0 is invalid",
+        "This is an ICMP echo reply (a ping response)",
+        "This is an ICMP echo request (a ping going out)",
+        "The ICMP checksum failed"
+      ],
+      "correct": 1,
+      "explanation": "The first byte of the ICMP header is the Type field. Type 8 = echo request (ping going out), Type 0 = echo reply (ping coming back). When you run 'ping 127.0.0.1', the kernel sends a type-8 packet and expects a type-0 reply. By checking this single byte in a capture you can immediately tell which direction the message is going."
+    },
+    {
+      "stage": "post",
+      "question": "Which tcpdump command saves packets to a file AND prints the raw hex for later analysis?",
+      "options": [
+        "sudo tcpdump -i lo -xx -w /tmp/out.pcap",
+        "sudo tcpdump -i lo -n -w /tmp/out.pcap (save first, then read back with -xx -r)",
+        "sudo tcpdump -i lo -n -xx (the output is automatically saved)",
+        "sudo tcpdump -i lo --save-hex /tmp/out.pcap"
+      ],
+      "correct": 1,
+      "explanation": "The -w flag writes raw binary pcap data to a file. You cannot use -xx together with -w in the same command because -w suppresses the terminal output entirely. The correct workflow is: capture with -w to save the file, then replay with -r to read it back and add -xx to see the hex dump. This two-step approach also lets you share the file or analyze it multiple times."
+    }
+  ]
+}

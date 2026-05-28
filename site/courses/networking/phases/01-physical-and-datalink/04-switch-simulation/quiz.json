@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A switch receives a frame from host A on port 1, destined for host B on port 3. The forwarding table is empty. What does the switch do?",
+      "options": [
+        "Drops the frame — it cannot forward to an unknown destination",
+        "Sends the frame to port 3 — it knows all hosts because it manages them",
+        "Floods the frame out ports 2, 3, and 4 (all ports except port 1)",
+        "Sends an ARP request to find out which port host B is on"
+      ],
+      "correct": 2,
+      "explanation": "When the destination MAC is not in the forwarding table, the switch floods — it sends the frame out every port except the one it arrived on. This guarantees delivery even with an empty table. Simultaneously, the switch learns the source MAC: 'host A's MAC is reachable via port 1.' Flooding is how switches bootstrap their knowledge of the network topology."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the key difference between a switch and a hub at the data link layer?",
+      "options": [
+        "A switch works at Layer 3; a hub works at Layer 2",
+        "A switch selectively forwards frames based on MAC addresses; a hub repeats every frame on all ports",
+        "A switch requires configuration; a hub works out of the box",
+        "A hub is faster because it does not need to look up MAC addresses"
+      ],
+      "correct": 1,
+      "explanation": "A hub is a Layer 1 device — it has no awareness of MAC addresses. Every frame that arrives on any port is immediately repeated on all other ports. Every host on the network sees every frame. A switch is a Layer 2 device — it reads destination MAC addresses and forwards frames only to the correct port. This improves both security (other hosts don't see frames not meant for them) and performance (multiple conversations can happen simultaneously on different port pairs)."
+    },
+    {
+      "stage": "post",
+      "question": "In the simulation, Alice sends to Bob for the first time, then Bob replies to Alice. How many times is each frame flooded vs. directly forwarded?",
+      "options": [
+        "Both frames are flooded — the switch never learns",
+        "Alice's frame is flooded; Bob's reply is directly forwarded to port 1 (because the switch learned Alice's port from her first frame)",
+        "Alice's frame is directly forwarded; Bob's reply is flooded",
+        "Both frames are directly forwarded after a brief ARP exchange"
+      ],
+      "correct": 1,
+      "explanation": "When Alice's frame arrives (source: Alice, incoming: port 1), the switch learns 'Alice = port 1' and floods to ports 2, 3, 4 (unknown destination). When Bob replies (source: Bob, dst: Alice, incoming: port 2), the switch learns 'Bob = port 2' AND it looks up Alice in the table — finding 'Alice = port 1'. It directly forwards to port 1 only. This asymmetry is normal: the first frame in a conversation is always flooded, replies are forwarded directly."
+    },
+    {
+      "stage": "post",
+      "question": "A CAM table overflow attack fills a switch's forwarding table with fake MAC addresses. What is the security impact?",
+      "options": [
+        "The switch crashes and all network traffic stops",
+        "The switch starts routing instead of switching, exposing IP addresses",
+        "The switch can no longer learn new MACs and floods all unicast traffic — the attacker can capture everyone's traffic like on a hub",
+        "The switch begins dropping all frames from unknown MAC addresses"
+      ],
+      "correct": 2,
+      "explanation": "Real switch CAM tables have a fixed maximum size (often 8,000–128,000 entries). When the table is full, the switch cannot add new legitimate entries. Frames destined for MACs not in the (now full) table are flooded to all ports. The attacker (connected to one of those ports) receives a copy of all traffic that would normally be switched directly. This effectively turns the switch into a hub, enabling passive eavesdropping. Defense: port security limits the number of MAC addresses learned per port."
+    },
+    {
+      "stage": "post",
+      "question": "In your switch simulation, a ForwardingTableEntry has an `is_expired()` method. Why do forwarding table entries need to expire?",
+      "options": [
+        "To prevent the table from growing too large over time",
+        "Because MAC addresses change every few minutes as a security measure",
+        "To handle hosts that move ports or leave the network — stale entries would cause frames to be forwarded to the wrong port indefinitely",
+        "To comply with the Ethernet standard which mandates 5-minute expiry"
+      ],
+      "correct": 2,
+      "explanation": "Hosts can change their location: a laptop moves from one switch port to another, a VM migrates to a different physical host, or a host simply leaves the network. If entries never expired, a switch would keep sending frames to the old port forever after a move. The expiry timer (typically 5 minutes / 300 seconds on real switches) ensures stale entries are removed, so the next frame from or to that MAC triggers re-learning. A too-short expiry causes unnecessary flooding; a too-long expiry causes delivery failures after network changes."
+    }
+  ]
+}

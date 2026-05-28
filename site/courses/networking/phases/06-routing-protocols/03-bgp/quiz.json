@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't OSPF be used to route between ISPs on the global Internet?",
+      "options": [
+        "OSPF only runs on Cisco hardware",
+        "OSPF floods full topology details, which doesn't scale to millions of routes across thousands of organisations",
+        "OSPF doesn't support IPv4",
+        "OSPF requires all routers to be in the same physical building"
+      ],
+      "correct": 1,
+      "explanation": "OSPF shares complete topology details (LSAs) with every router in the same area. This works inside one organisation but is completely impractical for the Internet, where you don't want to reveal your internal topology to external parties and the scale (900k+ prefixes, thousands of AS domains) would be unmanageable."
+    },
+    {
+      "stage": "pre",
+      "question": "What does the AS_PATH attribute in BGP represent?",
+      "options": [
+        "The physical cable path a packet takes",
+        "The ordered list of Autonomous System numbers a BGP route has passed through",
+        "The cost metric, similar to OSPF metric",
+        "The list of routers that have forwarded this route"
+      ],
+      "correct": 1,
+      "explanation": "AS_PATH is an ordered list of ASNs the route advertisement has traversed. It has two purposes: loop prevention (if you see your own ASN in AS_PATH, discard the route) and path selection (shorter AS_PATH is preferred when other attributes are equal)."
+    },
+    {
+      "stage": "post",
+      "question": "BGP on R2 receives 10.2.0.0/24 via two paths: Path A with LOCAL_PREF 200 and Path B with LOCAL_PREF 100. Path B has a shorter AS_PATH. Which path does R2 select?",
+      "options": [
+        "Path B, because shorter AS_PATH is always preferred",
+        "Path A, because LOCAL_PREF is checked before AS_PATH in BGP's decision process",
+        "Path A, because higher LOCAL_PREF means lower metric",
+        "It depends on the BGP hold timer"
+      ],
+      "correct": 1,
+      "explanation": "BGP's decision process is strictly ordered. LOCAL_PREF is checked at step 2, AS_PATH length at step 4. Step 2 wins. Path A's LOCAL_PREF 200 beats Path B's LOCAL_PREF 100, and BGP never reaches the AS_PATH comparison. This is why LOCAL_PREF is the primary tool for controlling outbound traffic within an AS."
+    },
+    {
+      "stage": "post",
+      "question": "AS 65001 advertises 10.1.0.0/24 on two links to the Internet. On Link B, they prepend their ASN twice. What does the remote AS see for AS_PATH on Link B?",
+      "options": [
+        "65001",
+        "65001 65001 65001",
+        "65001 65001",
+        "The remote AS does not see the prepending"
+      ],
+      "correct": 1,
+      "explanation": "The original AS_PATH is '65001' (one hop). Adding 'set as-path prepend 65002 65002' in the route-map appends two more copies: '65001 65001 65001'. The remote AS now sees a path of length 3 on Link B vs. length 1 on Link A, and prefers Link A. The original ASN is always present once; prepending adds extra copies."
+    },
+    {
+      "stage": "post",
+      "question": "What is the key difference between eBGP and iBGP regarding the AS_PATH attribute?",
+      "options": [
+        "eBGP appends the local AS to AS_PATH; iBGP does not",
+        "iBGP appends the local AS to AS_PATH; eBGP does not",
+        "Both eBGP and iBGP always append the local AS",
+        "Neither eBGP nor iBGP modifies AS_PATH"
+      ],
+      "correct": 0,
+      "explanation": "When a route crosses an AS boundary via eBGP, the local AS number is prepended to AS_PATH. This is how the path history is built up across the Internet. iBGP sessions are within the same AS, so they do not add to AS_PATH — the route is already inside the AS and shouldn't look like it travelled through it again."
+    }
+  ]
+}

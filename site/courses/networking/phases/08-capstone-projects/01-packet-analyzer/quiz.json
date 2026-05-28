@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a pcap file?",
+      "options": [
+        "A compressed archive of network configuration files",
+        "A binary file format that stores raw network packets with timestamps, created by libpcap/tcpdump",
+        "A Python script for network packet analysis",
+        "A database of known malicious IP addresses"
+      ],
+      "correct": 1,
+      "explanation": "pcap (packet capture) files store raw network frames in a standardised binary format defined by libpcap. Each packet record has a timestamp (seconds.microseconds), the captured length, the original length, and the raw frame bytes. Tools like tcpdump, Wireshark, and Scapy all read and write this format."
+    },
+    {
+      "stage": "pre",
+      "question": "What is a '5-tuple' in the context of network flows?",
+      "options": [
+        "The five TCP flags: SYN, ACK, FIN, RST, URG",
+        "Source IP, destination IP, source port, destination port, and protocol — together uniquely identifying a conversation",
+        "The five OSI layers below the application layer",
+        "The five fields in an IP header: version, TTL, protocol, source, destination"
+      ],
+      "correct": 1,
+      "explanation": "A 5-tuple is (src IP, dst IP, src port, dst port, protocol). It is the minimal set of fields needed to uniquely identify a network conversation. Two packets with the same 5-tuple belong to the same flow. This is what stateful firewalls, load balancers, and flow analyzers use to track connections."
+    },
+    {
+      "stage": "post",
+      "question": "Why does the analyzer normalise the 5-tuple (put the lower IP first) before using it as a dictionary key?",
+      "options": [
+        "To improve hash performance by sorting keys",
+        "So that packets going A→B and packets going B→A map to the same conversation entry",
+        "To comply with RFC 5101 (NetFlow format requirements)",
+        "Because dpkt always returns IPs in sorted order"
+      ],
+      "correct": 1,
+      "explanation": "A TCP conversation has packets in both directions: A→B and B→A. Without normalisation, they would be stored as two separate conversations. By always placing the lower (IP, port) first, both directions map to the same canonical key. This is essential for accurate conversation-level statistics like total bytes exchanged."
+    },
+    {
+      "stage": "post",
+      "question": "The analyzer reports a conversation as 'ICMP' with src_port=0 and dst_port=0. Why?",
+      "options": [
+        "ICMP packets are malformed and missing the port fields",
+        "ICMP operates at Layer 3 and has no port numbers; the analyzer uses 0 as a placeholder",
+        "The analyzer failed to decode the ICMP header",
+        "ICMP uses port 0 as a reserved special port in the IANA registry"
+      ],
+      "correct": 1,
+      "explanation": "ICMP (Internet Control Message Protocol) is a Layer 3 protocol — it does not have source and destination ports. Ports are a TCP/UDP concept. The analyzer uses port 0 as a placeholder for ICMP to maintain a consistent 5-tuple structure. In the report, ICMP conversations display just the IP addresses without port numbers."
+    },
+    {
+      "stage": "post",
+      "question": "You run the analyzer on a 100MB pcap. The top conversation shows 98MB between two IPs on port 443. What can you NOT determine from this output alone?",
+      "options": [
+        "Which IP was the client and which was the server",
+        "The total number of packets in the conversation",
+        "The duration of the conversation",
+        "The content of the HTTPS session (decrypted payload)"
+      ],
+      "correct": 3,
+      "explanation": "The analyzer can tell you: packet counts, byte counts, duration, and endpoints (the 5-tuple). It cannot decrypt TLS traffic — port 443 means HTTPS, and the payload is encrypted. To read the plaintext content you would need the server's private key (for RSA key exchange) or a pre-master secret log file (for forward-secret cipher suites). A packet capture only captures what's on the wire."
+    }
+  ]
+}

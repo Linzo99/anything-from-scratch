@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does the loopback interface (127.0.0.1) do when you send a packet to it?",
+      "options": [
+        "Sends the packet to your default gateway",
+        "Broadcasts the packet to all hosts on the local network",
+        "Routes the packet back to the same machine without touching physical hardware",
+        "Drops the packet silently"
+      ],
+      "correct": 2,
+      "explanation": "The loopback interface (lo) is a virtual software interface. Packets sent to 127.0.0.1 are handed back to the kernel immediately — they never reach a NIC, a cable, or any external network. This makes it ideal for testing: you can run a server and client on the same machine and capture their traffic."
+    },
+    {
+      "stage": "pre",
+      "question": "Why does packet capture require root or special privileges on Linux?",
+      "options": [
+        "Because network hardware is expensive and Linux protects it",
+        "Because raw sockets can read every packet on a wire, including other users' traffic",
+        "Because tcpdump is a commercial tool that requires a license",
+        "Because the kernel limits network speed for non-root processes"
+      ],
+      "correct": 1,
+      "explanation": "A raw socket receives a copy of every frame that passes through an interface — not just the frames addressed to your process. On a shared network, this means a malicious user could read unencrypted passwords, emails, or any other data. Linux therefore requires the CAP_NET_RAW capability (or root) to open a raw socket."
+    },
+    {
+      "stage": "post",
+      "question": "After running `sudo usermod -aG wireshark $USER`, your user still cannot capture packets without sudo. What is the most likely cause?",
+      "options": [
+        "Wireshark was not installed correctly",
+        "The wireshark group does not exist on this system",
+        "You have not logged out and back in since the group was added",
+        "The loopback interface does not support promiscuous mode"
+      ],
+      "correct": 2,
+      "explanation": "Linux group membership is loaded when a session starts. Running `usermod` adds you to the group in /etc/group, but your current shell session still has the old group list. You must log out and log back in (or run `newgrp wireshark`) for the kernel to recognize your new group membership."
+    },
+    {
+      "stage": "post",
+      "question": "Which tcpdump flags would you use to capture exactly 20 packets on the loopback interface without resolving hostnames?",
+      "options": [
+        "tcpdump -i lo -r 20",
+        "tcpdump -i lo -n -c 20",
+        "tcpdump --interface=loopback --count=20",
+        "tcpdump -lo -no-resolve -stop 20"
+      ],
+      "correct": 1,
+      "explanation": "The `-i lo` flag selects the loopback interface, `-n` disables hostname resolution (so you see IP addresses instead of names, which is faster and less ambiguous), and `-c 20` tells tcpdump to exit after capturing 20 packets. These three flags together are the standard starting point for any loopback capture."
+    },
+    {
+      "stage": "post",
+      "question": "You run `ncat -l 9999` in one terminal and `echo 'test' | ncat 127.0.0.1 9999` in another. The listener receives 'test' and exits. What layer of the network stack did this exercise demonstrate?",
+      "options": [
+        "Layer 1 (Physical) — the voltage signals on the loopback wire",
+        "Layer 2 (Data Link) — the MAC address resolution for 127.0.0.1",
+        "Layer 4 (Transport) — a TCP connection was established to carry the data",
+        "Layer 7 (Application) — the HTTP protocol was used to transfer the string"
+      ],
+      "correct": 2,
+      "explanation": "ncat (netcat) opens a TCP connection by default. TCP is a Layer 4 (Transport layer) protocol. The listener on port 9999 accepted a TCP connection from the client, received the 'test' string as a TCP stream, and printed it. No application-layer protocol (like HTTP) was involved — just raw TCP over the loopback address."
+    }
+  ]
+}

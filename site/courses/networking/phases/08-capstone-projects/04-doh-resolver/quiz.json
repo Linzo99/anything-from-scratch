@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is standard DNS a privacy problem?",
+      "options": [
+        "DNS responses contain your IP address in the payload",
+        "DNS queries are sent in plaintext, so anyone on the network path can read what domains you visit",
+        "DNS uses TCP, which is easier to intercept than UDP",
+        "DNS servers log all queries by law in most countries"
+      ],
+      "correct": 1,
+      "explanation": "Standard DNS on port 53 is unencrypted. Your ISP, network admin, and anyone who can observe your traffic can read every domain you resolve. DNS-over-HTTPS wraps queries in TLS so the query is encrypted and looks like normal HTTPS traffic."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can't apps on your computer directly use a DoH server without a local proxy?",
+      "options": [
+        "DoH requires a special OS driver to function",
+        "Most apps and the OS DNS resolver use UDP port 53, not HTTPS — they don't speak DoH natively",
+        "DoH is only available on Linux and macOS",
+        "DoH responses are incompatible with the DNS record format apps expect"
+      ],
+      "correct": 1,
+      "explanation": "The OS resolver and most apps are hardcoded to send UDP queries to port 53. They have no knowledge of HTTPS. A local DoH proxy bridges this gap: it listens on UDP port 53 (or 5353 for testing), speaks plain DNS to local apps, and translates queries to HTTPS for the upstream resolver."
+    },
+    {
+      "stage": "post",
+      "question": "What is base64url encoding and why does DoH use it instead of standard base64?",
+      "options": [
+        "base64url is faster to encode/decode than standard base64",
+        "base64url replaces + and / with - and _ so the encoded string is safe in a URL query parameter",
+        "base64url compresses the DNS query to reduce request size",
+        "base64url is required by TLS for binary payloads"
+      ],
+      "correct": 1,
+      "explanation": "Standard base64 uses + and / which are special characters in URLs (+ means space, / is a path separator). base64url substitutes these with - and _, and drops the = padding, so the encoded DNS query can appear in a ?dns= query parameter without percent-encoding corruption."
+    },
+    {
+      "stage": "post",
+      "question": "In the DoH GET request, what does `Accept: application/dns-message` tell the server?",
+      "options": [
+        "The client can accept compressed DNS responses",
+        "The client wants the response in raw binary DNS wire format, not JSON",
+        "The client is a DNS resolver, not a browser",
+        "The client accepts any content type the server prefers"
+      ],
+      "correct": 1,
+      "explanation": "DoH supports both raw binary (application/dns-message) and JSON (application/dns-json) response formats. Setting Accept: application/dns-message tells the DoH server to return the response in standard DNS wire format — the same binary format your stub resolver already parses from Phase 4."
+    },
+    {
+      "stage": "post",
+      "question": "When the proxy cannot reach the DoH server, what DNS response code should it return to the client?",
+      "options": [
+        "NXDOMAIN (3) — domain not found",
+        "FORMERR (1) — malformed query",
+        "SERVFAIL (2) — server failure",
+        "REFUSED (5) — policy rejection"
+      ],
+      "correct": 2,
+      "explanation": "SERVFAIL (RCODE=2) means the server encountered a problem it couldn't resolve — which accurately describes 'I can't reach the upstream DoH server'. NXDOMAIN would falsely claim the domain doesn't exist. REFUSED means a policy decision, not a connectivity failure."
+    }
+  ]
+}

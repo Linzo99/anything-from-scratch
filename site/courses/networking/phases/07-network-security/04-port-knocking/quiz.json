@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is port 22 (SSH) a high-value target for attackers?",
+      "options": [
+        "SSH uses unencrypted password authentication by default",
+        "Port 22 is mandatory on all Internet-connected servers",
+        "SSH gives interactive shell access; if compromised, the attacker controls the machine",
+        "SSH cannot be protected by firewalls"
+      ],
+      "correct": 2,
+      "explanation": "SSH provides a remote command shell. Gaining SSH access means full control of the server. Even if SSH uses key authentication, automated bots scan every IP on the Internet looking for SSH servers to probe for weak keys, old vulnerabilities, or misconfigurations. The attack surface is large because SSH is widely deployed."
+    },
+    {
+      "stage": "pre",
+      "question": "What does a port scanner report when a firewall silently drops (not rejects) a SYN packet?",
+      "options": [
+        "open — the scanner assumes silence means the port is listening",
+        "closed — no response is the same as a RST",
+        "filtered — nmap times out waiting for a response",
+        "unknown — only happens with UDP scans"
+      ],
+      "correct": 2,
+      "explanation": "When iptables DROPs a SYN, there is no response at all — not a RST, not an ICMP error, nothing. nmap waits for its timeout, gets nothing, and marks the port as 'filtered'. This is exactly the state port knocking relies on: knock ports appear 'filtered' (closed to scanners) until the correct sequence opens the target port."
+    },
+    {
+      "stage": "post",
+      "question": "The knock daemon uses pcap (Scapy sniff) to see knock packets even though iptables DROPs them. Why can pcap see packets that iptables drops?",
+      "options": [
+        "pcap patches iptables to prevent drops",
+        "pcap captures packets at the network card driver level, before iptables processes them",
+        "The knock ports must be open for pcap to receive packets",
+        "pcap requires root only to bypass iptables DROP rules"
+      ],
+      "correct": 1,
+      "explanation": "In the Linux networking stack, packets are captured by pcap (via libpcap/AF_PACKET socket) as they arrive from the NIC driver, before they reach netfilter/iptables. So the knock daemon sees every incoming SYN, even ones that iptables will subsequently drop. The knock ports appear closed to the outside world while the daemon reads the knock attempts."
+    },
+    {
+      "stage": "post",
+      "question": "The daemon uses 'iptables -I INPUT 1' instead of '-A INPUT'. Why does this matter?",
+      "options": [
+        "-I and -A are identical; the choice is just style preference",
+        "-I inserts at position 1 (top), ensuring the ACCEPT rule is checked before any DROP rules that might block the IP",
+        "-I INPUT 1 only works for the first rule; subsequent rules must use -A",
+        "-A would create a permanent rule; -I creates a temporary one"
+      ],
+      "correct": 1,
+      "explanation": "'-A INPUT' appends the rule to the end of the chain. If there is already a DROP rule for port 22 at the end, the ACCEPT would never be reached (rules are evaluated top to bottom, first match wins). '-I INPUT 1' inserts at position 1, placing the ACCEPT before all existing rules including any DROP rules. The specific IP is then allowed before the general DROP fires."
+    },
+    {
+      "stage": "post",
+      "question": "An attacker captures your knock sequence by watching the network. They replay it 10 minutes later. What happens?",
+      "options": [
+        "The daemon ignores replays because it checks packet timestamps",
+        "The port opens again — port knocking is vulnerable to replay attacks without additional countermeasures",
+        "The iptables rule prevents the same IP from knocking twice",
+        "The KNOCK_WINDOW of 10 seconds blocks any replay attempt"
+      ],
+      "correct": 1,
+      "explanation": "Basic port knocking is vulnerable to replay attacks. If an attacker captures your knock sequence (e.g., via a passive wiretap), they can replay it at any time and get the port opened. The KNOCK_WINDOW only requires all three knocks to arrive within 10 seconds of each other — it does not prevent replaying the sequence an hour later. Defences include one-time sequences, time-based OTP sequences, or SPA (Single Packet Authentication)."
+    }
+  ]
+}

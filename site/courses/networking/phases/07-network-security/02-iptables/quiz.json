@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the key difference between stateless and stateful packet filtering?",
+      "options": [
+        "Stateless filtering is faster but requires double the rules; stateful filtering tracks connection state and can infer allowed reply traffic",
+        "Stateful filtering only works with TCP; stateless works with all protocols",
+        "Stateless filtering requires root privileges; stateful does not",
+        "There is no practical difference — both evaluate each packet the same way"
+      ],
+      "correct": 0,
+      "explanation": "Stateless filtering looks at each packet in isolation (source IP, dest port, flags). You must explicitly allow both directions. Stateful filtering (conntrack) tracks whether a packet belongs to an established connection. You only need to allow NEW connections inbound; reply packets match ESTABLISHED automatically. Stateful is simpler and harder to bypass."
+    },
+    {
+      "stage": "pre",
+      "question": "A packet enters your Linux machine. Which iptables chain processes it first?",
+      "options": [
+        "OUTPUT",
+        "FORWARD",
+        "INPUT",
+        "PREROUTING"
+      ],
+      "correct": 3,
+      "explanation": "Every incoming packet hits PREROUTING first (in the nat and mangle tables). Then the kernel decides if the packet is destined for the local machine (→ INPUT) or needs to be forwarded (→ FORWARD). OUTPUT is only for packets originated by the local machine. The question is about the filter table's INPUT chain, but technically PREROUTING comes first."
+    },
+    {
+      "stage": "post",
+      "question": "Your firewall has these INPUT rules in order: (1) ESTABLISHED,RELATED → ACCEPT, (2) NEW tcp dport 22 → ACCEPT, (3) default policy DROP. An inbound SSH reply packet arrives. Which rule matches it?",
+      "options": [
+        "Rule 2, because it explicitly mentions port 22",
+        "Rule 1, because the reply packet is part of an ESTABLISHED connection",
+        "Default DROP, because reply packets don't match ESTABLISHED rules",
+        "No rule matches; the packet is silently forwarded"
+      ],
+      "correct": 1,
+      "explanation": "Reply packets in an established SSH session have conntrack state ESTABLISHED. Rule 1 matches ESTABLISHED,RELATED packets and ACCEPTs them. Rule 2 (NEW tcp dport 22) is for the initial SYN that starts the connection. Rules are evaluated top to bottom; rule 1 matches first."
+    },
+    {
+      "stage": "post",
+      "question": "You add the rule: iptables -A INPUT -j DROP at the end of your INPUT chain, but the default policy is already DROP. Is this rule redundant?",
+      "options": [
+        "No, the explicit DROP rule is required; the default policy is only a backup that never fires",
+        "Yes, the rule is redundant — the default DROP policy catches everything the rules miss",
+        "No, the explicit DROP rule fires before the logging rule",
+        "Yes, but having both causes iptables to error out"
+      ],
+      "correct": 1,
+      "explanation": "The default policy is exactly what fires when no rule matches. An explicit DROP at the end does the same thing. Having both is redundant. However, placing a LOG rule before the explicit DROP (as done in the lesson) is useful — it logs dropped packets. In that setup, the LOG rule runs, then the explicit DROP fires. Without the explicit DROP at the end, the LOG rule would run and then the default DROP would handle it — same net effect."
+    },
+    {
+      "stage": "post",
+      "question": "After running the firewall script, you try to ping an external IP (8.8.8.8) and it works. Why, given that you set INPUT policy to DROP?",
+      "options": [
+        "Ping uses a special protocol that bypasses the INPUT chain",
+        "Outbound ICMP echo requests are in the OUTPUT chain; the ICMP echo replies come back as ESTABLISHED/RELATED traffic, which is allowed by rule 2",
+        "The firewall script accidentally allows all traffic",
+        "Ping responses don't go through the INPUT chain at all"
+      ],
+      "correct": 1,
+      "explanation": "Your machine sends an ICMP echo-request outbound (OUTPUT chain — allowed). The remote machine sends back an ICMP echo-reply. That reply enters the INPUT chain. conntrack recognises it as RELATED to your original request (ICMP replies are RELATED to ICMP requests). Rule 2 (ESTABLISHED,RELATED → ACCEPT) matches and allows it. This is exactly the power of stateful filtering."
+    }
+  ]
+}

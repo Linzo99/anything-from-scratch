@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "How is the domain name 'api.example.com' encoded in a DNS wire-format message?",
+      "options": [
+        "As a null-terminated ASCII string: 'api.example.com\\x00'",
+        "As a length-prefixed series of labels: \\x03api\\x07example\\x03com\\x00",
+        "As a 4-byte hash of the full domain name",
+        "As a UTF-16 encoded string with a 2-byte length prefix"
+      ],
+      "correct": 1,
+      "explanation": "DNS uses label encoding: each part of the domain (label) is preceded by a single byte indicating its length. 'api' (3 chars) becomes \\x03api, 'example' (7 chars) becomes \\x07example, 'com' (3 chars) becomes \\x03com, followed by a null byte \\x00 to terminate. The dots are not stored — the length bytes take their place."
+    },
+    {
+      "stage": "pre",
+      "question": "What Python module would you use to unpack the 4-byte TTL field from a DNS response byte string?",
+      "options": [
+        "binascii",
+        "struct",
+        "ctypes",
+        "array"
+      ],
+      "correct": 1,
+      "explanation": "Python's struct module unpacks binary data using format strings. struct.unpack('>I', data[offset:offset+4]) unpacks one unsigned 32-bit integer (I) in big-endian byte order (>). This is the standard tool for reading binary network protocol fields in Python."
+    },
+    {
+      "stage": "post",
+      "question": "A DNS name parser encounters the byte sequence 0xC0 0x0C at offset 27 in a packet. What should the parser do?",
+      "options": [
+        "Treat 0xC0 as a label length of 192 and read the next 192 bytes as a label",
+        "Stop parsing — 0xC0 signals end of the name field",
+        "Jump to offset 12 (0x000C) in the full message and continue reading labels from there",
+        "Skip 2 bytes and continue reading the next label at offset 29"
+      ],
+      "correct": 2,
+      "explanation": "When the top two bits of a length byte are both 1 (0xC0 = 1100 0000), it is a compression pointer. The offset is formed from the lower 6 bits of the first byte and all 8 bits of the second byte. Here: (0xC0 & 0x3F) << 8 | 0x0C = 0 << 8 | 12 = 12. The parser jumps to offset 12 in the full message and reads labels from there. After following the pointer, the next parsing position in the original stream is offset 29 (just past the 2-byte pointer)."
+    },
+    {
+      "stage": "post",
+      "question": "When parsing the RDATA of an A record, what do the 4 bytes represent and how do you convert them to a readable IP address in Python?",
+      "options": [
+        "A big-endian 32-bit integer; convert with str(struct.unpack('>I', rdata)[0])",
+        "The 4 bytes are the raw IPv4 address octets; convert with socket.inet_ntoa(rdata)",
+        "ASCII digits separated by null bytes; decode with rdata.decode('ascii')",
+        "A compressed domain name pointer to the actual IP stored elsewhere in the packet"
+      ],
+      "correct": 1,
+      "explanation": "An A record's RDATA is exactly 4 bytes representing the four octets of an IPv4 address in network byte order. socket.inet_ntoa() is the correct function — it takes 4 raw bytes and returns the dotted-decimal string like '93.184.216.34'. While struct.unpack('>I') would give you the integer, inet_ntoa directly produces the human-readable form."
+    },
+    {
+      "stage": "post",
+      "question": "A DNS response header contains: qdcount=1, ancount=0, nscount=2, rcode=3. What does this mean?",
+      "options": [
+        "The query succeeded; the 2 authority records hold the A record answers",
+        "The domain does not exist (NXDOMAIN); the 2 authority records likely contain SOA or NS records indicating who is authoritative for the nonexistent name",
+        "The server refused the query; try a different resolver",
+        "The response was truncated; resend over TCP to get the full answer"
+      ],
+      "correct": 1,
+      "explanation": "RCODE 3 is NXDOMAIN — the domain name does not exist. ancount=0 means no answer records. nscount=2 means there are 2 records in the authority section — typically a SOA (Start of Authority) record proving which server is authoritative for the parent zone, which confirms authoritatively that the name doesn't exist. This is normal behavior: NXDOMAIN responses often include authority records to prove the negative answer."
+    }
+  ]
+}

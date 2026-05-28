@@ -1,0 +1,41 @@
+name: rebuild
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/courses/**/data.json"
+      - "site/combine.js"
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild-data-js:
+    name: Rebuild site/data.js
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run combine.js
+        run: node site/combine.js
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet site/data.js; then
+            echo "site/data.js already up to date"
+            exit 0
+          fi
+          last_msg=$(git log -1 --pretty=%s)
+          if [[ "$last_msg" == "chore(site): rebuild data.js"* ]]; then
+            echo "last commit was already a rebuild; skipping to avoid loop"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data.js
+          git commit -m "chore(site): rebuild data.js"
+          git push

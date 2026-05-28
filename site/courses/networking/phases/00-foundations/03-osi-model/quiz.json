@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You can ping a server successfully (Layer 3 works), but a TCP connection to port 443 times out. Which layer is most likely the problem?",
+      "options": [
+        "Layer 1 (Physical) — the cable must be partially damaged",
+        "Layer 2 (Data Link) — the MAC address table is wrong",
+        "Layer 3 (Network) — IP routing is broken",
+        "Layer 4 (Transport) — a firewall or missing service is blocking the TCP port"
+      ],
+      "correct": 3,
+      "explanation": "If ping works, Layers 1–3 are functioning correctly — packets can reach the destination. The failure is at Layer 4, where a TCP connection is being refused or silently dropped. The most common causes are: a firewall rule blocking port 443, no service listening on that port, or a TCP RST being sent by the server."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the correct order of encapsulation when your application sends an HTTP request over TCP/IP?",
+      "options": [
+        "Ethernet header → IP header → TCP header → HTTP data",
+        "HTTP data → TCP header → IP header → Ethernet header",
+        "IP header → TCP header → HTTP data → Ethernet header",
+        "HTTP data → IP header → TCP header → Ethernet header"
+      ],
+      "correct": 1,
+      "explanation": "Encapsulation works from the application layer down. The HTTP data (Layer 7) is created first. Then TCP adds its header in front (Layer 4). Then IP adds its header (Layer 3). Then Ethernet adds its header and FCS trailer (Layer 2). On the wire, Ethernet comes first because it is the outermost wrapper — the receiving NIC processes it first."
+    },
+    {
+      "stage": "post",
+      "question": "A tcpdump capture shows a TCP packet with flags [R]. Using the OSI layer isolation principle, what can you conclude?",
+      "options": [
+        "Layer 1 has a physical problem — the NIC sent a reset signal",
+        "Layer 3 dropped the packet because TTL expired",
+        "Layer 4 is rejecting the connection — likely no process listening on that port",
+        "Layer 7 returned an HTTP error code"
+      ],
+      "correct": 2,
+      "explanation": "A TCP RST (reset) flag [R] is a Layer 4 signal. The IP packet arrived at its destination (Layer 3 worked), but the TCP stack found no process listening on the target port and responded with RST to immediately terminate the connection attempt. This is distinct from a firewall DROP (where you get no response at all) vs. a firewall REJECT (which also sends RST)."
+    },
+    {
+      "stage": "post",
+      "question": "ICMP (used by ping) does not have its own transport-layer port numbers. Which OSI layer does ICMP belong to?",
+      "options": [
+        "Layer 4 (Transport) — because it provides diagnostic feedback like TCP does",
+        "Layer 3 (Network) — because it rides directly inside IP and reports IP-layer conditions",
+        "Layer 2 (Data Link) — because it uses MAC addresses for error reporting",
+        "Layer 5 (Session) — because ping maintains a request/reply session"
+      ],
+      "correct": 1,
+      "explanation": "ICMP is a Layer 3 protocol. It is carried directly in IP packets (IP protocol number 1), not inside TCP or UDP. ICMP messages report on IP-layer conditions: destinations unreachable, TTL expired, fragmentation needed, etc. There are no port numbers in ICMP — ports are a Layer 4 concept. This is why a firewall can block TCP port 80 while ICMP echo requests still work."
+    },
+    {
+      "stage": "post",
+      "question": "The OSI model has 7 layers, but in practice, engineers often say there is 'no clean layer 5 and 6 in TCP/IP.' Why?",
+      "options": [
+        "Because TCP/IP was designed before the OSI model and collapses Layers 5, 6, and 7 into the Application layer",
+        "Because TLS encrypts layers 5 and 6, making them invisible",
+        "Because Layers 5 and 6 were removed from the OSI standard in 1990",
+        "Because modern networks are too fast for session and presentation layers to matter"
+      ],
+      "correct": 0,
+      "explanation": "The TCP/IP model, which is what the internet actually uses, was developed in the 1970s — before the OSI model (1984). TCP/IP has only 4 layers: Link (roughly OSI L1+L2), Internet (OSI L3), Transport (OSI L4), and Application (OSI L5+L6+L7 combined). Functions like TLS encryption (OSI L6 'presentation') and session management (OSI L5) are handled by application-layer protocols or libraries in TCP/IP, not by dedicated protocol layers."
+    }
+  ]
+}

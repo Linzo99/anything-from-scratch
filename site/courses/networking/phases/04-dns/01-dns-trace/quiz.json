@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "When your browser resolves 'example.com', which server gives the final IP address?",
+      "options": [
+        "A root server (e.g. a.root-servers.net)",
+        "Your ISP's recursive resolver",
+        "The authoritative nameserver for example.com",
+        "The .com TLD nameserver"
+      ],
+      "correct": 2,
+      "explanation": "The authoritative nameserver is the one that actually holds the zone file for the domain. Root servers and TLD servers only provide referrals (delegations) pointing to the next server in the chain. The recursive resolver walks that chain but does not itself hold authoritative records."
+    },
+    {
+      "stage": "pre",
+      "question": "What does a root server return when asked for the IP address of 'www.example.com'?",
+      "options": [
+        "The IP address of www.example.com",
+        "An error, because root servers are offline most of the time",
+        "A referral to the .com TLD nameservers",
+        "A referral directly to example.com's authoritative nameserver"
+      ],
+      "correct": 2,
+      "explanation": "Root servers know nothing about individual domains. They only know which servers manage each TLD (like .com, .org). So they return a referral pointing to the .com TLD nameservers. The .com TLD server then provides a further referral to example.com's own nameservers."
+    },
+    {
+      "stage": "post",
+      "question": "In dig +trace output, the 'aa' flag appears only in the last response. What does 'aa' mean and why is it absent from earlier responses?",
+      "options": [
+        "'always available' — earlier servers are busy and flag when they respond",
+        "'authoritative answer' — only the authoritative nameserver sets this; root and TLD servers are giving referrals, not authoritative answers",
+        "'address assigned' — set when the IP address field is populated",
+        "'already answered' — set when the result comes from cache"
+      ],
+      "correct": 1,
+      "explanation": "The 'aa' (authoritative answer) flag is set only by a nameserver that is authoritative for the queried zone — meaning it holds the actual zone file. Root servers and TLD servers respond with referrals (non-authoritative responses), so they do not set this flag. When you finally reach the authoritative nameserver and get the A record, 'aa' is set."
+    },
+    {
+      "stage": "post",
+      "question": "You run 'dig +trace api.mycompany.com' and see four server contacts before getting an answer. In order, which servers are contacted?",
+      "options": [
+        "Recursive resolver → root server → .com TLD server → mycompany.com authoritative server",
+        "Root server → .com TLD server → mycompany.com authoritative server → CDN edge server",
+        "Your stub resolver → recursive resolver → root server → authoritative server",
+        "DNS cache → root server → TLD server → recursive resolver"
+      ],
+      "correct": 0,
+      "explanation": "dig +trace bypasses your local recursive resolver's cache and re-walks the chain manually. It first contacts your local resolver to get the root server list, then contacts a root server, then a .com TLD server, then the authoritative nameserver for mycompany.com. Each step is a new network query, which is why +trace is slower than a normal cached lookup."
+    },
+    {
+      "stage": "post",
+      "question": "What is the difference between a recursive resolver and an authoritative nameserver?",
+      "options": [
+        "They are the same thing — 'recursive' and 'authoritative' describe the same server in different contexts",
+        "A recursive resolver walks the delegation chain on your behalf and caches results; an authoritative nameserver holds the actual zone records for a domain",
+        "A recursive resolver holds zone files; an authoritative nameserver caches answers from root servers",
+        "A recursive resolver only handles .com domains; an authoritative nameserver handles all other TLDs"
+      ],
+      "correct": 1,
+      "explanation": "These are two fundamentally different types of DNS servers. The recursive resolver (like 8.8.8.8 or your ISP's server) performs the iterative walk through root → TLD → authoritative, caches results, and returns answers to stub resolvers. The authoritative nameserver holds the actual DNS records (A, MX, CNAME, etc.) for a specific domain — it is the final source of truth. A single machine can be both, but they serve distinct roles."
+    }
+  ]
+}

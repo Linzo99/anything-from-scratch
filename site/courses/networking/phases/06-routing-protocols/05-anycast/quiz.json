@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "When you send a packet to 8.8.8.8 (Google DNS), which physical machine receives it?",
+      "options": [
+        "Always the same machine in Mountain View, California",
+        "A random Google machine chosen by DNS",
+        "The Google machine that is topologically closest to you in network terms",
+        "The machine with the most available CPU at that moment"
+      ],
+      "correct": 2,
+      "explanation": "8.8.8.8 is an anycast address. Multiple Google data centres all announce the 8.8.8.8 prefix via BGP. Your router uses normal BGP path selection to pick the best path, which typically leads to the geographically and topologically nearest Google PoP. Different users around the world reach different physical machines."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the fundamental mechanism that makes anycast work?",
+      "options": [
+        "A special anycast header in IP packets",
+        "Multiple machines with the same IP address, all announced via BGP",
+        "DNS returning different A records based on the client's location",
+        "A load balancer that redirects traffic to the nearest server"
+      ],
+      "correct": 1,
+      "explanation": "Anycast is not a special protocol — it is an emergent property of BGP routing. Multiple nodes announce the same prefix. BGP picks the best path to that prefix from each vantage point, which naturally leads to the closest node. No special headers, no DNS magic, no load balancer needed."
+    },
+    {
+      "stage": "post",
+      "question": "An anycast node goes offline. What causes traffic to automatically reroute to another anycast node?",
+      "options": [
+        "The offline node sends a goodbye packet to all clients",
+        "A DNS record is updated to remove the offline node's IP",
+        "BGP withdraws the prefix announcement from the offline node; other nodes still announce it",
+        "Clients detect TCP failures and retry with a different IP"
+      ],
+      "correct": 2,
+      "explanation": "When an anycast node's BGP process stops (or an operator withdraws the announcement), that node's path to the anycast prefix disappears from BGP. Other nodes still announce the same prefix. BGP reconverges and traffic flows to the remaining nodes. No client change needed — the same IP address still works."
+    },
+    {
+      "stage": "post",
+      "question": "In the lab, both AnyA and AnyB announce 10.9.9.0/24 from the same AS (65010). The client has LOCAL_PREF 200 on routes via R1. Which node receives the client's traffic?",
+      "options": [
+        "AnyB, because it was started last",
+        "AnyA, because LOCAL_PREF 200 via R1 beats LOCAL_PREF 100 via R2",
+        "Both nodes equally share traffic",
+        "AnyB, because R2 has a shorter AS_PATH"
+      ],
+      "correct": 1,
+      "explanation": "LOCAL_PREF 200 on the R1 path beats LOCAL_PREF 100 on the R2 path. BGP selects the R1 path, which leads to AnyA. The client's traffic lands at AnyA. This demonstrates how operators control anycast traffic routing using BGP policy."
+    },
+    {
+      "stage": "post",
+      "question": "Why is anycast NOT suitable for stateful TCP connections that need to stay on the same server?",
+      "options": [
+        "TCP does not support anycast addresses",
+        "BGP re-routes can send subsequent packets to a different anycast node, breaking the TCP state",
+        "Anycast only works with UDP",
+        "Anycast nodes cannot accept TCP SYN packets"
+      ],
+      "correct": 1,
+      "explanation": "Anycast works well for stateless protocols (DNS over UDP, ICMP). For TCP, if BGP reconverges mid-connection and sends packets to a different anycast node, the new node has no knowledge of the TCP session state and will reset the connection. This is why DNS-over-TCP and HTTPS behind anycast require careful engineering (e.g., consistent hashing, session affinity)."
+    }
+  ]
+}

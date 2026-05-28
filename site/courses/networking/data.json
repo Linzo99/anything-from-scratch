@@ -1,0 +1,771 @@
+{
+  "slug": "networking",
+  "title": "Networking Basics from Scratch",
+  "tagline": "52 lessons. 9 phases. From cables to protocols — build a working mental model of how the internet actually moves data.",
+  "description": "A ground-up course on computer networking: how bits move across wires, how packets get routed across the globe, and how application-layer protocols like HTTP and DNS are built on top. You implement tools and write small servers at each phase so the abstractions stay concrete.",
+  "githubRepo": "Linzo99/anything-from-scratch",
+  "githubBranch": "main",
+  "contentHost": "local",
+  "phases": [
+    {
+      "id": 0,
+      "name": "Foundations",
+      "status": "complete",
+      "desc": "Set up a Linux networking lab and build intuition for how data physically moves between machines.",
+      "lessons": [
+        {
+          "name": "Set Up a Linux Networking Lab",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/00-foundations/01-lab-setup/",
+          "path": "phases/networking/00-foundations/01-lab-setup",
+          "summary": "Install Wireshark, netcat, nmap, and iproute2; verify they can capture live traffic on your loopback interface.",
+          "keywords": "Wireshark · netcat · iproute2 · loopback"
+        },
+        {
+          "name": "Capture Your First Packet",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/00-foundations/02-first-packet/",
+          "path": "phases/networking/00-foundations/02-first-packet",
+          "summary": "Use tcpdump to capture a ping exchange and identify the Ethernet, IP, and ICMP layers in the hex dump.",
+          "keywords": "tcpdump · ICMP · Ethernet frame · hex dump"
+        },
+        {
+          "name": "Understand the OSI Model",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/00-foundations/03-osi-model/",
+          "path": "phases/networking/00-foundations/03-osi-model",
+          "summary": "Map a real captured packet to each OSI layer and explain what job each layer does in one sentence.",
+          "keywords": "OSI model · encapsulation · protocol stack"
+        },
+        {
+          "name": "Compare OSI vs TCP/IP",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/00-foundations/04-tcp-ip-model/",
+          "path": "phases/networking/00-foundations/04-tcp-ip-model",
+          "summary": "Draw the TCP/IP four-layer model and explain where real protocols (IP, TCP, HTTP) live in each model.",
+          "keywords": "TCP/IP · four-layer model · Internet layer"
+        },
+        {
+          "name": "Explore Network Interfaces",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/00-foundations/05-interfaces/",
+          "path": "phases/networking/00-foundations/05-interfaces",
+          "summary": "Use ip addr and ip link to list, configure, and bring up/down a virtual interface, observing how the kernel tracks state.",
+          "keywords": "ip addr · ip link · virtual interface · NIC"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Physical & Data Link Layers",
+      "status": "complete",
+      "desc": "Understand how bits are encoded on the wire and how Ethernet frames deliver data within a local network.",
+      "lessons": [
+        {
+          "name": "Trace Bits Across a Cable",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/01-physical-and-datalink/01-physical-encoding/",
+          "path": "phases/networking/01-physical-and-datalink/01-physical-encoding",
+          "summary": "Simulate NRZ and Manchester encoding in a Python script to see how 1s and 0s map to voltage transitions.",
+          "keywords": "NRZ · Manchester encoding · signal · baud rate"
+        },
+        {
+          "name": "Dissect an Ethernet Frame",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/01-physical-and-datalink/02-ethernet-frame/",
+          "path": "phases/networking/01-physical-and-datalink/02-ethernet-frame",
+          "summary": "Parse a raw Ethernet frame from a pcap file in Python, printing each field: destination MAC, source MAC, EtherType, payload.",
+          "keywords": "Ethernet · MAC address · EtherType · frame parser"
+        },
+        {
+          "name": "Understand MAC Addresses",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/01-physical-and-datalink/03-mac-addresses/",
+          "path": "phases/networking/01-physical-and-datalink/03-mac-addresses",
+          "summary": "Look up the OUI for several MAC addresses, explain unicast vs. multicast vs. broadcast, and observe ARP resolve a MAC.",
+          "keywords": "MAC address · OUI · ARP · broadcast"
+        },
+        {
+          "name": "Build a Layer-2 Switch Simulation",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/01-physical-and-datalink/04-switch-simulation/",
+          "path": "phases/networking/01-physical-and-datalink/04-switch-simulation",
+          "summary": "Implement a forwarding table in Python that learns MAC-to-port mappings from frames and makes forwarding decisions.",
+          "keywords": "switch · forwarding table · flooding · MAC learning"
+        },
+        {
+          "name": "Observe VLANs with 802.1Q Tags",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/01-physical-and-datalink/05-vlans/",
+          "path": "phases/networking/01-physical-and-datalink/05-vlans",
+          "summary": "Create two VLAN interfaces on a Linux bridge and verify that hosts on different VLANs cannot reach each other without a router.",
+          "keywords": "VLAN · 802.1Q · trunk port · network segmentation"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "The IP Layer",
+      "status": "complete",
+      "desc": "Master IPv4 addressing, subnetting, and routing so you can reason about where packets go and why.",
+      "lessons": [
+        {
+          "name": "Decode IPv4 Addresses",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/01-ipv4-addresses/",
+          "path": "phases/networking/02-ip-layer/01-ipv4-addresses",
+          "summary": "Write a Python script that converts dotted-decimal to binary, identifies the class, and extracts the host and network portions.",
+          "keywords": "IPv4 · dotted-decimal · binary · address classes"
+        },
+        {
+          "name": "Subnet a Network by Hand",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/02-subnetting/",
+          "path": "phases/networking/02-ip-layer/02-subnetting",
+          "summary": "Implement CIDR subnetting: given a base address and prefix length, compute the network address, broadcast, host range, and usable count.",
+          "keywords": "CIDR · subnet mask · subnetting · host range"
+        },
+        {
+          "name": "Parse an IPv4 Header",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/03-ipv4-header/",
+          "path": "phases/networking/02-ip-layer/03-ipv4-header",
+          "summary": "Use Python's struct module to unpack a raw IPv4 header from a pcap file, printing every field including TTL and flags.",
+          "keywords": "IPv4 header · TTL · fragmentation · IHL"
+        },
+        {
+          "name": "Trace a Packet with TTL",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/04-ttl-traceroute/",
+          "path": "phases/networking/02-ip-layer/04-ttl-traceroute",
+          "summary": "Implement a minimal traceroute in Python using raw sockets and TTL manipulation to discover each hop to a destination.",
+          "keywords": "TTL · traceroute · ICMP time exceeded · raw socket"
+        },
+        {
+          "name": "Configure Static Routes",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/05-static-routing/",
+          "path": "phases/networking/02-ip-layer/05-static-routing",
+          "summary": "Build a two-router topology with Linux network namespaces and ip route so that hosts on separate subnets can reach each other.",
+          "keywords": "static route · ip route · network namespace · next hop"
+        },
+        {
+          "name": "Understand NAT and Private Addresses",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/02-ip-layer/06-nat/",
+          "path": "phases/networking/02-ip-layer/06-nat",
+          "summary": "Configure iptables MASQUERADE to share one public IP across a private subnet and capture the address translation in Wireshark.",
+          "keywords": "NAT · iptables · MASQUERADE · RFC 1918"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Transport Layer: TCP & UDP",
+      "status": "complete",
+      "desc": "Implement TCP's reliability mechanisms and understand when to use UDP instead.",
+      "lessons": [
+        {
+          "name": "Dissect a TCP Three-Way Handshake",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/01-tcp-handshake/",
+          "path": "phases/networking/03-transport/01-tcp-handshake",
+          "summary": "Capture a TCP connection with tcpdump, annotate the SYN, SYN-ACK, ACK packets, and explain why each flag is set.",
+          "keywords": "TCP · three-way handshake · SYN · ACK · flags"
+        },
+        {
+          "name": "Build a TCP Echo Server",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/02-tcp-echo-server/",
+          "path": "phases/networking/03-transport/02-tcp-echo-server",
+          "summary": "Write a Python TCP server that accepts connections, reads lines, and echoes them back; test it with netcat.",
+          "keywords": "socket · bind · listen · accept · echo server"
+        },
+        {
+          "name": "Implement Stop-and-Wait ARQ",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/03-arq/",
+          "path": "phases/networking/03-transport/03-arq",
+          "summary": "Implement stop-and-wait automatic repeat request over UDP sockets, adding sequence numbers, ACKs, and retransmission on timeout.",
+          "keywords": "ARQ · stop-and-wait · sequence number · retransmission"
+        },
+        {
+          "name": "Visualize TCP Sliding Window",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/04-sliding-window/",
+          "path": "phases/networking/03-transport/04-sliding-window",
+          "summary": "Simulate a sliding window sender in Python, printing the window state after each ACK to show how throughput scales with window size.",
+          "keywords": "sliding window · flow control · window size · throughput"
+        },
+        {
+          "name": "Observe TCP Congestion Control",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python, Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/05-congestion-control/",
+          "path": "phases/networking/03-transport/05-congestion-control",
+          "summary": "Use tc netem to inject packet loss and capture the cwnd trace in ss output to see slow start and AIMD in action.",
+          "keywords": "congestion control · cwnd · slow start · AIMD · tc netem"
+        },
+        {
+          "name": "Build a UDP Datagram Client",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/03-transport/06-udp-client/",
+          "path": "phases/networking/03-transport/06-udp-client",
+          "summary": "Write a UDP client that sends datagrams to a server, measures round-trip time per packet, and reports packet loss percentage.",
+          "keywords": "UDP · datagram · RTT · packet loss · unreliable"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "DNS",
+      "status": "complete",
+      "desc": "Understand how domain names resolve to IP addresses and build a stub resolver from scratch.",
+      "lessons": [
+        {
+          "name": "Trace a DNS Resolution",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/04-dns/01-dns-trace/",
+          "path": "phases/networking/04-dns/01-dns-trace",
+          "summary": "Use dig +trace to walk the full DNS resolution chain from root servers to authoritative nameserver and explain each step.",
+          "keywords": "DNS · dig · root server · authoritative nameserver · recursion"
+        },
+        {
+          "name": "Parse a DNS Wire-Format Message",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/04-dns/02-dns-parser/",
+          "path": "phases/networking/04-dns/02-dns-parser",
+          "summary": "Write a Python parser that decodes a DNS response from bytes, printing the question, answer RRs, and TTL values.",
+          "keywords": "DNS wire format · RR · TTL · struct · label encoding"
+        },
+        {
+          "name": "Build a DNS Stub Resolver",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/04-dns/03-dns-stub-resolver/",
+          "path": "phases/networking/04-dns/03-dns-stub-resolver",
+          "summary": "Implement a DNS stub resolver over UDP that constructs a query, sends it to 8.8.8.8, and parses the A record response.",
+          "keywords": "stub resolver · UDP · query ID · A record"
+        },
+        {
+          "name": "Explore DNS Record Types",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/04-dns/04-dns-record-types/",
+          "path": "phases/networking/04-dns/04-dns-record-types",
+          "summary": "Query A, AAAA, MX, TXT, CNAME, and NS records for a domain and explain when each record type is used.",
+          "keywords": "A record · AAAA · MX · CNAME · NS · TXT"
+        },
+        {
+          "name": "Understand DNS Caching and TTL",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/04-dns/05-dns-caching/",
+          "path": "phases/networking/04-dns/05-dns-caching",
+          "summary": "Observe TTL decrement across repeated queries, explain negative caching, and demonstrate how a stale cache causes failures.",
+          "keywords": "TTL · DNS cache · negative caching · NXDOMAIN"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "HTTP & TLS",
+      "status": "complete",
+      "desc": "Build HTTP/1.1 clients and servers by hand, then add TLS to see exactly what encryption changes at the wire level.",
+      "lessons": [
+        {
+          "name": "Send a Raw HTTP/1.1 Request",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/01-raw-http/",
+          "path": "phases/networking/05-http-and-tls/01-raw-http",
+          "summary": "Open a TCP socket to example.com:80 and send a hand-crafted HTTP GET request, then parse the status line and headers.",
+          "keywords": "HTTP/1.1 · raw socket · GET · request line · response headers"
+        },
+        {
+          "name": "Build a Minimal HTTP Server",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/02-http-server/",
+          "path": "phases/networking/05-http-and-tls/02-http-server",
+          "summary": "Write a Python server that handles GET requests, serves static files from a directory, and returns proper 404 responses.",
+          "keywords": "HTTP server · socket · 200 OK · 404 · Content-Type"
+        },
+        {
+          "name": "Understand HTTP Methods and Status Codes",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/03-http-methods/",
+          "path": "phases/networking/05-http-and-tls/03-http-methods",
+          "summary": "Extend the server to handle POST and DELETE, implement the correct status codes, and test each with curl.",
+          "keywords": "POST · DELETE · PUT · 201 · 204 · 400 · 405"
+        },
+        {
+          "name": "Trace a TLS Handshake",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/04-tls-handshake/",
+          "path": "phases/networking/05-http-and-tls/04-tls-handshake",
+          "summary": "Capture a TLS 1.3 handshake in Wireshark and label each message: ClientHello, ServerHello, Certificate, Finished.",
+          "keywords": "TLS 1.3 · ClientHello · ServerHello · certificate · handshake"
+        },
+        {
+          "name": "Add TLS to the HTTP Server",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/05-https-server/",
+          "path": "phases/networking/05-http-and-tls/05-https-server",
+          "summary": "Wrap the HTTP server's socket with ssl.wrap_socket using a self-signed certificate and verify the connection with curl --cacert.",
+          "keywords": "ssl module · self-signed cert · wrap_socket · HTTPS"
+        },
+        {
+          "name": "Understand HTTP/2 Multiplexing",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python, Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/05-http-and-tls/06-http2/",
+          "path": "phases/networking/05-http-and-tls/06-http2",
+          "summary": "Use h2 library to make parallel requests over a single connection and compare waterfall timing against HTTP/1.1.",
+          "keywords": "HTTP/2 · multiplexing · streams · HPACK · h2"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Routing Protocols",
+      "status": "complete",
+      "desc": "Understand how routers discover paths and propagate reachability information across large networks.",
+      "lessons": [
+        {
+          "name": "Configure OSPF with FRRouting",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/06-routing-protocols/01-ospf/",
+          "path": "phases/networking/06-routing-protocols/01-ospf",
+          "summary": "Bring up a three-router FRRouting topology in Linux namespaces, enable OSPF, and verify routes appear in ip route.",
+          "keywords": "OSPF · FRRouting · link-state · LSA · LSDB"
+        },
+        {
+          "name": "Simulate Link Failure and Reconvergence",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/06-routing-protocols/02-reconvergence/",
+          "path": "phases/networking/06-routing-protocols/02-reconvergence",
+          "summary": "Take down a link in the OSPF topology and measure how long it takes traffic to reroute using ping timestamps.",
+          "keywords": "reconvergence · SPF · Dijkstra · link failure"
+        },
+        {
+          "name": "Explore BGP Path Selection",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/06-routing-protocols/03-bgp/",
+          "path": "phases/networking/06-routing-protocols/03-bgp",
+          "summary": "Set up a two-AS FRRouting lab, advertise prefixes, and demonstrate how LOCAL_PREF and AS_PATH influence route selection.",
+          "keywords": "BGP · AS · path selection · LOCAL_PREF · AS_PATH"
+        },
+        {
+          "name": "Implement RIP in Python",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/06-routing-protocols/04-rip/",
+          "path": "phases/networking/06-routing-protocols/04-rip",
+          "summary": "Write a minimal RIP v2 implementation that exchanges distance-vector updates over UDP and converges a four-node topology.",
+          "keywords": "RIP · distance vector · Bellman-Ford · routing table · UDP"
+        },
+        {
+          "name": "Understand Anycast Routing",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/06-routing-protocols/05-anycast/",
+          "path": "phases/networking/06-routing-protocols/05-anycast",
+          "summary": "Announce the same prefix from two locations in a FRRouting lab and verify that traffic lands at the topologically closest node.",
+          "keywords": "anycast · BGP · prefix · CDN · DNS anycast"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Network Security",
+      "status": "complete",
+      "desc": "Understand the most common network-layer attacks and implement packet filtering and monitoring defenses.",
+      "lessons": [
+        {
+          "name": "Detect ARP Spoofing",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/07-network-security/01-arp-spoofing/",
+          "path": "phases/networking/07-network-security/01-arp-spoofing",
+          "summary": "Write a Python script that sniffs ARP replies and alerts when a MAC-to-IP mapping changes unexpectedly on the local subnet.",
+          "keywords": "ARP spoofing · MITM · Scapy · ARP cache poisoning"
+        },
+        {
+          "name": "Write iptables Firewall Rules",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/07-network-security/02-iptables/",
+          "path": "phases/networking/07-network-security/02-iptables",
+          "summary": "Implement a stateful firewall policy with iptables that allows established outbound traffic and blocks all unsolicited inbound connections.",
+          "keywords": "iptables · stateful firewall · ESTABLISHED · RELATED · DROP"
+        },
+        {
+          "name": "Scan a Network with nmap",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Bash",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/07-network-security/03-nmap/",
+          "path": "phases/networking/07-network-security/03-nmap",
+          "summary": "Run a SYN scan and service-version probe against a local lab host, interpret the output, and explain what each scan type reveals.",
+          "keywords": "nmap · SYN scan · port scan · service detection · OS fingerprint"
+        },
+        {
+          "name": "Implement a Port Knocker",
+          "status": "complete",
+          "type": "Build",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/07-network-security/04-port-knocking/",
+          "path": "phases/networking/07-network-security/04-port-knocking",
+          "summary": "Build a port-knocking daemon that opens a firewall rule only after receiving a specific sequence of connection attempts.",
+          "keywords": "port knocking · iptables · pcap · hidden service"
+        },
+        {
+          "name": "Understand TLS Certificate Validation",
+          "status": "complete",
+          "type": "Learn",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/07-network-security/05-tls-certificates/",
+          "path": "phases/networking/07-network-security/05-tls-certificates",
+          "summary": "Write a Python script that connects to a server and validates the certificate chain, catching expired, self-signed, and hostname mismatches.",
+          "keywords": "TLS · certificate chain · CA · hostname validation · ssl"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Capstone Projects",
+      "status": "complete",
+      "desc": "Build four end-to-end networking tools that integrate everything from packet capture to application-layer protocols.",
+      "lessons": [
+        {
+          "name": "Build a Packet Analyzer CLI",
+          "status": "complete",
+          "type": "Capstone",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/08-capstone-projects/01-packet-analyzer/",
+          "path": "phases/networking/08-capstone-projects/01-packet-analyzer",
+          "summary": "Write a command-line packet analyzer that reads a pcap file and produces a human-readable summary of each conversation by protocol.",
+          "keywords": "pcap · Ethernet · IP · TCP · UDP · protocol breakdown"
+        },
+        {
+          "name": "Build a Chat App Over Raw TCP",
+          "status": "complete",
+          "type": "Capstone",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/08-capstone-projects/02-tcp-chat/",
+          "path": "phases/networking/08-capstone-projects/02-tcp-chat",
+          "summary": "Implement a multi-client chat server using select() and a framed message protocol over TCP with length-prefixed messages.",
+          "keywords": "TCP · select() · framing · length-prefix · multi-client"
+        },
+        {
+          "name": "Implement a Mini HTTP Proxy",
+          "status": "complete",
+          "type": "Capstone",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/08-capstone-projects/03-http-proxy/",
+          "path": "phases/networking/08-capstone-projects/03-http-proxy",
+          "summary": "Build a forward proxy that intercepts HTTP requests, optionally rewrites headers, and logs each request to a structured file.",
+          "keywords": "HTTP proxy · forward proxy · header rewriting · CONNECT · logging"
+        },
+        {
+          "name": "Deploy a DNS-over-HTTPS Resolver",
+          "status": "complete",
+          "type": "Capstone",
+          "lang": "Python",
+          "url": "https://github.com/user/networking-from-scratch/tree/main/phases/08-capstone-projects/04-doh-resolver/",
+          "path": "phases/networking/08-capstone-projects/04-doh-resolver",
+          "summary": "Build a local DoH server that accepts standard DNS queries and forwards them over HTTPS to a public resolver, returning the decoded response.",
+          "keywords": "DNS-over-HTTPS · DoH · TLS · resolver · privacy"
+        }
+      ]
+    }
+  ],
+  "glossary": [
+    {
+      "term": "OSI Model",
+      "says": "The thing with seven layers you memorize for exams",
+      "means": "A conceptual framework dividing network functions into seven layers (Physical through Application) so each layer can evolve independently. Real protocols don't map cleanly onto it — TCP/IP is what the internet actually uses."
+    },
+    {
+      "term": "TCP/IP Stack",
+      "says": "Same as OSI but with four layers",
+      "means": "The four-layer model (Link, Internet, Transport, Application) that describes how the internet actually works. Unlike OSI, it was designed around real deployed protocols."
+    },
+    {
+      "term": "MAC Address",
+      "says": "The hardware address burned into a NIC",
+      "means": "A 48-bit identifier assigned to a network interface card, used for Layer 2 delivery within a local network segment. The first 24 bits identify the manufacturer (OUI); the rest are device-specific."
+    },
+    {
+      "term": "IP Address",
+      "says": "Your computer's address on the internet",
+      "means": "A 32-bit (IPv4) or 128-bit (IPv6) number assigned to a network interface, used for routing packets across networks. Your public IP is assigned by your ISP; private IPs are assigned by your router via DHCP."
+    },
+    {
+      "term": "Subnet Mask",
+      "says": "The /24 after an IP address",
+      "means": "A bitmask that divides an IP address into network and host portions. /24 means the first 24 bits identify the network; the remaining 8 bits identify individual hosts within it."
+    },
+    {
+      "term": "CIDR",
+      "says": "The slash notation for IP ranges",
+      "means": "Classless Inter-Domain Routing — a notation (e.g., 192.168.1.0/24) and allocation method that replaced class-based addressing. It allows arbitrary prefix lengths, enabling more efficient IP space allocation."
+    },
+    {
+      "term": "Default Gateway",
+      "says": "The router your computer sends everything to",
+      "means": "The IP address of the router that a host forwards packets to when the destination is outside its local subnet. If no more-specific route matches, the packet goes to the default gateway."
+    },
+    {
+      "term": "ARP",
+      "says": "How your computer finds MAC addresses",
+      "means": "Address Resolution Protocol — a Layer 2 protocol that maps IPv4 addresses to MAC addresses on a local network. A host broadcasts 'who has 192.168.1.1?' and the owner replies with its MAC."
+    },
+    {
+      "term": "TTL",
+      "says": "A timer that deletes packets",
+      "means": "Time To Live — an integer field in the IP header decremented by each router. When it reaches zero, the router discards the packet and sends an ICMP Time Exceeded message. It prevents packets from looping forever."
+    },
+    {
+      "term": "TCP",
+      "says": "The reliable one",
+      "means": "Transmission Control Protocol — a connection-oriented, ordered, error-checked transport protocol. It provides reliability through sequence numbers, acknowledgements, and retransmission, at the cost of latency overhead."
+    },
+    {
+      "term": "UDP",
+      "says": "The fast, unreliable one",
+      "means": "User Datagram Protocol — a connectionless transport protocol with no delivery guarantee, ordering, or retransmission. Used where low latency matters more than reliability: DNS, video streaming, games."
+    },
+    {
+      "term": "Three-Way Handshake",
+      "says": "How TCP connects",
+      "means": "The SYN → SYN-ACK → ACK sequence TCP uses to establish a connection and negotiate initial sequence numbers. It consumes one round-trip before any data can be sent."
+    },
+    {
+      "term": "Sequence Number",
+      "says": "The packet counter TCP uses",
+      "means": "A 32-bit value in the TCP header that labels the byte position of the first byte in a segment. The receiver uses it to reorder out-of-order segments and detect duplicates."
+    },
+    {
+      "term": "Flow Control",
+      "says": "Slowing down the sender",
+      "means": "A TCP mechanism where the receiver advertises a window size (receive buffer space) so the sender doesn't overwhelm it. If the window is zero, the sender must pause until the receiver drains its buffer."
+    },
+    {
+      "term": "Congestion Control",
+      "says": "TCP slowing down because the network is busy",
+      "means": "Algorithms (slow start, AIMD, CUBIC) that adjust TCP's sending rate based on inferred network congestion — usually signaled by packet loss or increased RTT. Prevents senders from collapsing the network."
+    },
+    {
+      "term": "NAT",
+      "says": "How a router shares one IP with many devices",
+      "means": "Network Address Translation — a technique where a router rewrites source IP/port on outbound packets, allowing many private hosts to share one public IP. The router maintains a translation table to match replies to the originating host."
+    },
+    {
+      "term": "DNS",
+      "says": "The internet's phone book",
+      "means": "Domain Name System — a distributed, hierarchical database that maps human-readable names (example.com) to IP addresses. Resolution starts at root servers, then TLD servers, then authoritative nameservers."
+    },
+    {
+      "term": "Recursive Resolver",
+      "says": "Your ISP's DNS server",
+      "means": "A DNS server that accepts queries from clients and performs the full iterative resolution process on their behalf, caching results to speed up future lookups. Your router or ISP typically provides one."
+    },
+    {
+      "term": "Authoritative Nameserver",
+      "says": "The DNS server that actually knows the answer",
+      "means": "A nameserver that holds the definitive records for a zone. Unlike a recursive resolver, it does not forward queries — it answers from its own database. Zone operators configure these via their domain registrar."
+    },
+    {
+      "term": "A Record",
+      "says": "The DNS record that maps a name to an IP",
+      "means": "A DNS resource record type that maps a hostname to a single IPv4 address. Multiple A records for the same name create a round-robin pool. AAAA records are the IPv6 equivalent."
+    },
+    {
+      "term": "CNAME",
+      "says": "A DNS alias",
+      "means": "Canonical Name record — a DNS record that aliases one name to another. Resolvers follow the chain until they reach an A or AAAA record. CNAMEs cannot coexist with other record types at the same name."
+    },
+    {
+      "term": "HTTP",
+      "says": "The protocol websites use",
+      "means": "HyperText Transfer Protocol — a stateless, request-response, application-layer protocol that runs over TCP. A client sends a method (GET, POST, etc.) and a path; the server responds with a status code and body."
+    },
+    {
+      "term": "TLS",
+      "says": "The S in HTTPS",
+      "means": "Transport Layer Security — a cryptographic protocol that provides confidentiality, integrity, and authentication over TCP. It negotiates a cipher suite and keys in a handshake before application data flows."
+    },
+    {
+      "term": "Port",
+      "says": "The number after the colon in an address",
+      "means": "A 16-bit number in the TCP or UDP header that identifies which process on a host should receive a packet. Ports below 1024 are reserved for well-known services (80=HTTP, 443=HTTPS, 53=DNS, 22=SSH)."
+    },
+    {
+      "term": "Socket",
+      "says": "The thing you open to send data",
+      "means": "An OS abstraction for a network endpoint identified by (protocol, local IP, local port, remote IP, remote port). Programs read and write sockets like files; the kernel handles the actual protocol mechanics."
+    },
+    {
+      "term": "Firewall",
+      "says": "The thing that blocks ports",
+      "means": "A packet filter that inspects headers (and optionally state) to allow or deny traffic based on rules. Stateful firewalls track connection state to allow established sessions without an explicit return rule."
+    },
+    {
+      "term": "ICMP",
+      "says": "The ping protocol",
+      "means": "Internet Control Message Protocol — a network-layer protocol used by hosts and routers to report errors and diagnostics. Echo Request/Reply enable ping; Time Exceeded enables traceroute."
+    },
+    {
+      "term": "BGP",
+      "says": "How the internet routes between ISPs",
+      "means": "Border Gateway Protocol — the inter-domain routing protocol that connects autonomous systems (ISPs, cloud providers) to each other. Each AS advertises its prefixes and selects routes based on policy attributes like LOCAL_PREF and AS_PATH."
+    },
+    {
+      "term": "OSPF",
+      "says": "The routing protocol inside a network",
+      "means": "Open Shortest Path First — a link-state interior gateway protocol. Each router floods LSAs to build a map of the entire network, then runs Dijkstra's algorithm to compute shortest paths to every destination."
+    },
+    {
+      "term": "Latency",
+      "says": "How slow the network is",
+      "means": "The time for one packet to travel from source to destination, typically measured as round-trip time (RTT). Dominated by propagation delay (speed of light over distance) for long-haul links."
+    },
+    {
+      "term": "Bandwidth",
+      "says": "How fast the network is",
+      "means": "The maximum rate at which data can be transmitted over a link, measured in bits per second. Bandwidth and latency are independent; a high-bandwidth satellite link can still have 600ms RTT."
+    },
+    {
+      "term": "Packet Loss",
+      "says": "When packets disappear",
+      "means": "The fraction of packets that fail to reach the destination, typically due to router buffer overflow or link errors. TCP detects loss via timeout or duplicate ACKs and retransmits; UDP does not."
+    },
+    {
+      "term": "MTU",
+      "says": "The maximum packet size",
+      "means": "Maximum Transmission Unit — the largest payload an interface can carry without fragmentation. Ethernet's MTU is 1500 bytes. If a packet exceeds the MTU on a path, it is fragmented (IPv4) or the sender is notified (IPv6)."
+    },
+    {
+      "term": "DHCP",
+      "says": "How devices get their IP address automatically",
+      "means": "Dynamic Host Configuration Protocol — a UDP-based protocol where a client broadcasts a request and a DHCP server assigns an IP address, subnet mask, default gateway, and DNS server for a lease period."
+    },
+    {
+      "term": "VPN",
+      "says": "A secure tunnel through the internet",
+      "means": "Virtual Private Network — a technique that encapsulates and encrypts packets inside another protocol so a remote host appears to be on a private network. Common implementations include WireGuard, OpenVPN, and IPsec."
+    },
+    {
+      "term": "CDN",
+      "says": "The servers that make websites load fast",
+      "means": "Content Delivery Network — a distributed set of servers that cache static assets close to users. CDNs use anycast routing and DNS-based load balancing to direct users to the nearest cache node."
+    },
+    {
+      "term": "Wireshark",
+      "says": "The GUI for reading network packets",
+      "means": "A packet capture and protocol analyzer that decodes raw frames and renders each field in a tree view. It uses libpcap under the hood; tcpdump is the command-line equivalent."
+    },
+    {
+      "term": "tcpdump",
+      "says": "Wireshark but in the terminal",
+      "means": "A command-line packet capture tool that writes pcap files or displays decoded packet summaries. Filters use BPF syntax (e.g., tcp port 80) to limit what is captured."
+    },
+    {
+      "term": "netcat",
+      "says": "The Swiss army knife of networking",
+      "means": "A utility that reads and writes raw TCP or UDP data. Used to test open ports, send HTTP requests by hand, create reverse shells in labs, and pipe data over a network connection."
+    }
+  ],
+  "artifacts": [],
+  "prereqs": {
+    "0": [],
+    "1": [0],
+    "2": [1],
+    "3": [2],
+    "4": [3],
+    "5": [3],
+    "6": [2],
+    "7": [3, 5],
+    "8": [4, 5, 6, 7]
+  },
+  "tierOrder": [
+    [0],
+    [1],
+    [2],
+    [3],
+    [4, 5, 6],
+    [7],
+    [8]
+  ]
+}

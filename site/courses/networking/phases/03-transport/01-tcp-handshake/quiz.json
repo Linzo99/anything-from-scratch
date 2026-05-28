@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You try to connect to a service and immediately get 'Connection refused'. What does this tell you?",
+      "options": [
+        "A firewall is dropping your SYN packet",
+        "The destination host received your SYN but nothing is listening on that port; it sent a RST back",
+        "Your machine cannot route to the destination",
+        "The destination host is offline"
+      ],
+      "correct": 1,
+      "explanation": "'Connection refused' means the TCP RST (Reset) flag was received. This happens when the SYN reached the destination OS but no application was listening on that port. The OS immediately replies with RST. This is GOOD diagnostic news — you know the host is reachable and the problem is the application, not routing or firewalls."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the purpose of the Initial Sequence Number (ISN) in a TCP handshake?",
+      "options": [
+        "To identify which application is connecting",
+        "To establish the starting byte position for each direction of the data stream, preventing confusion between old and new connections",
+        "To encrypt the connection setup",
+        "To specify the maximum segment size"
+      ],
+      "correct": 1,
+      "explanation": "TCP is a byte stream. Each byte has a position number (sequence number). The ISN is where counting starts for each side. Both peers must know each other's ISN to correctly track which bytes have been received and which are missing. Without ISN exchange, you could not distinguish a retransmitted old segment from a new one, or detect out-of-order delivery."
+    },
+    {
+      "stage": "post",
+      "question": "In a TCP SYN-ACK packet, if the client SYN had seq=5000, what is the ACK number in the SYN-ACK?",
+      "options": [
+        "5000 — it echoes the original seq",
+        "5001 — ISN + 1, confirming receipt of the SYN",
+        "0 — ACK number is not used in SYN-ACK",
+        "The server's own ISN"
+      ],
+      "correct": 1,
+      "explanation": "TCP acknowledges by saying 'I received everything up to X; send me X next.' The SYN consumes one sequence number even though it carries no data payload. So if SYN seq=5000, the SYN-ACK has ack=5001, meaning 'I received byte 5000 (the SYN) and expect byte 5001 next.' This is always ISN+1 for a SYN packet."
+    },
+    {
+      "stage": "post",
+      "question": "You send a SYN to a server and the connection hangs for 75 seconds before timing out with 'Connection timed out'. What is the most likely explanation?",
+      "options": [
+        "The server is processing your request but responding slowly",
+        "A firewall is silently dropping your SYN packets; the OS retransmits with exponential backoff until giving up",
+        "The server application crashed after receiving the SYN",
+        "The server's ISN collided with an existing connection's sequence number"
+      ],
+      "correct": 1,
+      "explanation": "When a SYN is silently dropped (no RST, no ICMP error — just silence), the client OS retransmits using exponential backoff: after ~1s, then ~3s, then ~7s, etc. After 6 retries (~75 seconds on Linux with defaults), the OS gives up with 'Connection timed out'. The long delay distinguishes a DROP firewall rule from a REJECT rule; REJECT sends an ICMP error immediately causing near-instant failure."
+    },
+    {
+      "stage": "post",
+      "question": "In the TCP header, the Data Offset field contains the value 8. How long is the TCP header in bytes, and how many bytes of options does it contain?",
+      "options": [
+        "Header = 8 bytes, no options",
+        "Header = 20 bytes, options = 8 bytes",
+        "Header = 32 bytes, options = 12 bytes",
+        "Header = 40 bytes, options = 20 bytes"
+      ],
+      "correct": 2,
+      "explanation": "Data Offset is measured in 32-bit words (4 bytes each). Data Offset=8 means the header is 8 × 4 = 32 bytes. The minimum TCP header without options is 5 × 4 = 20 bytes. The options portion is 32 - 20 = 12 bytes. Common options include MSS (Maximum Segment Size, 4 bytes), Window Scale (3 bytes), SACK Permitted (2 bytes), and Timestamps (10 bytes) — all frequently present in modern connections."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In a distance-vector routing protocol, what information does a router share with its neighbors?",
+      "options": [
+        "The complete topology of the entire network (all links and costs)",
+        "Only its directly connected interfaces",
+        "Its distance/metric to every known destination",
+        "The IP addresses of all hosts it has learned via ARP"
+      ],
+      "correct": 2,
+      "explanation": "Distance-vector routers share their routing table — the distances (metrics) to all destinations they know about. They do NOT share the full topology. Each router only sees as far as what its neighbors report, hence 'routing by rumour'. Link-state protocols like OSPF are what flood the full topology."
+    },
+    {
+      "stage": "pre",
+      "question": "What does RIP use as its routing metric?",
+      "options": [
+        "Link bandwidth in Mbps",
+        "Round-trip latency in milliseconds",
+        "Hop count — number of routers a packet must pass through",
+        "MTU size of each link"
+      ],
+      "correct": 2,
+      "explanation": "RIP measures path cost purely in hop count. Each router a packet passes through adds 1 to the metric. This is simple but blind to link speed — RIP might prefer a 3-hop path over 56kbps modems over a 2-hop path over Gigabit Ethernet."
+    },
+    {
+      "stage": "post",
+      "question": "Node B learns a route to 192.168.4.0/24 via Node C with metric 3. Split horizon is enabled. What does Node B advertise to Node C?",
+      "options": [
+        "192.168.4.0/24 with metric 3",
+        "192.168.4.0/24 with metric 16 (poison reverse)",
+        "Nothing — split horizon suppresses routes learned from C back to C",
+        "192.168.4.0/24 with metric 4"
+      ],
+      "correct": 2,
+      "explanation": "Split horizon says: do not advertise a route back out the interface you learned it from. Node B learned 192.168.4.0/24 from C, so B will not include that route in updates sent back to C. This prevents B and C from forming a routing loop where each thinks the other has a valid path."
+    },
+    {
+      "stage": "post",
+      "question": "In RIP, what does a metric of 16 mean?",
+      "options": [
+        "The route has 16 hops and is the longest allowed path",
+        "The route is unreachable — metric 16 is RIP's infinity value",
+        "The route was learned 16 update cycles ago",
+        "The link has 16 Mbps bandwidth"
+      ],
+      "correct": 1,
+      "explanation": "RIP defines 16 as infinity — unreachable. Since the maximum useful metric is 15, any route with metric 16 is treated as gone. This design limits RIP network diameter to 15 hops, which is why RIP is only suitable for small networks. Advertising a route with metric 16 is an explicit withdrawal."
+    },
+    {
+      "stage": "post",
+      "question": "You start four RIP nodes in a line: A-B-C-D. How many update rounds does it take for Node A to learn about Node D's prefix?",
+      "options": [
+        "1 round (all nodes broadcast simultaneously)",
+        "2 rounds",
+        "3 rounds",
+        "4 rounds"
+      ],
+      "correct": 2,
+      "explanation": "In a line A-B-C-D, information travels one hop per round. Round 1: A hears B, B hears A and C, C hears B and D, D hears C. Round 2: A hears about C (via B), D hears about B (via C). Round 3: A hears about D (via B, who heard from C, who heard from D). Three rounds for a 4-node line."
+    }
+  ]
+}

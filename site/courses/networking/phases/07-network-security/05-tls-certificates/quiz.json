@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does a TLS certificate fundamentally prove?",
+      "options": [
+        "The server has no malware installed",
+        "A certificate authority has vouched that this public key belongs to this domain name",
+        "The connection is encrypted with AES-256",
+        "The server is located in the country specified in the certificate"
+      ],
+      "correct": 1,
+      "explanation": "A TLS certificate is a signed statement by a Certificate Authority (CA): 'I have verified that the entity controlling domain example.com owns this public key.' It does not prove the server is secure, only that it is (probably) the genuine server for that domain. The CA's signature is what makes it trustworthy — without it, anyone could claim any domain."
+    },
+    {
+      "stage": "pre",
+      "question": "Why does your browser trust certificate authorities it has never independently verified?",
+      "options": [
+        "Browsers check every CA against a public blockchain",
+        "CAs are always government agencies and are trusted by law",
+        "The OS and browser ship with a pre-installed list of root CA certificates that are trusted by configuration",
+        "CAs send browsers their public keys over DNS"
+      ],
+      "correct": 2,
+      "explanation": "The root of trust is pre-installed. Your OS (Windows, macOS, Linux) and browser (Chrome, Firefox) ship with a curated list of root CA certificates. Trust in these roots is established by the OS/browser vendor's vetting process, not by any cryptographic verification at runtime. This is why compromised root CAs (like DigiNotar in 2011) are such catastrophic events."
+    },
+    {
+      "stage": "post",
+      "question": "Your script connects to api.example.com but the certificate's SANs only list example.com and *.app.example.com. What error does ssl.create_default_context() raise?",
+      "options": [
+        "ssl.SSLEOFError — the server closed the connection",
+        "ssl.SSLCertVerificationError — hostname api.example.com does not match any SAN",
+        "ConnectionRefusedError — certificate mismatch causes a TCP RST",
+        "No error — Python falls back to checking the Common Name"
+      ],
+      "correct": 1,
+      "explanation": "Python's ssl module checks whether the hostname you connected to (api.example.com) is covered by the certificate's Subject Alternative Names. example.com is an exact match only for example.com. *.app.example.com covers foo.app.example.com but not api.example.com. The result is ssl.SSLCertVerificationError with a 'hostname mismatch' message."
+    },
+    {
+      "stage": "post",
+      "question": "What is the difference between a self-signed certificate and one signed by an untrusted CA?",
+      "options": [
+        "There is no difference; both produce the same SSL error",
+        "Self-signed: issuer == subject, no chain; Untrusted CA: there is a chain, but the root CA is not in the trust store",
+        "Self-signed certificates are always valid; untrusted CA certs are always rejected",
+        "Self-signed certificates cannot encrypt traffic; untrusted CA certs can"
+      ],
+      "correct": 1,
+      "explanation": "A self-signed certificate is signed by its own private key — the issuer and subject fields are identical. There is no chain. An untrusted CA certificate is signed by a CA, but that CA is not in your system's trust store (common with corporate internal CAs or Let's Encrypt before it was widely trusted). Both fail validation, but for different reasons."
+    },
+    {
+      "stage": "post",
+      "question": "A developer sets ssl.create_default_context().check_hostname = False and verify_mode = ssl.CERT_NONE. What security property is lost?",
+      "options": [
+        "Encryption — the connection becomes plaintext",
+        "Authentication — you can no longer verify the server is who it claims to be; MITM attacks become undetectable",
+        "Only hostname checking is disabled; certificate expiry is still checked",
+        "Nothing important — the developer just gets a cleaner connection object"
+      ],
+      "correct": 1,
+      "explanation": "Setting CERT_NONE disables all certificate validation. The connection is still encrypted (TLS still negotiates keys), but you have no way to know who you are encrypting with. An attacker can present any certificate and you will accept it. This makes TLS useless for authentication — MITM attacks become trivial. This setting should never appear in production code."
+    }
+  ]
+}

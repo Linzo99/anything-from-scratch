@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "You change an A record in your DNS zone from IP 1.2.3.4 to 5.6.7.8. The record has TTL=3600. How long until ALL users worldwide see the new IP?",
+      "options": [
+        "Immediately — DNS changes take effect within seconds",
+        "Up to 3600 seconds (1 hour) — resolvers that just cached the old record will keep it for the full TTL",
+        "Up to 48 hours — DNS always takes 2 days to propagate globally",
+        "Up to 3600 * 2 = 7200 seconds — the old TTL plus the new TTL"
+      ],
+      "correct": 1,
+      "explanation": "The maximum propagation delay equals the TTL of the old record. A resolver that just freshly cached the old record (1.2.3.4) will keep it for up to 3600 seconds. After that, it fetches the new record (5.6.7.8). Resolvers with older cached copies expire sooner. The 48-hour myth persists from older internet days when TTLs were often set to 172800 (48 hours) by default — it's not inherent to DNS."
+    },
+    {
+      "stage": "pre",
+      "question": "You query 'dig example.com A' twice — once at 12:00:00 and once at 12:00:30. The first returns TTL=300, the second returns TTL=270. What does this tell you?",
+      "options": [
+        "The DNS server is malfunctioning — TTL should never change",
+        "Your recursive resolver served the second response from cache, and 30 seconds of the original TTL have elapsed",
+        "The zone owner lowered the TTL from 300 to 270 between your two queries",
+        "The second query bypassed the cache and got a fresher record"
+      ],
+      "correct": 1,
+      "explanation": "When a recursive resolver caches a record with TTL=300, it starts a timer. When it returns that cached record to clients, it decrements the TTL by the elapsed time. After 30 seconds, the remaining TTL is 270. This is exactly how you verify you're hitting the cache: the returned TTL counts down. If you got TTL=300 both times, the resolver either re-fetched the record or the second query happened to arrive just after a cache refresh."
+    },
+    {
+      "stage": "post",
+      "question": "You create a new DNS record for 'api.newfeature.example.com' and immediately try to use it in your app, but get 'Name or service not known'. You wait 10 minutes and it works. What most likely caused the delay?",
+      "options": [
+        "DNS records require manual approval from ICANN before taking effect",
+        "Your recursive resolver cached a negative (NXDOMAIN) response from before the record existed; it had to wait for that negative cache entry to expire",
+        "The authoritative nameserver was temporarily offline during the record creation",
+        "New DNS records always require a 10-minute grace period to propagate"
+      ],
+      "correct": 1,
+      "explanation": "This is negative caching (RFC 2308). If your app (or any resolver) queried 'api.newfeature.example.com' BEFORE you created the record, it received NXDOMAIN and cached that negative result for the SOA record's negative TTL (often 300-900 seconds). After you created the record, the resolver kept returning 'does not exist' from its negative cache until the negative TTL expired. This is why you should create DNS records BEFORE deploying services that depend on them."
+    },
+    {
+      "stage": "post",
+      "question": "You query 'example.com A' using @8.8.8.8 and get TTL=285. You query using @1.1.1.1 and get TTL=157. What does this tell you?",
+      "options": [
+        "1.1.1.1 is returning incorrect, reduced TTL values as a privacy feature",
+        "8.8.8.8 cached the record more recently (15 seconds ago) while 1.1.1.1 cached it 143 seconds ago",
+        "The two resolvers have different TTL multipliers configured",
+        "The authoritative nameserver sent different TTL values to each resolver"
+      ],
+      "correct": 1,
+      "explanation": "Each recursive resolver maintains its own independent cache. If the original TTL is 300 seconds: 8.8.8.8 returning 285 means it cached the record 15 seconds ago (300-285=15). 1.1.1.1 returning 157 means it cached the record 143 seconds ago (300-157=143). Both started with TTL=300 from the authoritative nameserver but cached it at different times. This is expected — different resolvers fetch records independently when their caches expire."
+    },
+    {
+      "stage": "post",
+      "question": "You're planning a migration from one CDN to another. Your current A record has TTL=86400. What is the correct preparation sequence to minimize user impact?",
+      "options": [
+        "Change the A record immediately, then lower the TTL; users see the new IP within 24 hours",
+        "Lower the TTL to 300, wait 86400 seconds (24 hours) for old high-TTL caches to expire, then change the A record; maximum impact window is now 300 seconds",
+        "Lower the TTL to 300 and change the A record simultaneously; both changes propagate together",
+        "Contact all ISPs to flush their DNS caches before making the change"
+      ],
+      "correct": 1,
+      "explanation": "You must lower the TTL FIRST and then wait for the old high-TTL copies to expire before making the actual IP change. Here's why: if you lower TTL to 300 AND change the IP at the same time, resolvers that just freshly cached the old IP with TTL=86400 will keep the old IP for up to 24 hours. But if you lower TTL first and wait 24 hours, all caches now hold the record with TTL=300. Then when you change the IP, the maximum staleness is only 300 seconds."
+    }
+  ]
+}
