@@ -1844,8 +1844,8 @@
         var rawUrl, quizUrl;
 
         if (course.contentHost === 'local') {
-          // Content lives in /courses/{slug}/phases/{phase}/{lesson}/
-          var base = '/courses/' + courseSlug + '/phases/' + phaseLesson;
+          // Content lives in courses/{slug}/phases/{phase}/{lesson}/ (relative, works on any base path)
+          var base = 'courses/' + courseSlug + '/phases/' + phaseLesson;
           rawUrl  = base + '/docs/en.md';
           quizUrl = base + '/quiz.json';
         } else {
