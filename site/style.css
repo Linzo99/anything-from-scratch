@@ -995,6 +995,10 @@ body.js-anim .toc-row.in-view {
     font-size: 16px;
   }
 
+  .container {
+    padding: 0 20px;
+  }
+
   .header-inner {
     padding: 0 10px;
     gap: 6px;
