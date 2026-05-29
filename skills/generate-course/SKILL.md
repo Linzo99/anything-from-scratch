@@ -1,20 +1,22 @@
 ---
-description: Generate a complete course for the multi-course site. Given a subject and description, produces courses/<slug>/data.json, all lesson content files (docs/en.md + quiz.json), and rebuilds data.js.
+description: Generate a complete course for the multi-course site. Given a subject and description, produces courses/<slug>/data.json, all lesson content files (docs/en.md + quiz.json + code/ + outputs/), and rebuilds data.js. Commits after each phase so large courses survive context limits.
 ---
 
 # generate-course
 
-You are generating a self-contained course entry for a multi-course learning site. **Always write lesson content files** — a course with no `docs/en.md` files is incomplete.
+You are generating a self-contained course entry for a multi-course learning site.
 
 ## What you must produce
 
-A directory: `site/courses/<slug>/` containing:
+`site/courses/<slug>/` containing:
 
 | File | Required | Description |
 |---|---|---|
 | `data.json` | ✅ | Course metadata, phases, lessons, glossary |
-| `phases/<phase-slug>/<lesson-slug>/docs/en.md` | ✅ | Full lesson content for every lesson |
-| `phases/<phase-slug>/<lesson-slug>/quiz.json` | ✅ | Quiz questions for every lesson |
+| `phases/<phase>/<lesson>/docs/en.md` | ✅ | Full lesson content for every lesson |
+| `phases/<phase>/<lesson>/quiz.json` | ✅ | 2 pre + 3 post quiz questions per lesson |
+| `phases/<phase>/<lesson>/code/` | ✅ | Runnable starter/reference code files |
+| `phases/<phase>/<lesson>/outputs/` | recommended | Expected output samples so learners can verify their work |
 
 After writing all files, run:
 ```bash
@@ -30,9 +32,13 @@ site/courses/
     phases/
       00-setup-and-tooling/
         01-dev-environment/
-          docs/en.md        ← full lesson content
-          quiz.json         ← pre/post quiz questions
-          code/             ← optional starter code
+          docs/en.md
+          quiz.json
+          code/
+            verify.py
+            verify.ts
+          outputs/
+            prompt-env-check.md
   <new-slug>/
     data.json
     phases/
@@ -40,7 +46,13 @@ site/courses/
         01-first-lesson/
           docs/en.md
           quiz.json
+          code/
+            main.<ext>
+          outputs/
+            expected-output.md
 ```
+
+---
 
 ## Input you need from the user
 
@@ -50,54 +62,49 @@ site/courses/
 | Slug (URL-safe) | ✅ | `python` |
 | GitHub repo | ✅ | `user/python-from-scratch` |
 | GitHub branch | optional | `main` (default) |
-| Tagline | optional | auto-generate from subject |
+| Tagline | optional | auto-generate |
 | Description | optional | auto-generate |
 
-## data.json schema
+---
 
-Follow this schema exactly. Use `site/courses/ai-engineering/data.json` as the canonical reference.
+## data.json schema
 
 ```jsonc
 {
   "slug": "python",
   "title": "Python from Scratch",
-  "tagline": "N lessons. N phases. ...",          // one sentence, include counts
-  "description": "...",                           // 1-2 sentences, no buzzwords
+  "tagline": "N lessons. N phases. ...",
+  "description": "1-2 sentences, no buzzwords.",
   "githubRepo": "user/repo",
   "githubBranch": "main",
-  "contentHost": "local",                         // ALWAYS "local" — you are writing the files
-  "phases": [ /* see Phase schema below */ ],
-  "glossary": [ /* see Glossary schema below */ ],
+  "contentHost": "local",   // ALWAYS "local" — you are writing the files
+  "phases": [],
+  "glossary": [],
   "artifacts": [],
-  "prereqs": {                                    // ✅ REQUIRED — drives the /roadmap graph
+  "prereqs": {              // ✅ REQUIRED — drives the roadmap graph
     "0": [],
     "1": [0],
     "2": [1]
-    // one entry per phase id; value is array of phase ids this phase depends on
+    // string keys, integer array values; one entry per phase id
   },
-  "tierOrder": [                                  // ✅ REQUIRED — controls roadmap row layout
+  "tierOrder": [            // ✅ REQUIRED — controls roadmap row layout
     [0],
     [1],
     [2]
-    // each sub-array is one horizontal row; phases in a row are shown side-by-side
-    // phases not listed here auto-append to the bottom row
+    // each sub-array is one horizontal row; parallel phases share a row
   ]
 }
 ```
 
-**Always use `"contentHost": "local"`** — you are writing the lesson files. Never use `"github"`.
-
 ### prereqs rules
-- Every phase id must have an entry (even if `[]`)
-- Keys are **strings** (`"0"`, `"1"`…), values are arrays of **integer** phase ids
-- Phase 0 always has `[]` (nothing comes before foundations)
-- Think about actual knowledge dependencies: does this phase require understanding from another?
+- Every phase id must have an entry, even if `[]`
+- Phase 0 always has `[]`
+- Think about actual knowledge dependencies
 
 ### tierOrder rules
-- Each sub-array is one horizontal row in the roadmap SVG
-- Phases with no prerequisites go in tier 0; phases that depend on them go in the next tier
-- Parallel tracks (e.g. DNS and HTTP both depend on Transport) go in the same tier
-- The final capstone phase always gets its own last tier
+- Phases with no prerequisites → tier 0
+- Parallel tracks (e.g. two phases that both depend on phase 2) → same row
+- Final capstone → its own last row
 
 ### Phase schema
 
@@ -105,9 +112,9 @@ Follow this schema exactly. Use `site/courses/ai-engineering/data.json` as the c
 {
   "id": 0,
   "name": "Foundations",
-  "status": "complete",             // "complete" | "in-progress" | "planned"
-  "desc": "One sentence about what this phase builds.",
-  "lessons": [ /* see Lesson schema */ ]
+  "status": "complete",      // "complete" | "in-progress" | "planned"
+  "desc": "One sentence about the outcome.",
+  "lessons": []
 }
 ```
 
@@ -117,66 +124,66 @@ Follow this schema exactly. Use `site/courses/ai-engineering/data.json` as the c
 {
   "name": "Variables & Types",
   "status": "complete",
-  "type": "Build",                  // "Build" | "Learn" | "Capstone" | "Project"
+  "type": "Build",           // "Build" | "Learn" | "Capstone" | "Project"
   "lang": "Python",
-  "url": "https://github.com/<repo>/tree/<branch>/phases/<phase-slug>/<lesson-slug>/",
-  "path": "phases/<slug>/<phase-slug>/<lesson-slug>",  // ALWAYS include this
-  "summary": "One sentence describing what the student builds or learns.",
+  "url": "https://github.com/{repo}/tree/{branch}/phases/{phase-slug}/{lesson-slug}/",
+  "path": "phases/{course-slug}/{phase-slug}/{lesson-slug}",
+  "summary": "One concrete sentence: what the student builds or proves.",
   "keywords": "keyword1 · keyword2 · keyword3"
 }
 ```
 
-**Critical path rules:**
-- `url` format: `https://github.com/{repo}/tree/{branch}/phases/{phase-slug}/{lesson-slug}/`
+**Path rules:**
+- Phase slugs: `{id:02d}-{kebab-name}` → `00-foundations`
+- Lesson slugs: `{index:02d}-{kebab-name}` → `01-variables-and-types`
 - `path` format: `phases/{course-slug}/{phase-slug}/{lesson-slug}`
-- Phase slugs: `{id:02d}-{kebab-name}` e.g. `00-foundations`
-- Lesson slugs: `{index:02d}-{kebab-name}` e.g. `01-variables-and-types`
-- All lessons must have `url` and `path` — no omissions for planned lessons
+- All lessons must have both `url` and `path`
 
 ### Glossary schema
 
 ```jsonc
-{
-  "term": "Decorator",
-  "says": "What people call it casually",
-  "means": "What it actually is — precise definition, 1-2 sentences."
-}
+{ "term": "Decorator", "says": "casual shorthand", "means": "precise 1-2 sentence definition" }
 ```
 
 ---
 
 ## docs/en.md schema
 
-Every lesson must have a `docs/en.md`. Use this structure:
-
 ```markdown
 # <Lesson Name>
 
-> <One-line hook — a concrete claim or question that motivates the lesson.>
+> <One-line hook — a concrete claim or question that motivates this lesson.>
 
-**Type:** Build | Learn | Capstone
-**Languages:** Python, Bash, etc.
-**Prerequisites:** Phase N, Lesson NN — <lesson name>
-**Time:** ~XX minutes
+**Type:** Build | Learn | Capstone  
+**Languages:** Python, Bash, etc.  
+**Prerequisites:** Phase N, Lesson NN — <name>  
+**Time:** ~XX minutes  
 
 ## Learning Objectives
 
-- Bullet list of 3-5 concrete, measurable outcomes
-- Each starts with an action verb: Implement, Write, Explain, Build, Trace, Measure
+- 3–5 bullets, each starting with an action verb: Implement, Write, Explain, Build, Trace, Measure
 
 ## The Problem
 
-2-4 paragraphs explaining WHY this matters and what goes wrong without this knowledge.
-Use a concrete scenario. No buzzwords. No vague promises.
+2–4 paragraphs: WHY this matters, what breaks without it. Concrete scenario. No buzzwords.
 
 ## The Concept
 
 Thorough explanation of the underlying concept. Include:
-- ASCII diagrams or tables where helpful
-- The mental model a student needs
+- ASCII diagrams or Mermaid diagrams for anything spatial (packet layouts, state machines, topologies, flows)
+- The mental model needed
 - Common misconceptions called out explicitly
 
-Code blocks to illustrate concepts (not yet the exercise):
+Use Mermaid for diagrams wherever it adds clarity:
+
+```mermaid
+graph TD
+  A[Client] -->|SYN| B[Server]
+  B -->|SYN-ACK| A
+  A -->|ACK| B
+```
+
+Illustrative code blocks (not the exercise yet):
 
 ```language
 # Annotated example showing the idea
@@ -184,120 +191,256 @@ Code blocks to illustrate concepts (not yet the exercise):
 
 ## Build It
 
-Step-by-step instructions. Each step has:
+Step-by-step. Each step:
 1. What to do (imperative)
-2. The code or command
+2. The code or command — complete, no ellipsis
 3. What to observe / verify
 
-Full, runnable code blocks — no ellipsis, no placeholders.
-"From scratch" courses must explain every line; never assume prior knowledge.
+Every code block must be full and runnable. "From scratch" means explain every line.
 
 ## Exercises
 
-3-5 numbered exercises ranging from verification (run this, see that) to extension (modify it to do X).
+3–5 numbered exercises: start with verification (run this, see that), end with extension (modify it to do X).
 
 ## Key Terms
 
 | Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| ... | ... | ... |
+|------|-----------------|------------------------|
 ```
 
-**Quality bar for docs/en.md:**
-- No lesson under 400 words
-- Every code block is complete and runnable
-- "From scratch" = explain every concept as if the reader has never seen it
-- Diagrams (ASCII) for anything spatial: packet layouts, state machines, topologies
+**Quality bar:**
+- No lesson under 600 words
+- Every code block complete and runnable
+- Diagrams (ASCII or Mermaid) for anything spatial
 - No buzzwords: "powerful", "robust", "seamless", "revolutionary"
+
+---
+
+## code/ files
+
+Every lesson must have a `code/` directory with at least one runnable file.
+
+Rules:
+- Name files descriptively: `tcp_handshake.py`, `hello.rs`, `server.go`
+- The file must run without modification after following the lesson's Build It steps
+- Include only the language(s) listed in the lesson's `lang` field
+- Add a one-line comment at the top: `# Run: python tcp_handshake.py`
+- For multi-step lessons, provide the final working version
+
+Example for a Python lesson:
+```python
+# Run: python variables.py
+name = "Alice"
+age = 30
+pi = 3.14159
+is_student = False
+
+print(f"{name} is {age} years old")
+print(f"Pi is approximately {pi}")
+print(f"Is student: {is_student}")
+```
+
+---
+
+## outputs/ files
+
+Include an `outputs/` directory when the lesson produces observable output that learners should verify.
+
+Write `outputs/expected.md` with:
+```markdown
+# Expected Output
+
+Running `python variables.py` should produce:
+
+```
+Alice is 30 years old
+Pi is approximately 3.14159
+Is student: False
+```
+
+If your output matches, you're good. Common issues:
+- [list 1–2 things that typically go wrong and how to fix them]
+```
+
+Skip `outputs/` only for purely conceptual lessons with no runnable artifact.
 
 ---
 
 ## quiz.json schema
 
-Every lesson must have a `quiz.json`. Use this structure:
-
 ```jsonc
 {
   "questions": [
-    {
-      "stage": "pre",          // "pre" = asked before reading, tests prior knowledge
-      "question": "...",
-      "options": ["A", "B", "C", "D"],
-      "correct": 1,            // 0-indexed
-      "explanation": "..."     // shown after answering — explain WHY, not just what
-    },
-    {
-      "stage": "pre",
-      "question": "...",
-      ...
-    },
-    {
-      "stage": "post",         // "post" = asked after reading, tests comprehension
-      "question": "...",
-      "options": ["A", "B", "C", "D"],
-      "correct": 2,
-      "explanation": "..."
-    },
-    ...
+    { "stage": "pre",  "question": "...", "options": ["A","B","C","D"], "correct": 1, "explanation": "..." },
+    { "stage": "pre",  "question": "...", "options": ["A","B","C","D"], "correct": 0, "explanation": "..." },
+    { "stage": "post", "question": "...", "options": ["A","B","C","D"], "correct": 2, "explanation": "..." },
+    { "stage": "post", "question": "...", "options": ["A","B","C","D"], "correct": 1, "explanation": "..." },
+    { "stage": "post", "question": "...", "options": ["A","B","C","D"], "correct": 3, "explanation": "..." }
   ]
 }
 ```
 
-**Rules:**
-- 2 `pre` questions + 3 `post` questions per lesson (5 total)
-- `pre` questions test baseline assumptions — wrong answers are common misconceptions
-- `post` questions test specific things taught in the lesson
-- Every `explanation` teaches, not just confirms: "Correct. TCP uses X because Y."
-- Distractors (wrong options) should be plausible — avoid obviously silly options
+Rules:
+- 2 `pre` + 3 `post` = 5 questions per lesson
+- `pre`: test baseline assumptions — wrong answers should be common misconceptions
+- `post`: directly testable from the lesson content
+- `explanation`: teaches, not just confirms — "Correct. TCP does X because Y."
+- Distractors must be plausible
 
 ---
 
 ## Content generation guidelines
 
 ### Structure
-- **8–20 phases** — start with 8 for a new subject, expand later
+- **8–12 phases** for most subjects
 - **4–8 lessons per phase**
-- **Phase 0** is always "Foundations" — tooling, environment, first program
-- Final phase is always a Capstone with 3–5 real projects
-- Status progression: early phases `complete`, middle `in-progress`, later `planned`
-- **Write content for ALL lessons** regardless of status
+- Phase 0: always "Foundations" — tooling, environment, first runnable program
+- Final phase: always Capstone with 3–5 real projects
+- Status: early phases `complete`, middle `in-progress`, later `planned`
+- **Write content for ALL lessons regardless of status**
 
 ### Quality bar
-- Every lesson name is action-oriented: "Build a ...", "Implement ...", "Write ..."
-- Every `summary` is a single concrete sentence
-- Every `desc` on a phase is one sentence about the outcome
+- Lesson names are action-oriented: "Build a ...", "Implement ...", "Write ..."
+- Every `summary` is one concrete sentence
 - Glossary: 20–50 terms
 - No marketing language
 
+### Diagrams
+- Use **Mermaid** for: flowcharts, state machines, sequence diagrams, dependency graphs
+- Use **ASCII** for: packet layouts, memory layouts, tree/stack structures, byte-level diagrams
+- Every phase should have at least one diagram somewhere in its lessons
+
 ### Subject-specific guidance
-- **Systems/networking**: include packet diagrams, ASCII topology diagrams, explain every header field
-- **Systems languages (Rust, C, Zig)**: emphasize memory safety, ownership, low-level concepts
-- **ML/AI**: emphasize math-first, implement-before-framework, artifacts
-- **Web/full-stack**: emphasize progressive disclosure, real deployable projects
-- **Scripting/glue (Python, bash)**: emphasize practical tasks over CS theory
+- **Networking**: packet diagrams for every protocol, ASCII topology, explain every header field
+- **Systems/low-level (Rust, C, Zig)**: memory diagrams, ownership flow, unsafe boundaries
+- **ML/AI**: math-first, implement before framework, track loss curves in outputs/
+- **Web/full-stack**: deployable projects, progressive disclosure
+- **Scripting (Python, bash)**: practical tasks, real files and processes
 
 ---
 
-## Steps to execute
+## Execution — phase-by-phase with checkpointing
 
-1. **Clarify** missing inputs (slug, repo at minimum)
-2. **Write `data.json`** — full course structure including `prereqs` and `tierOrder`
-3. **Write every `docs/en.md`** — thorough lesson content, no placeholders
-4. **Write every `quiz.json`** — 2 pre + 3 post questions each
-5. **Run** `node site/combine.js`
-6. **Verify** console shows correct counts
-7. **Report** slug, phase count, lesson count
+Large courses span many files. **Commit after each phase** so progress survives context limits.
 
-**Do not skip steps 3 and 4.** A course without content files is broken.
-**Do not omit `prereqs` and `tierOrder`.** Without them the `/roadmap` page breaks for this course.
+### Step 1: Clarify inputs
+Collect slug, repo, title. Confirm the phase outline with the user before writing anything.
+
+### Step 2: Write data.json
+Write `site/courses/<slug>/data.json` with the full structure: all phases, all lessons, glossary, `prereqs`, `tierOrder`.
+
+Commit:
+```bash
+git add site/courses/<slug>/data.json
+git commit -m "feat(<slug>): scaffold course structure"
+```
+
+### Step 3: Generate phases one at a time
+
+For each phase (starting at phase 0):
+
+1. Write every lesson's `docs/en.md`, `quiz.json`, `code/`, and `outputs/` for this phase
+2. Run a quick self-check (see Validation below)
+3. Commit the phase:
+
+```bash
+git add site/courses/<slug>/phases/<phase-slug>/
+git commit -m "feat(<slug>): write phase <N> — <phase name>"
+```
+
+Do not move to the next phase until the current one is committed.
+
+### Step 4: Rebuild and validate
+
+After all phases are written:
+
+```bash
+node site/combine.js
+```
+
+**Validation checklist** — run these checks before reporting done:
+
+```bash
+# 1. Every path in data.json has a docs/en.md
+node -e "
+const d = require('./site/courses/<slug>/data.json');
+const fs = require('fs');
+let missing = [];
+d.phases.forEach(p => p.lessons.forEach(l => {
+  if (!l.path) { missing.push(l.name + ': missing path'); return; }
+  const seg = l.path.split('/');
+  const f = 'site/courses/' + seg[1] + '/phases/' + seg[2] + '/' + seg[3] + '/docs/en.md';
+  if (!fs.existsSync(f)) missing.push(f);
+}));
+if (missing.length) { console.error('MISSING:', missing); process.exit(1); }
+else console.log('All docs/en.md present');
+"
+
+# 2. Every path has a quiz.json
+node -e "
+const d = require('./site/courses/<slug>/data.json');
+const fs = require('fs');
+let missing = [];
+d.phases.forEach(p => p.lessons.forEach(l => {
+  if (!l.path) return;
+  const seg = l.path.split('/');
+  const f = 'site/courses/' + seg[1] + '/phases/' + seg[2] + '/' + seg[3] + '/quiz.json';
+  if (!fs.existsSync(f)) missing.push(f);
+}));
+if (missing.length) { console.error('MISSING:', missing); process.exit(1); }
+else console.log('All quiz.json present');
+"
+
+# 3. Every path has at least one code file
+node -e "
+const d = require('./site/courses/<slug>/data.json');
+const fs = require('fs');
+let missing = [];
+d.phases.forEach(p => p.lessons.forEach(l => {
+  if (!l.path) return;
+  const seg = l.path.split('/');
+  const dir = 'site/courses/' + seg[1] + '/phases/' + seg[2] + '/' + seg[3] + '/code';
+  if (!fs.existsSync(dir) || fs.readdirSync(dir).length === 0) missing.push(dir);
+}));
+if (missing.length) { console.error('MISSING code/:', missing); process.exit(1); }
+else console.log('All code/ dirs present');
+"
+```
+
+If any check fails, fix the missing files before continuing.
+
+### Step 5: Update README.md
+
+Update the course table in `README.md` to include the new course:
+
+```markdown
+| <Title> | <N phases> | <N lessons> |
+```
+
+Commit everything:
+```bash
+git add site/data.js README.md
+git commit -m "feat(<slug>): complete course — N phases, N lessons"
+```
+
+### Step 6: Report
+
+Tell the user:
+- Slug, title, phase count, lesson count
+- Any lessons that were skipped or placeholder-only (there should be none)
+- The git log showing each phase commit
+
+---
 
 ## Example invocation
 
-> Generate a course for "TypeScript from Scratch". Use slug `typescript`, repo `user/typescript-from-scratch`.
+> Generate a course for "TypeScript from Scratch". Slug: `typescript`, repo: `user/typescript-from-scratch`.
 
-You would generate:
-- `site/courses/typescript/data.json`
-- `site/courses/typescript/phases/00-foundations/01-tooling/docs/en.md`
-- `site/courses/typescript/phases/00-foundations/01-tooling/quiz.json`
-- ... (one docs/en.md + quiz.json per lesson)
-- Run `node site/combine.js`
+You would:
+1. Confirm: 9 phases, ~45 lessons
+2. Write `data.json`, commit
+3. Write phase 0 (Tooling & Setup) — all docs/en.md + quiz.json + code/ + outputs/, commit
+4. Write phase 1 (Types & Interfaces), commit
+5. ... repeat through phase 8 (Capstone)
+6. Run validation, fix any gaps
+7. Rebuild data.js, update README, final commit
