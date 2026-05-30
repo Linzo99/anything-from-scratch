@@ -22,6 +22,46 @@ More importantly, building RIP exposes the fundamental problems of distance-vect
 
 ## The Concept
 
+### RIP Convergence: Bellman-Ford Over 3 Rounds
+
+```mermaid
+sequenceDiagram
+    participant A as Node A
+    participant B as Node B
+    participant C as Node C
+    participant D as Node D
+
+    Note over A,D: Initial state — each node knows only itself (metric 0/1)
+
+    Note over A,D: Round 1 — neighbors exchange tables
+    A->>B: {A:1}
+    B->>A: {B:1}
+    B->>C: {B:1}
+    C->>B: {C:1}
+    C->>D: {C:1}
+    D->>C: {D:1}
+
+    Note over A,D: After Round 1: A={A:1,B:2}  B={A:2,B:1,C:2}  C={B:2,C:1,D:2}  D={C:2,D:1}
+
+    Note over A,D: Round 2 — knowledge spreads two hops
+    A->>B: {A:1,B:2}
+    B->>A: {A:2,B:1,C:2}
+    B->>C: {A:2,B:1,C:2}
+    C->>B: {B:2,C:1,D:2}
+    C->>D: {B:2,C:1,D:2}
+    D->>C: {C:2,D:1}
+
+    Note over A,D: After Round 2: A={A:1,B:2,C:3}  B={A:2,B:1,C:2,D:3}  C={A:3,B:2,C:1,D:2}  D={B:3,C:2,D:1}
+
+    Note over A,D: Round 3 — full convergence
+    A->>B: {A:1,B:2,C:3}
+    B->>A: {A:2,B:1,C:2,D:3}
+    C->>D: {A:3,B:2,C:1,D:2}
+    D->>C: {A:4,B:3,C:2,D:1}
+
+    Note over A,D: Converged: every node has routes to every other node
+```
+
 ### Distance-Vector Routing
 
 Each router maintains a routing table: a mapping from destination prefix to (next-hop, distance). Initially a router only knows about its directly connected networks (distance 0).

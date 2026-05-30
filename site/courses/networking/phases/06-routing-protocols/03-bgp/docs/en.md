@@ -24,6 +24,32 @@ OSPF picks the shortest path (by metric). BGP picks the path that survives a com
 
 ## The Concept
 
+### BGP AS Topology and Peering Types
+
+```mermaid
+graph LR
+    subgraph AS1["AS1 — ISP (65001)"]
+        A1["Router R-ISP<br/>advertises: 203.0.113.0/24"]
+    end
+
+    subgraph AS2["AS2 — Enterprise (65002)"]
+        R1["R1"]
+        R2["R2"]
+        R3["R3"]
+        R1 <-->|"iBGP"| R2
+        R2 <-->|"iBGP"| R3
+        R1 <-->|"iBGP"| R3
+        AS2note["advertises: 10.0.0.0/8"]
+    end
+
+    subgraph AS3["AS3 — Cloud (65003)"]
+        A3["Router R-Cloud<br/>advertises: 192.0.2.0/24"]
+    end
+
+    A1 <-->|"eBGP"| R1
+    R3 <-->|"eBGP"| A3
+```
+
 ### Autonomous Systems
 
 Every organisation that participates in BGP has an Autonomous System Number (ASN). These are either 16-bit (1–65535) or 32-bit. ASNs 64512–65534 are reserved for private use (like RFC 1918 addresses for IP). We will use AS 65001 and AS 65002.

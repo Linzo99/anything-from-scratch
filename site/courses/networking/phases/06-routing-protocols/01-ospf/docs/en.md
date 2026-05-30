@@ -26,6 +26,18 @@ OSPF (Open Shortest Path First) is the dominant interior gateway protocol in ent
 
 ## The Concept
 
+### OSPF Neighbor State Machine
+
+```mermaid
+graph TD
+    Down["Down"] -->|"Hello received"| Init["Init"]
+    Init -->|"Own Router ID seen in Hello"| TwoWay["2-Way"]
+    TwoWay -->|"DR/BDR elected"| ExStart["ExStart"]
+    ExStart -->|"DBD packets exchanged"| Exchange["Exchange"]
+    Exchange -->|"LSR/LSU sent and received"| Loading["Loading"]
+    Loading -->|"LSA database fully synced"| Full["Full"]
+```
+
 ### Link-State vs Distance-Vector
 
 There are two main families of routing protocol:
