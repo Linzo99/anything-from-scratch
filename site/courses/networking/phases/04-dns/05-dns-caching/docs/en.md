@@ -43,6 +43,40 @@ Authoritative Nameserver  (no cache — the source of truth)
 
 Each cache is independent. When you flush your OS DNS cache (`sudo dscacheutil -flushcache` on macOS), you only affect the OS layer — the recursive resolver at 8.8.8.8 still has its own cached copy.
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Resolver as Recursive Resolver\n(cache)
+    participant AuthNS as Authoritative NS
+
+    rect rgb(255, 230, 220)
+        Note over Client,AuthNS: First Query — Cache Miss
+        Client->>Resolver: Query example.com
+        Note over Resolver: Cache miss
+        Resolver->>AuthNS: Query example.com
+        AuthNS->>Resolver: Answer 93.184.216.34 (TTL=300)
+        Note over Resolver: Store in cache\nTTL=300s countdown starts
+        Resolver->>Client: Answer 93.184.216.34
+    end
+
+    rect rgb(220, 255, 220)
+        Note over Client,AuthNS: Second Query — Cache HIT (within TTL)
+        Client->>Resolver: Query example.com
+        Note over Resolver: Cache HIT\nTTL=285s remaining
+        Resolver->>Client: Answer 93.184.216.34 (TTL=285)
+    end
+
+    rect rgb(220, 220, 255)
+        Note over Client,AuthNS: Third Query — Cache Expired (after TTL)
+        Client->>Resolver: Query example.com
+        Note over Resolver: Cache expired\n(TTL reached 0)
+        Resolver->>AuthNS: Query example.com
+        AuthNS->>Resolver: Answer 93.184.216.34 (TTL=300)
+        Note over Resolver: Store fresh record\nTTL=300s countdown restarts
+        Resolver->>Client: Answer 93.184.216.34
+    end
+```
+
 ### TTL: The Cache Expiry Timer
 
 The TTL field in every DNS resource record is a 32-bit unsigned integer measured in seconds. It is set by the zone owner (you or your DNS provider) in the zone file.

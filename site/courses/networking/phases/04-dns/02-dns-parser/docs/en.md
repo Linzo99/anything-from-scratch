@@ -56,6 +56,29 @@ A DNS message has four sections. The header is always 12 bytes. The other sectio
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
+```mermaid
+graph TD
+    Message["DNS Message"]
+    Header["Header (12 bytes)"]
+    Question["Question Section"]
+    Answer["Answer Section"]
+    Authority["Authority Section"]
+    Additional["Additional Section"]
+
+    Message --> Header
+    Message --> Question
+    Message --> Answer
+    Message --> Authority
+    Message --> Additional
+
+    Header --> ID["ID (16 bits)"]
+    Header --> Flags["Flags (QR, AA, TC, RD, RA, RCODE)"]
+    Header --> QDCount["QDCount — question count"]
+    Header --> ANCount["ANCount — answer count"]
+    Header --> NSCount["NSCount — authority count"]
+    Header --> ARCount["ARCount — additional count"]
+```
+
 ### Label Encoding
 
 Domain names are not stored as plain ASCII strings. They use **label encoding**: each part of the name is prefixed by its length as a single byte.

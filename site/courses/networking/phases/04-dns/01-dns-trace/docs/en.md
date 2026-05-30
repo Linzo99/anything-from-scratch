@@ -85,6 +85,24 @@ ITERATIVE (what the recursive resolver does internally):
 
 Your stub resolver asks one question recursively and gets one answer back. The recursive resolver does the iterative heavy lifting — asking each server in turn, following referrals.
 
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Resolver as Recursive Resolver
+    participant RootNS as Root NS
+    participant ComNS as .com NS
+    participant AuthNS as example.com NS
+
+    Client->>Resolver: Query www.example.com
+    Resolver->>RootNS: Query www.example.com
+    RootNS->>Resolver: Referral to .com NS
+    Resolver->>ComNS: Query www.example.com
+    ComNS->>Resolver: Referral to example.com NS
+    Resolver->>AuthNS: Query www.example.com
+    AuthNS->>Resolver: Answer 93.184.216.34
+    Resolver->>Client: Answer 93.184.216.34
+```
+
 ### What a Referral Looks Like
 
 When the root server responds to a query for `www.example.com`, it does NOT say "I don't know." It says "I'm not authoritative for this, but here are the nameservers for `.com`, and here are their IP addresses." That response is called a **referral** (or delegation). The recursive resolver then contacts those servers and repeats the process.
