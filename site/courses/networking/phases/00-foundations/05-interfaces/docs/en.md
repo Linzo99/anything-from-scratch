@@ -112,6 +112,22 @@ LOWER_UP      Physical layer     "The cable is plugged in and carrier is detecte
 
 An interface can be UP but not LOWER_UP (administratively enabled but no cable connected). Or LOWER_UP but not UP (cable is in but you have not enabled it). Only when both are set is the interface fully operational.
 
+```mermaid
+stateDiagram-v2
+    [*] --> DOWN : interface created\n(ip link add)
+
+    DOWN --> UP : admin enables\n(ip link set up)
+    UP --> DOWN : admin disables\n(ip link set down)
+
+    UP --> LOWER_UP : carrier detected\n(cable plugged in / virtual link up)
+    LOWER_UP --> UP : carrier lost\n(cable unplugged)
+
+    LOWER_UP --> FULLY_OPERATIONAL : IP address assigned\nand routes active
+    FULLY_OPERATIONAL --> LOWER_UP : IP address removed
+
+    DOWN --> [*] : interface deleted\n(ip link delete)
+```
+
 ### Dummy Interfaces — Virtual NICs for Testing
 
 The Linux kernel includes a `dummy` driver that creates a virtual interface with no physical backing. A dummy interface behaves like a normal NIC but discards all outgoing traffic. It is useful for:

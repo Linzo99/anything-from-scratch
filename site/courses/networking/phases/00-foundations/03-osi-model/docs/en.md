@@ -42,6 +42,19 @@ Layer  Name            Job (one sentence)
 
 A memory trick: **Please Do Not Throw Sausage Pizza Away** (Physical, Data Link, Network, Transport, Session, Presentation, Application). Or going top-down: **All People Seem To Need Data Processing**.
 
+```mermaid
+graph TD
+    L7["Layer 7 — Application\nDefines the meaning of the data (HTTP, DNS, SMTP, SSH)"]
+    L6["Layer 6 — Presentation\nHandles encoding, encryption, and compression (TLS, ASCII)"]
+    L5["Layer 5 — Session\nManages long-lived conversations between two processes"]
+    L4["Layer 4 — Transport\nEnsures data arrives correctly and in order (TCP) or fast (UDP)"]
+    L3["Layer 3 — Network\nAddresses packets globally and routes them across networks (IP)"]
+    L2["Layer 2 — Data Link\nAddresses frames locally and gets them across one hop (Ethernet)"]
+    L1["Layer 1 — Physical\nTransmits raw bits as electrical signals, light, or radio waves"]
+
+    L7 --> L6 --> L5 --> L4 --> L3 --> L2 --> L1
+```
+
 ### Encapsulation — Building the Packet from the Top Down
 
 When your browser sends an HTTP request, each layer wraps the data from the layer above in its own header (and sometimes trailer):

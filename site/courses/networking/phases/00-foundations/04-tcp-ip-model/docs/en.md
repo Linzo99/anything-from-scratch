@@ -56,6 +56,34 @@ OSI Model              TCP/IP Model         Real Protocols
 1. Physical       ─┴─> Link                Ethernet, Wi-Fi, ARP
 ```
 
+```mermaid
+graph LR
+    subgraph OSI["OSI Model"]
+        O7["7. Application"]
+        O6["6. Presentation"]
+        O5["5. Session"]
+        O4["4. Transport"]
+        O3["3. Network"]
+        O2["2. Data Link"]
+        O1["1. Physical"]
+    end
+
+    subgraph TCPIP["TCP/IP Model"]
+        T4["Application\n(HTTP, DNS, TLS, SSH, SMTP)"]
+        T3["Transport\n(TCP, UDP)"]
+        T2["Internet\n(IP, ICMP)"]
+        T1["Link\n(Ethernet, Wi-Fi, ARP)"]
+    end
+
+    O7 --> T4
+    O6 --> T4
+    O5 --> T4
+    O4 --> T3
+    O3 --> T2
+    O2 --> T1
+    O1 --> T1
+```
+
 ### Where Does Each Protocol Live?
 
 Let's place specific protocols precisely:
