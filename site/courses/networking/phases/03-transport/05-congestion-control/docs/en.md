@@ -31,6 +31,21 @@ TCP's sliding window could send as fast as the receiver accepts data. But the ne
 
 TCP congestion control is a distributed algorithm: every TCP sender independently measures packet loss as a signal of congestion and backs off. This is TCP's "social contract" — each flow yields fairly.
 
+```mermaid
+stateDiagram-v2
+    [*] --> SlowStart : Connection opens / timeout
+
+    SlowStart : Slow Start\n(cwnd doubles per RTT)
+    CongestionAvoidance : Congestion Avoidance\n(cwnd += 1 MSS per RTT)
+    FastRecovery : Fast Recovery\n(cwnd = ssthresh + 3)
+
+    SlowStart --> CongestionAvoidance : cwnd >= ssthresh
+    CongestionAvoidance --> SlowStart : Timeout\nssthresh = cwnd/2\ncwnd = 1
+    CongestionAvoidance --> FastRecovery : 3 duplicate ACKs\nssthresh = cwnd/2\ncwnd = ssthresh + 3
+    FastRecovery --> CongestionAvoidance : New ACK received
+    FastRecovery --> SlowStart : Timeout\nssthresh = cwnd/2\ncwnd = 1
+```
+
 ### The congestion window (cwnd)
 
 The **congestion window** (`cwnd`) is the sender's estimate of how much data the network can absorb. The effective in-flight limit is:

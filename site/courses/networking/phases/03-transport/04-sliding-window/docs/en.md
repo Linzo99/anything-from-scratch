@@ -46,6 +46,30 @@ After ACK for 3:
 
 The window **slides** to the right as ACKs arrive. New data can be sent as long as `SND.NXT < SND.UNA + window_size`.
 
+```mermaid
+sequenceDiagram
+    participant Sender
+    participant Receiver
+
+    Note over Sender: Window = 4
+    Sender->>Receiver: Frame 0
+    Sender->>Receiver: Frame 1
+    Sender->>Receiver: Frame 2
+    Sender->>Receiver: Frame 3
+
+    Receiver->>Sender: ACK 0
+    Receiver->>Sender: ACK 1
+
+    Note over Receiver: Frame 2 lost
+    Note over Sender: Timeout — retransmit from Frame 2
+
+    Sender->>Receiver: Frame 2 (retransmit)
+    Sender->>Receiver: Frame 3 (retransmit)
+
+    Receiver->>Sender: ACK 2
+    Receiver->>Sender: ACK 3
+```
+
 ### TCP's three windows
 
 TCP actually manages three interacting window values:

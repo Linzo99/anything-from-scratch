@@ -45,6 +45,29 @@ Sender                                Receiver
   |                                       |
 ```
 
+```mermaid
+sequenceDiagram
+    participant Sender
+    participant Receiver
+
+    rect rgb(220, 240, 255)
+        Note over Sender,Receiver: Happy Path
+        Sender->>Receiver: Frame 0
+        Receiver->>Sender: ACK 0
+        Sender->>Receiver: Frame 1
+        Receiver->>Sender: ACK 1
+    end
+
+    rect rgb(255, 230, 220)
+        Note over Sender,Receiver: Loss Scenario
+        Sender->>Receiver: Frame 0
+        Note over Sender: Timeout — no ACK received
+        Note over Sender: Retransmit Frame 0
+        Sender->>Receiver: Frame 0 (retransmit)
+        Receiver->>Sender: ACK 0
+    end
+```
+
 ### Why sequence numbers are necessary
 
 Without sequence numbers, the receiver cannot tell whether a packet is:

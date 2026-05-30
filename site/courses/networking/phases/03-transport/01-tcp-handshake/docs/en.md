@@ -45,6 +45,36 @@ Client                          Server
   |=== Connection established ====|
 ```
 
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+
+    rect rgb(220, 240, 255)
+        Note over C,S: Three-Way Handshake
+        C->>S: SYN (seq=x)
+        S->>C: SYN-ACK (seq=y, ack=x+1)
+        C->>S: ACK (ack=y+1)
+    end
+
+    Note over C,S: Data Transfer
+
+    rect rgb(220, 255, 220)
+        C->>S: Data
+        S->>C: ACK
+        S->>C: Data
+        C->>S: ACK
+    end
+
+    rect rgb(255, 240, 220)
+        Note over C,S: Four-Way Teardown
+        C->>S: FIN (seq=u)
+        S->>C: ACK (ack=u+1)
+        S->>C: FIN (seq=v)
+        C->>S: ACK (ack=v+1)
+    end
+```
+
 **SYN (Synchronize):** Client picks a random Initial Sequence Number (ISN) `C`. The SYN packet has the SYN flag set. No payload.
 
 **SYN-ACK (Synchronize-Acknowledge):** Server picks its own ISN `S`. The SYN-ACK has both the SYN and ACK flags set. The ACK number is `C+1` — "I received byte C and expect the next byte to be C+1."
