@@ -36,6 +36,28 @@ App → UDP DNS:53 → [Your DoH proxy] → HTTPS:443 → Cloudflare
 
 ## The Concept
 
+### Traditional DNS vs DNS-over-HTTPS
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant TR as Traditional DNS<br/>Resolver (UDP:53)
+    participant DoHP as DoH Proxy<br/>(UDP:5353 locally)
+    participant DoHR as DoH Resolver<br/>(1.1.1.1 HTTPS:443)
+
+    Note over App,TR: Traditional DNS — plaintext, observable
+    App->>TR: UDP port 53: "who is github.com?"
+    Note over TR: ISP can see every query
+    TR->>App: UDP port 53: "github.com → 140.82.114.4"
+
+    Note over App,DoHR: DNS-over-HTTPS — encrypted, looks like web traffic
+    App->>DoHP: UDP port 5353: "who is github.com?" (standard DNS)
+    Note over DoHP: Base64url-encode the raw DNS query bytes
+    DoHP->>DoHR: HTTPS POST /dns-query<br/>Accept: application/dns-message<br/>(encrypted — ISP sees only TLS to 1.1.1.1)
+    DoHR->>DoHP: 200 OK — raw DNS response bytes (encrypted)
+    DoHP->>App: UDP port 5353: "github.com → 140.82.114.4"
+```
+
 ### DNS-over-HTTPS wire format
 
 DoH supports two request formats. The simplest is GET with a base64url-encoded DNS query:

@@ -29,6 +29,24 @@ This seemingly simple intermediary is responsible for caching, filtering, loggin
 
 ## The Concept
 
+### Proxy Request Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant P as Proxy (127.0.0.1:8080)
+    participant O as example.com
+
+    C->>P: GET http://example.com/page HTTP/1.1<br/>Host: example.com
+    Note over P: Parse full URL from request-line<br/>Extract host=example.com, path=/page<br/>Add X-Forwarded-For header
+
+    P->>O: GET /page HTTP/1.1<br/>Host: example.com<br/>X-Forwarded-For: &lt;client-ip&gt;
+    O->>P: HTTP/1.1 200 OK<br/>Content-Type: text/html<br/><br/>&lt;body&gt;...
+    P->>C: HTTP/1.1 200 OK<br/>Content-Type: text/html<br/><br/>&lt;body&gt;...
+
+    Note over P: Log: {method, host, path, status, duration_ms}
+```
+
 ### Forward vs reverse proxy
 
 ```
