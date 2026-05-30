@@ -1679,6 +1679,13 @@
       var params = new URLSearchParams(window.location.search);
       var lessonPath = params.get('path');
 
+      // Convert "phases/{course}/{phase}/{lesson}" → "site/courses/{course}/phases/{phase}/{lesson}"
+      // used for GitHub API calls and "View on GitHub" links
+      var _lpSeg = lessonPath ? lessonPath.split('/') : [];
+      var repoLessonPath = (_lpSeg.length >= 4)
+        ? 'site/courses/' + _lpSeg[1] + '/phases/' + _lpSeg[2] + '/' + _lpSeg[3]
+        : lessonPath;
+
       if (!lessonPath) {
         showError('No lesson path specified', 'Add ?path=phases/01-math-foundations/01-linear-algebra-intuition to the URL.');
         return;
@@ -2924,10 +2931,12 @@
         panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">O</div><div class="ai-panel-title">What This Lesson Ships</div></div><div class="ai-panel-subtitle">Prompts, skills, and artifacts you can use right now</div><div id="outputsContent" class="panel-loading">Loading outputs...</div>';
         container.appendChild(panel);
 
-        ghApiFetch(lessonPath + '/outputs', function (err, data) {
+        ghApiFetch(repoLessonPath + '/outputs', function (err, data) {
           var el = document.getElementById('outputsContent');
           if (err || !data || !Array.isArray(data) || data.length === 0) {
-            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/Linzo99/anything-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
+            var _r = (window.ACTIVE_COURSE && window.ACTIVE_COURSE.githubRepo) || 'Linzo99/anything-from-scratch';
+            var _b = (window.ACTIVE_COURSE && window.ACTIVE_COURSE.githubBranch) || 'main';
+            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/' + _r + '/tree/' + _b + '/' + repoLessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
             return;
           }
 
@@ -2983,10 +2992,12 @@
         panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">C</div><div class="ai-panel-title">Run the Code</div></div><div class="ai-panel-subtitle">Executable files from this lesson</div><div id="codeContent" class="panel-loading">Loading code files...</div>';
         container.appendChild(panel);
 
-        ghApiFetch(lessonPath + '/code', function (err, data) {
+        ghApiFetch(repoLessonPath + '/code', function (err, data) {
           var el = document.getElementById('codeContent');
           if (err || !data || !Array.isArray(data) || data.length === 0) {
-            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/Linzo99/anything-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
+            var _r = (window.ACTIVE_COURSE && window.ACTIVE_COURSE.githubRepo) || 'Linzo99/anything-from-scratch';
+            var _b = (window.ACTIVE_COURSE && window.ACTIVE_COURSE.githubBranch) || 'main';
+            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/' + _r + '/tree/' + _b + '/' + repoLessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
             return;
           }
 
