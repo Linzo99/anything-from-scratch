@@ -28,6 +28,24 @@ Understanding HTTP/2 matters because:
 
 ## The Concept
 
+### HTTP/1.1 vs HTTP/2: Multiplexing at a Glance
+
+```mermaid
+graph LR
+    subgraph HTTP11["HTTP/1.1 — Sequential (one connection)"]
+        direction LR
+        req1[Request 1] --> resp1[Response 1] --> req2[Request 2] --> resp2[Response 2] --> req3[Request 3] --> resp3[Response 3]
+    end
+
+    subgraph HTTP2["HTTP/2 — Multiplexed (one connection)"]
+        direction LR
+        conn["Single TCP Connection"]
+        conn --> s1["Stream 1: Request/Response 1"]
+        conn --> s2["Stream 3: Request/Response 2"]
+        conn --> s3["Stream 5: Request/Response 3"]
+    end
+```
+
 ### The HTTP/1.1 Problem: Head-of-Line Blocking
 
 With HTTP/1.1 persistent connections, requests and responses are strictly ordered:

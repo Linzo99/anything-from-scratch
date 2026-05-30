@@ -26,6 +26,30 @@ Developers who don't understand the handshake:
 
 ## The Concept
 
+### TLS 1.3 Handshake Overview
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+
+    C->>S: ClientHello<br/>(TLS 1.3, cipher suites, client random, key_share)
+    S->>C: ServerHello<br/>(chosen cipher, server random, key_share)
+
+    Note over C,S: Both sides derive handshake keys from key_share values
+
+    S->>C: {Certificate}<br/>{CertificateVerify}<br/>{Finished}
+
+    Note over C: Verifies certificate chain and server Finished MAC
+    Note over C,S: Both sides derive session keys
+
+    C->>S: {Finished}
+
+    Note over C,S: Application Data (encrypted)
+    C->>S: Application Data
+    S->>C: Application Data
+```
+
 ### The TLS Record Layer
 
 TLS sits on top of TCP. TCP provides a reliable byte stream; TLS adds confidentiality, integrity, and authentication. Every byte transmitted after the TCP connection is established is wrapped in a TLS record:

@@ -28,6 +28,27 @@ Understanding raw HTTP means you can debug any HTTP issue with nothing but a TCP
 
 HTTP/1.1 is a human-readable text protocol layered on top of TCP. A request and its response are just strings with a specific format. There is no binary encoding, no special framing — it's plain text.
 
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+
+    Note over C,S: TCP Three-Way Handshake
+    C->>S: SYN
+    S->>C: SYN-ACK
+    C->>S: ACK
+
+    Note over C,S: HTTP Request
+    C->>S: GET /index.html HTTP/1.1<br/>Host: example.com<br/>Connection: close
+
+    Note over C,S: HTTP Response
+    S->>C: HTTP/1.1 200 OK<br/>Content-Type: text/html<br/>Content-Length: 1256<br/><br/>&lt;!DOCTYPE html&gt;...
+
+    Note over C,S: TCP Teardown
+    C->>S: FIN
+    S->>C: ACK
+```
+
 ```
 CLIENT SENDS:
 ──────────────────────────────────────────────────
