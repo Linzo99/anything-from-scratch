@@ -26,6 +26,30 @@ With a MITM position, the attacker can read, modify, or drop packets. They can c
 
 ### How ARP Poisoning Works
 
+```mermaid
+sequenceDiagram
+    participant HA as Host A (10.0.0.2)
+    participant GW as Gateway (10.0.0.1<br/>MAC: AA:BB)
+    participant AT as Attacker (10.0.0.3<br/>MAC: CC:DD)
+
+    Note over HA,GW: Legitimate ARP exchange
+    HA->>GW: Who has 10.0.0.1? (ARP Request broadcast)
+    GW->>HA: 10.0.0.1 is at AA:BB (ARP Reply)
+    Note over HA: ARP cache: 10.0.0.1 → AA:BB
+
+    Note over HA,AT: Attacker poisons caches with gratuitous ARPs
+    AT->>HA: 10.0.0.1 is at CC:DD (unsolicited ARP Reply)
+    AT->>GW: 10.0.0.2 is at CC:DD (unsolicited ARP Reply)
+
+    Note over HA: ARP cache overwritten: 10.0.0.1 → CC:DD
+
+    Note over HA,AT: Traffic now flows through attacker (MITM)
+    HA->>AT: Packet for 10.0.0.1 (sent to CC:DD)
+    AT->>GW: Packet forwarded to real gateway
+    GW->>AT: Reply for 10.0.0.2 (sent to CC:DD)
+    AT->>HA: Reply forwarded to Host A
+```
+
 ```
 Normal ARP:
   Victim (10.0.0.2)  ──[Who has 10.0.0.1?]──────►  [Broadcast]

@@ -28,6 +28,20 @@ The simplest protection: a firewall that only allows traffic you explicitly requ
 
 iptables organises rules in tables. The main table is `filter`. Each table has chains — sequences of rules that packets traverse:
 
+```mermaid
+graph TD
+    IN["Incoming Packet"] --> PRE["PREROUTING<br/>(nat: DNAT)"]
+    PRE --> RD{{"Routing Decision"}}
+    RD -->|"Destined for<br/>this host"| INPUT["INPUT<br/>(filter)"]
+    RD -->|"Being forwarded<br/>to another host"| FORWARD["FORWARD<br/>(filter)"]
+    INPUT --> LP["Local Process"]
+    LP --> OUTPUT["OUTPUT<br/>(filter)"]
+    FORWARD --> POST2["POSTROUTING<br/>(nat: SNAT)"]
+    OUTPUT --> POST1["POSTROUTING<br/>(nat: SNAT)"]
+    POST1 --> OUT["Outgoing Packet"]
+    POST2 --> Out2["Outgoing Packet"]
+```
+
 ```
                           Incoming packet
                                 │
