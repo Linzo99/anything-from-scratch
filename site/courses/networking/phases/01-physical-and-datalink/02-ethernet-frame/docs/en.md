@@ -85,6 +85,35 @@ pcap files have a global header followed by packet records. Each packet record h
 
 The `dpkt` library handles the pcap format parsing for us. Alternatively, the `scapy` library offers a higher-level interface.
 
+### Encapsulation and Decapsulation Journey
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant TCP as TCP/IP Stack (kernel)
+    participant NIC as NIC (sender)
+    participant Wire as Wire / Loopback
+    participant RNIC as NIC (receiver)
+    participant RTCP as TCP/IP Stack (receiver)
+    participant RApp as Application (receiver)
+
+    Note over App,NIC: Encapsulation — sender side
+    App->>TCP: HTTP data (Layer 7)
+    TCP->>TCP: Add IP header (src/dst IP, TTL)
+    TCP->>NIC: IP packet (Layer 3 payload)
+    NIC->>Wire: Ethernet frame\n[dst MAC | src MAC | EtherType | IP pkt | FCS]
+
+    Note over Wire: Bits on the wire (Layer 1)
+
+    Note over RNIC,RApp: Decapsulation — receiver side
+    Wire->>RNIC: Raw bits arrive
+    RNIC->>RNIC: Check FCS — if bad, drop silently
+    RNIC->>RTCP: Strip Ethernet header\ncheck dst MAC matches
+    RTCP->>RTCP: Strip IP header\ncheck dst IP, decrement TTL
+    RTCP->>RApp: Strip TCP/UDP header\ndeliver payload to correct port
+    RApp->>RApp: Receives clean application data
+```
+
 ## Build It
 
 ### Step 1 — Create a pcap file to parse

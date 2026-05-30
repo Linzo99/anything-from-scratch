@@ -34,6 +34,21 @@ Understanding this algorithm lets you:
 
 ## The Concept
 
+```mermaid
+graph LR
+    HA["Host A\nMAC: aa:aa:aa:aa:aa:aa\nPort 1"]
+    HB["Host B\nMAC: bb:bb:bb:bb:bb:bb\nPort 2"]
+    HC["Host C\nMAC: cc:cc:cc:cc:cc:cc\nPort 3"]
+    HD["Host D\nMAC: dd:dd:dd:dd:dd:dd\nPort 4"]
+
+    SW["Switch SW1\n─────────────────\nCAM Table:\naa:aa → port 1\nbb:bb → port 2\ncc:cc → port 3\ndd:dd → port 4"]
+
+    HA -- port 1 --- SW
+    HB -- port 2 --- SW
+    HC -- port 3 --- SW
+    HD -- port 4 --- SW
+```
+
 ### The Forwarding Table (CAM Table)
 
 The forwarding table is sometimes called a **CAM table** (Content Addressable Memory table) after the specialized hardware used to implement it in real switches. In software, it is just a dictionary:
