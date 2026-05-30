@@ -22,6 +22,19 @@ Static routing is the foundation of all routing. Dynamic protocols (OSPF, BGP) a
 
 ## The Concept
 
+```mermaid
+graph LR
+    HA["HostA\n10.0.1.2/24"]
+    RA["RouterA\n10.0.1.1/24\n10.0.2.1/24"]
+    HB["HostB\n10.0.2.2/24"]
+
+    HA -- "10.0.1.0/24\nlink" --- RA
+    RA -- "10.0.2.0/24\nlink" --- HB
+
+    HA -. "default via 10.0.1.1" .-> RA
+    HB -. "default via 10.0.2.1" .-> RA
+```
+
 ### What is a routing table?
 
 A routing table is a list of rules. Each rule says: "to reach network X, send packets to next-hop Y via interface Z". When a packet arrives, the kernel looks up the destination address in the routing table and picks the most specific match (longest prefix match).

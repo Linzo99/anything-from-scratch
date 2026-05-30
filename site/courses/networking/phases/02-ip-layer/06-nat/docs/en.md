@@ -62,6 +62,23 @@ Private src             Public src              Destination
 
 When a reply comes back from `93.184.216.34:80` to `203.0.113.5:40001`, the gateway looks up the table, rewrites the destination to `192.168.1.10:54321`, and forwards it to the private network.
 
+```mermaid
+sequenceDiagram
+    participant PH as PrivateHost\n10.0.0.5
+    participant NAT as NAT Router\n(private: 10.0.0.1)\n(public: 203.0.113.1)
+    participant IS as Internet Server\n93.184.216.34:80
+
+    Note over PH,NAT: Outbound — source rewrite
+    PH->>NAT: src=10.0.0.5:4321\ndst=93.184.216.34:80
+    NAT->>NAT: Record in NAT table:\n10.0.0.5:4321 ↔ 203.0.113.1:60001
+    NAT->>IS: src=203.0.113.1:60001\ndst=93.184.216.34:80
+
+    Note over IS,NAT: Inbound — destination rewrite
+    IS->>NAT: src=93.184.216.34:80\ndst=203.0.113.1:60001
+    NAT->>NAT: Lookup NAT table:\n203.0.113.1:60001 → 10.0.0.5:4321
+    NAT->>PH: src=93.184.216.34:80\ndst=10.0.0.5:4321
+```
+
 ### What NAT actually modifies
 
 For each outbound packet, NAT rewrites:

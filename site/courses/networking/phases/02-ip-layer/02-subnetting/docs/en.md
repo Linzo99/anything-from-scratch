@@ -54,6 +54,24 @@ Why? Because the subnet mask zeroes out the host bits. If you put a host at `10.
   10.0.0.192 /26  [192 – 255]  network=192, broadcast=255, hosts=193–254
 ```
 
+```mermaid
+graph TD
+    A["10.0.0.0/24\n256 addresses"]
+    B1["10.0.0.0/25\n128 addresses"]
+    B2["10.0.0.128/25\n128 addresses"]
+    C1["10.0.0.0/26\n64 addresses"]
+    C2["10.0.0.64/26\n64 addresses"]
+    C3["10.0.0.128/26\n64 addresses"]
+    C4["10.0.0.192/26\n64 addresses"]
+
+    A -->|"split /24 → two /25\n(borrow 1 bit)"| B1
+    A -->|"split /24 → two /25\n(borrow 1 bit)"| B2
+    B1 -->|"split /25 → two /26\n(borrow 1 more bit)"| C1
+    B1 --> C2
+    B2 --> C3
+    B2 --> C4
+```
+
 ### Calculating number of subnets needed → prefix length
 
 To create at least N subnets from a block with prefix P, you need to borrow enough bits:
