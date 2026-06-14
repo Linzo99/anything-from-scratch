@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does adding read replicas (followers) to a single-leader setup primarily scale?",
+      "options": [
+        "Write capacity",
+        "Read capacity, plus improved availability",
+        "Storage capacity per machine",
+        "Nothing — it only adds cost"
+      ],
+      "correct": 1,
+      "explanation": "Followers hold full copies and serve reads, so you can spread read traffic across them — scaling reads. They also provide availability (a follower can be promoted on leader failure). Writes still go through the single leader, so write capacity is unchanged."
+    },
+    {
+      "stage": "pre",
+      "question": "With asynchronous replication, what is 'replication lag'?",
+      "options": [
+        "The time to install a new replica",
+        "The delay between a write committing on the leader and appearing on a follower",
+        "The latency of a network ping",
+        "The time a backup takes"
+      ],
+      "correct": 1,
+      "explanation": "Async replication acks writes immediately and propagates to followers in the background, so followers are always slightly behind — replication lag. Usually milliseconds, but more under load. It's the cause of stale reads from followers."
+    },
+    {
+      "stage": "post",
+      "question": "A user updates their name, the page reloads reading from a lagging follower, and they see the old name. What problem is this?",
+      "options": [
+        "Split-brain",
+        "The read-after-write (read-your-own-writes) problem caused by replication lag",
+        "A full table scan",
+        "A cache stampede"
+      ],
+      "correct": 1,
+      "explanation": "The write went to the leader but the follower serving the read hasn't caught up, so the user sees stale data — their own write seemingly lost. Fixes include reading from the leader briefly after a write, or routing to a replica known to be caught up."
+    },
+    {
+      "stage": "post",
+      "question": "What is the key tradeoff between synchronous and asynchronous replication?",
+      "options": [
+        "Synchronous is always better",
+        "Synchronous guarantees the follower has the write (no loss) but is slower and can stall; asynchronous is fast but can lose recent writes if the leader crashes",
+        "Asynchronous prevents all data loss",
+        "They perform identically"
+      ],
+      "correct": 1,
+      "explanation": "Synchronous waits for a follower before acking — durable but as slow as the slowest follower, and stalls if it's down. Asynchronous acks immediately — fast, but a leader crash before propagation loses those writes. Most systems use async or semi-sync for performance."
+    },
+    {
+      "stage": "post",
+      "question": "What is 'split-brain' during failover, and why is it dangerous?",
+      "options": [
+        "Two replicas with identical data; harmless",
+        "Two nodes both believing they are leader and accepting conflicting writes, corrupting data",
+        "A replica that has fallen too far behind",
+        "When reads and writes go to different machines"
+      ],
+      "correct": 1,
+      "explanation": "If a network partition or a returning old leader causes two nodes to both act as leader, they accept divergent, conflicting writes — data corruption. It's prevented with quorum-based promotion and fencing so only one node can be leader at a time."
+    }
+  ]
+}

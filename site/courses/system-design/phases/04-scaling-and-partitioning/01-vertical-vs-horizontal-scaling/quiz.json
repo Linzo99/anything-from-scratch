@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between vertical and horizontal scaling?",
+      "options": [
+        "Vertical is for databases; horizontal is for web servers",
+        "Vertical means making one machine more powerful; horizontal means adding more machines and spreading load",
+        "Vertical is always cheaper than horizontal",
+        "They are two names for the same thing"
+      ],
+      "correct": 1,
+      "explanation": "Vertical scaling (scale up) replaces a machine with a bigger one — more CPU/RAM/disk. Horizontal scaling (scale out) keeps machines modest and adds more of them behind a load balancer, splitting the load across them."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can't vertical scaling alone provide high availability?",
+      "options": [
+        "Big machines are too slow",
+        "One machine is a single point of failure — with no redundancy, its failure takes the whole system down",
+        "Vertical scaling corrupts data",
+        "It can, with a fast enough CPU"
+      ],
+      "correct": 1,
+      "explanation": "No matter how powerful, a single machine has no redundancy. When it fails, everything fails. High availability requires more than one machine so the others continue when one dies — which means horizontal scaling."
+    },
+    {
+      "stage": "post",
+      "question": "Why are stateless app servers easy to scale horizontally?",
+      "options": [
+        "They use less memory",
+        "They hold no per-client state, so instances are interchangeable — any server can serve any request and you just add more",
+        "They don't need a load balancer",
+        "They store all data locally"
+      ],
+      "correct": 1,
+      "explanation": "If a server keeps no client-specific state locally, all instances are equivalent. The load balancer can send any request to any server, and scaling out is just adding more identical boxes. State must live elsewhere (database, distributed cache, session store)."
+    },
+    {
+      "stage": "post",
+      "question": "Why is scaling a database horizontally much harder than scaling app servers?",
+      "options": [
+        "Databases use a different programming language",
+        "A database holds state; copies must agree, so scaling out requires replication, sharding, and confronting consistency tradeoffs",
+        "Databases cannot run on more than one machine ever",
+        "App servers are always larger"
+      ],
+      "correct": 1,
+      "explanation": "The data tier is stateful. You can't just add a copy and split traffic, because the copies must stay consistent. Scaling a database out means replication, sharding, and dealing with consistency tradeoffs (CAP) — among the hardest problems in distributed systems."
+    },
+    {
+      "stage": "post",
+      "question": "What is the recommended general sequence for scaling?",
+      "options": [
+        "Always start fully distributed and horizontally scaled",
+        "Scale up first (simple, no distribution), then scale out where required for capacity or availability",
+        "Never scale out; just keep buying bigger machines forever",
+        "Scale out the database before the app tier"
+      ],
+      "correct": 1,
+      "explanation": "Vertical scaling is the right first move — one well-provisioned server handles most applications without distributed-systems complexity. Scale up until it's no longer cost-effective or you need availability, then take on horizontal scaling where needed. Going distributed prematurely buys complexity you don't need."
+    }
+  ]
+}

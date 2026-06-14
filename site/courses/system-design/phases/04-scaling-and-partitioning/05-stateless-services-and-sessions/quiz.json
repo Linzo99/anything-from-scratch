@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does storing a user's session in an app server's local memory hurt horizontal scaling?",
+      "options": [
+        "Memory is too expensive",
+        "The user's later requests must return to the same server, so servers stop being interchangeable and can't be load-balanced freely",
+        "Sessions can't be stored in memory at all",
+        "It makes the server faster, which is bad"
+      ],
+      "correct": 1,
+      "explanation": "Horizontal scaling relies on any server handling any request. If the session lives in Server A's memory, the user's next request must go back to A or it fails. That turns interchangeable machines into special snowflakes, defeating load balancing."
+    },
+    {
+      "stage": "pre",
+      "question": "What does it mean for a service to be 'stateless'?",
+      "options": [
+        "The system stores no data anywhere",
+        "The app server holds no per-client state between requests; any needed state lives in shared external stores or the client",
+        "The service has no database",
+        "The service never responds to requests"
+      ],
+      "correct": 1,
+      "explanation": "Statelessness is about the app server, not the system. The system still has state (users, sessions), but it lives in shared tiers (database, Redis) or is carried by the client. The server computes each response from the request plus those shared stores, remembering nothing locally."
+    },
+    {
+      "stage": "post",
+      "question": "What is the main drawback of sticky sessions (session affinity)?",
+      "options": [
+        "They require a JWT signing key",
+        "They keep state in one server's memory, so if that server dies its users lose their sessions, and load can become uneven",
+        "They are slower than any other approach",
+        "They cannot be used with cookies"
+      ],
+      "correct": 1,
+      "explanation": "Sticky sessions pin a user to one server so their in-memory session is available — but this keeps the app tier stateful. If that server fails, its users are logged out; load can skew; and you can't freely move users during deploys. It's a stopgap, not a scale solution."
+    },
+    {
+      "stage": "post",
+      "question": "How does a shared session store (e.g. Redis) keep the app tier stateless?",
+      "options": [
+        "By storing sessions on each server's disk",
+        "The client holds only a session ID; any server looks up the full session by that ID in the shared store, so all servers can serve any request",
+        "By disabling sessions entirely",
+        "By copying sessions to every server"
+      ],
+      "correct": 1,
+      "explanation": "With a shared store, session data lives in Redis and the client's cookie holds just the session ID. Every server can look up the session by ID, so no server holds client state locally — the app tier is fully stateless. The cost is a per-request lookup and the store becoming critical infrastructure."
+    },
+    {
+      "stage": "post",
+      "question": "What is the key security tradeoff of using stateless JWTs for sessions?",
+      "options": [
+        "JWTs cannot store any user data",
+        "Revocation is hard — a signed token stays valid until it expires, so you can't instantly log a user out without extra machinery",
+        "JWTs require a shared session store anyway",
+        "JWTs are slower to verify than a database lookup"
+      ],
+      "correct": 1,
+      "explanation": "A JWT is self-contained and trusted via its signature with no server-side lookup — great for scaling and cross-service auth. But that means there's nothing to delete to revoke it: it's valid until expiry. Workarounds include a denylist or short expiries paired with refresh tokens."
+    }
+  ]
+}

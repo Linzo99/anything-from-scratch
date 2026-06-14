@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does scaling writes require sharding rather than just adding replicas?",
+      "options": [
+        "Replicas are too expensive",
+        "In single-leader replication every write still goes through one leader; sharding splits the data so each shard handles only its slice of writes",
+        "Replicas cannot store writes at all",
+        "Sharding is just another word for replication"
+      ],
+      "correct": 1,
+      "explanation": "Replication copies the full dataset to every node, so all writes still funnel through the single leader — no write scaling. Sharding divides the data across machines so each shard absorbs only part of the writes (and stores only part of the data)."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the most important decision when sharding?",
+      "options": [
+        "The programming language of the shards",
+        "The partition key — the attribute that decides which shard each row lands on",
+        "The number of CPUs per shard",
+        "The color of the dashboard"
+      ],
+      "correct": 1,
+      "explanation": "The partition key determines load balance. A good key spreads load evenly; a bad one sends most traffic to one shard (a hot shard), giving you all the complexity of sharding with the throughput of a single machine."
+    },
+    {
+      "stage": "post",
+      "question": "Sharding by 'country' when 80% of users are in one country causes a hot shard even with hashing. Why?",
+      "options": [
+        "Hashing is broken for strings",
+        "The key has low cardinality — every row with the same country value hashes to the same shard, so the skew concentrates there",
+        "Country names are too long",
+        "Because hashing always creates hotspots"
+      ],
+      "correct": 1,
+      "explanation": "Hashing scatters DISTINCT key values across shards, but identical key values always map to the same shard. With only a handful of distinct countries and one dominating, all those rows pile onto one shard. The fix is a high-cardinality key like user_id."
+    },
+    {
+      "stage": "post",
+      "question": "What is the main downside of hash partitioning compared to range partitioning?",
+      "options": [
+        "It cannot distribute load evenly",
+        "It scatters adjacent keys across shards, so range queries must hit every shard",
+        "It only works for numbers",
+        "It requires more disk space"
+      ],
+      "correct": 1,
+      "explanation": "Hashing deliberately scrambles key order for even distribution, which destroys locality: keys that are adjacent in value land on different shards. So a range query ('keys M through O') becomes a cross-shard query touching every shard. Range partitioning keeps ranges on one shard but is prone to skew."
+    },
+    {
+      "stage": "post",
+      "question": "Why does sharding by user_id help keep per-user queries efficient?",
+      "options": [
+        "It makes user_ids shorter",
+        "All of a user's related data (e.g. their orders) co-locates on the same shard, so per-user queries and joins stay within one shard",
+        "It eliminates the need for a database",
+        "It guarantees strong consistency across shards"
+      ],
+      "correct": 1,
+      "explanation": "Choosing user_id as the partition key co-locates everything belonging to a user on one shard. Per-user reads, joins, and transactions then stay within a single shard, avoiding slow cross-shard operations. Co-location is the key to keeping sharded systems fast."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "With `hash(key) % N`, what happens to key placement when you add one node (N changes)?",
+      "options": [
+        "Only the new node's share of keys moves",
+        "Almost every key remaps to a different node, because the modulo changes for nearly all keys",
+        "Nothing changes",
+        "Exactly half the keys move"
+      ],
+      "correct": 1,
+      "explanation": "Modulo ties every key's destination to the total count N. Changing N changes the arithmetic for nearly every key, so roughly (N-1)/N of all keys remap — about 80% when going from 4 to 5 nodes. For a cache, that's a near-total miss storm."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the main goal of consistent hashing?",
+      "options": [
+        "To encrypt keys before storing them",
+        "To minimize how many keys move when nodes are added or removed (only about 1/N)",
+        "To make every key hash to the same node",
+        "To eliminate the need for hashing entirely"
+      ],
+      "correct": 1,
+      "explanation": "Consistent hashing maps keys and nodes onto a ring so that adding or removing a node only remaps about 1/N of the keys — the changed node's fair share — instead of nearly all of them. This makes scaling distributed caches and datastores practical."
+    },
+    {
+      "stage": "post",
+      "question": "On the hash ring, how is the owner of a key determined?",
+      "options": [
+        "The node with the closest IP address",
+        "The first node found walking clockwise from the key's position on the ring",
+        "A random node chosen each time",
+        "The node with the most free space"
+      ],
+      "correct": 1,
+      "explanation": "Both keys and nodes are hashed to positions on the ring. A key is owned by the first node encountered going clockwise from its position. When a node is added, it only takes over the keys in the arc between it and the previous node — everyone else is unaffected."
+    },
+    {
+      "stage": "post",
+      "question": "What problem do virtual nodes solve?",
+      "options": [
+        "They encrypt the ring",
+        "They even out load (each physical node owns many small scattered arcs) and spread a removed node's keys across many neighbors instead of dumping them on one",
+        "They remove the need for a ring",
+        "They make all keys hash to node A"
+      ],
+      "correct": 1,
+      "explanation": "With few real nodes placed randomly, ring arcs are uneven and removing a node dumps all its keys on one neighbor. Placing each physical node at many positions (vnodes) means each owns many small arcs that average out to an even share, and its keys disperse across many nodes on removal."
+    },
+    {
+      "stage": "post",
+      "question": "Going from 4 nodes to 5, consistent hashing moves about 18-20% of keys while modulo moves ~80%. Why is ~20% actually the ideal?",
+      "options": [
+        "Because 20% is an arbitrary cap",
+        "The new node must take on its fair share (1/5) of the keys to be useful — moving fewer would leave it underused, moving more is wasted churn",
+        "Because 80% of keys are unmovable",
+        "Because consistent hashing has a bug"
+      ],
+      "correct": 1,
+      "explanation": "A 5th node should own roughly 1/5 of the data. So ~20% of keys MUST move to it — that's the minimum necessary, not a flaw. Consistent hashing achieves this minimum; modulo's 80% is mostly pointless churn that reshuffles keys between unchanged nodes."
+    }
+  ]
+}
