@@ -174,12 +174,12 @@
     {
       "id": 3,
       "name": "Caching & CDNs",
-      "status": "in-progress",
+      "status": "complete",
       "desc": "Make reads fast and cheap: where to put a cache, how to keep it fresh, which entries to evict, and how CDNs push content to the edge.",
       "lessons": [
         {
           "name": "Why Cache",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/03-caching-and-cdns/01-why-cache/",
@@ -189,7 +189,7 @@
         },
         {
           "name": "Caching Strategies",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/03-caching-and-cdns/02-caching-strategies/",
@@ -199,7 +199,7 @@
         },
         {
           "name": "Eviction Policies & LRU",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/03-caching-and-cdns/03-eviction-policies-and-lru/",
@@ -209,7 +209,7 @@
         },
         {
           "name": "Distributed Caching with Redis",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/03-caching-and-cdns/04-distributed-caching-with-redis/",
@@ -219,7 +219,7 @@
         },
         {
           "name": "CDNs & Edge Caching",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/03-caching-and-cdns/05-cdns-and-edge-caching/",
@@ -232,12 +232,12 @@
     {
       "id": 4,
       "name": "Scaling & Partitioning",
-      "status": "in-progress",
+      "status": "complete",
       "desc": "Grow past one machine: replicate for reads, shard for writes, keep services stateless, and distribute load evenly with consistent hashing.",
       "lessons": [
         {
           "name": "Vertical vs Horizontal Scaling",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/04-scaling-and-partitioning/01-vertical-vs-horizontal-scaling/",
@@ -247,7 +247,7 @@
         },
         {
           "name": "Database Replication",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/04-scaling-and-partitioning/02-database-replication/",
@@ -257,7 +257,7 @@
         },
         {
           "name": "Sharding & Partitioning",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/04-scaling-and-partitioning/03-sharding-and-partitioning/",
@@ -267,7 +267,7 @@
         },
         {
           "name": "Consistent Hashing",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/04-scaling-and-partitioning/04-consistent-hashing/",
@@ -277,7 +277,7 @@
         },
         {
           "name": "Stateless Services & Sessions",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/04-scaling-and-partitioning/05-stateless-services-and-sessions/",
@@ -290,12 +290,12 @@
     {
       "id": 5,
       "name": "Distributed Systems Theory",
-      "status": "in-progress",
+      "status": "complete",
       "desc": "The hard part: what CAP really says, the spectrum of consistency models, how nodes agree with consensus, and why clocks lie.",
       "lessons": [
         {
           "name": "The CAP Theorem",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/05-distributed-systems-theory/01-the-cap-theorem/",
@@ -305,7 +305,7 @@
         },
         {
           "name": "Consistency Models",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/05-distributed-systems-theory/02-consistency-models/",
@@ -315,7 +315,7 @@
         },
         {
           "name": "Consensus & Raft",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/05-distributed-systems-theory/03-consensus-and-raft/",
@@ -325,7 +325,7 @@
         },
         {
           "name": "Time, Clocks & Ordering",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/05-distributed-systems-theory/04-time-clocks-and-ordering/",
@@ -335,7 +335,7 @@
         },
         {
           "name": "Leader Election & Coordination",
-          "status": "in-progress",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/05-distributed-systems-theory/05-leader-election-and-coordination/",
@@ -348,12 +348,12 @@
     {
       "id": 6,
       "name": "Async & Messaging",
-      "status": "planned",
+      "status": "complete",
       "desc": "Decouple producers from consumers: queues for work, pub/sub for fan-out, logs like Kafka for replay, and how to handle duplicates.",
       "lessons": [
         {
           "name": "Message Queues",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/06-async-and-messaging/01-message-queues/",
@@ -363,7 +363,7 @@
         },
         {
           "name": "Pub/Sub & Event-Driven Design",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/06-async-and-messaging/02-pub-sub-and-event-driven/",
@@ -373,7 +373,7 @@
         },
         {
           "name": "Kafka & Log-Based Streaming",
-          "status": "planned",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/06-async-and-messaging/03-kafka-and-log-based-streaming/",
@@ -383,7 +383,7 @@
         },
         {
           "name": "Stream Processing",
-          "status": "planned",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/06-async-and-messaging/04-stream-processing/",
@@ -393,7 +393,7 @@
         },
         {
           "name": "Idempotency & Delivery Guarantees",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/06-async-and-messaging/05-idempotency-and-delivery-guarantees/",
@@ -406,12 +406,12 @@
     {
       "id": 7,
       "name": "Reliability & Observability",
-      "status": "planned",
+      "status": "complete",
       "desc": "Keep systems up and visible: limit abusive traffic, fail gracefully, design for redundancy, and measure everything against SLOs.",
       "lessons": [
         {
           "name": "Rate Limiting",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/07-reliability-and-observability/01-rate-limiting/",
@@ -421,7 +421,7 @@
         },
         {
           "name": "Circuit Breakers & Retries",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/07-reliability-and-observability/02-circuit-breakers-and-retries/",
@@ -431,7 +431,7 @@
         },
         {
           "name": "Fault Tolerance & Redundancy",
-          "status": "planned",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/07-reliability-and-observability/03-fault-tolerance-and-redundancy/",
@@ -441,7 +441,7 @@
         },
         {
           "name": "Monitoring & Observability",
-          "status": "planned",
+          "status": "complete",
           "type": "Learn",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/07-reliability-and-observability/04-monitoring-and-observability/",
@@ -451,7 +451,7 @@
         },
         {
           "name": "SLOs & Capacity Planning",
-          "status": "planned",
+          "status": "complete",
           "type": "Build",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/07-reliability-and-observability/05-slos-and-capacity-planning/",
@@ -464,12 +464,12 @@
     {
       "id": 8,
       "name": "Capstone Projects",
-      "status": "planned",
+      "status": "complete",
       "desc": "Put it all together: full end-to-end designs of systems you have used, with estimation, data model, API, scaling plan, and tradeoffs.",
       "lessons": [
         {
           "name": "Design a URL Shortener",
-          "status": "planned",
+          "status": "complete",
           "type": "Capstone",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/08-capstone-projects/01-design-a-url-shortener/",
@@ -479,7 +479,7 @@
         },
         {
           "name": "Design a Rate Limiter Service",
-          "status": "planned",
+          "status": "complete",
           "type": "Capstone",
           "lang": "Python",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/08-capstone-projects/02-design-a-rate-limiter-service/",
@@ -489,7 +489,7 @@
         },
         {
           "name": "Design a Twitter News Feed",
-          "status": "planned",
+          "status": "complete",
           "type": "Capstone",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/08-capstone-projects/03-design-a-twitter-news-feed/",
@@ -499,7 +499,7 @@
         },
         {
           "name": "Design a Chat System",
-          "status": "planned",
+          "status": "complete",
           "type": "Capstone",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/08-capstone-projects/04-design-a-chat-system/",
@@ -509,7 +509,7 @@
         },
         {
           "name": "Design a Video Streaming Platform",
-          "status": "planned",
+          "status": "complete",
           "type": "Capstone",
           "lang": "Markdown",
           "url": "https://github.com/Linzo99/anything-from-scratch/tree/main/phases/08-capstone-projects/05-design-a-video-streaming-platform/",
