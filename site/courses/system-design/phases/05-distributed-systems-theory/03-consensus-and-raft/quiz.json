@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the consensus problem?",
+      "options": [
+        "Making a single database faster",
+        "Getting multiple failure-prone nodes to agree on a single value/order despite an unreliable network",
+        "Encrypting messages between nodes",
+        "Compressing the replication log"
+      ],
+      "correct": 1,
+      "explanation": "Consensus is getting independent machines — which can crash and whose messages can be delayed, dropped, or reordered — to agree on one value and keep agreeing as some fail and recover. It underpins leader election, committing transactions, and distributed locks."
+    },
+    {
+      "stage": "pre",
+      "question": "Why was Raft created when Paxos already solved consensus?",
+      "options": [
+        "Paxos is incorrect",
+        "Raft provides the same guarantees but is designed to be understandable and implementable",
+        "Raft is much faster than Paxos",
+        "Paxos only works on two nodes"
+      ],
+      "correct": 1,
+      "explanation": "Paxos is correct but notoriously hard to understand and implement. Raft was designed for understandability with the same guarantees, which is why it backs etcd, Consul, CockroachDB, and others. Easier reasoning means fewer implementation bugs."
+    },
+    {
+      "stage": "post",
+      "question": "In a 5-node Raft cluster, how many nodes must store a log entry for it to commit, and how many failures does that tolerate?",
+      "options": [
+        "All 5 must store it; tolerates 0 failures",
+        "A majority (3) must store it; tolerates 2 failures",
+        "Just 1; tolerates 4 failures",
+        "2; tolerates 3 failures"
+      ],
+      "correct": 1,
+      "explanation": "An entry commits once a majority (3 of 5) has stored it, so the cluster tolerates 2 failures. Overlapping majorities guarantee any committed entry survives in any future leader. With only 2 nodes alive, no majority exists and nothing can commit."
+    },
+    {
+      "stage": "post",
+      "question": "What is the purpose of 'terms' in Raft?",
+      "options": [
+        "To measure network latency",
+        "They act as a logical clock for elections — at most one leader per term — so a stale leader steps down on seeing a higher term, preventing split-brain",
+        "To compress the log",
+        "To encrypt votes"
+      ],
+      "correct": 1,
+      "explanation": "Terms are increasing numbers, each with at most one leader. Every message carries a term; a node seeing a higher term steps down to follower. So a previously-partitioned old leader discovers the higher term on reconnecting and steps down — no two active leaders, no split-brain."
+    },
+    {
+      "stage": "post",
+      "question": "Why does consensus require only a majority rather than ALL nodes to agree?",
+      "options": [
+        "To save network bandwidth only",
+        "Requiring all nodes would let a single slow or dead node halt everything; a majority provides fault tolerance while overlapping majorities still prevent contradictions",
+        "Because minority nodes are always wrong",
+        "It actually does require all nodes"
+      ],
+      "correct": 1,
+      "explanation": "If every decision needed all nodes, one failure would stop the system — no fault tolerance. A majority lets the cluster proceed without the minority, and because any two majorities overlap in at least one node, two decisions can never contradict each other."
+    }
+  ]
+}

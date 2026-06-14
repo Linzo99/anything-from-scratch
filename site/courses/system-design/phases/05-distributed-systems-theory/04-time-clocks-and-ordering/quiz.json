@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't you reliably use wall-clock timestamps to order events across different machines?",
+      "options": [
+        "Timestamps are too large to compare",
+        "Clocks on different machines drift and can jump, so a later timestamp doesn't guarantee a later event",
+        "Machines don't have clocks",
+        "Time zones make it impossible"
+      ],
+      "correct": 1,
+      "explanation": "Even with NTP, clocks differ by milliseconds and can jump backward when corrected. So one machine's timestamp being larger doesn't mean its event happened later — its clock might just be ahead. Ordering by wall clock causes conflict-resolution bugs."
+    },
+    {
+      "stage": "pre",
+      "question": "What does 'a happens-before b' (a → b) capture?",
+      "options": [
+        "That a's wall-clock time is earlier than b's",
+        "That a could have causally influenced b (same process order, or send→receive, transitively)",
+        "That a and b are on the same machine",
+        "That a is more important than b"
+      ],
+      "correct": 1,
+      "explanation": "Happens-before is about potential causality, not physical time. a → b if they're ordered on one process, or a is a send and b its receive, or by transitivity. If neither a → b nor b → a, they're concurrent — no information flowed between them."
+    },
+    {
+      "stage": "post",
+      "question": "When a process receives a message in Lamport clocks, how does it update its counter?",
+      "options": [
+        "It resets to zero",
+        "It sets the counter to max(local, received) + 1",
+        "It adds the two counters together",
+        "It keeps its own counter unchanged"
+      ],
+      "correct": 1,
+      "explanation": "On receive, counter = max(local, received) + 1. This ensures the receive event gets a timestamp greater than both the sender's send and the receiver's prior events, so if a → b then L(a) < L(b) — causality is never violated."
+    },
+    {
+      "stage": "post",
+      "question": "What can vector clocks do that Lamport clocks cannot?",
+      "options": [
+        "Run faster",
+        "Detect whether two events are causally related or genuinely concurrent (a conflict)",
+        "Use less memory",
+        "Work without any counters"
+      ],
+      "correct": 1,
+      "explanation": "Lamport gives a total order consistent with causality, but L(a) < L(b) doesn't tell you if a → b or they're concurrent. Vector clocks compare elementwise: if neither vector dominates, the events are concurrent — a real conflict. This is why Dynamo-style stores use vector clocks."
+    },
+    {
+      "stage": "post",
+      "question": "Two replicas hold vector clocks [2,1,0] and [0,0,1] for the same key. What is their relationship?",
+      "options": [
+        "[2,1,0] happened before [0,0,1]",
+        "They are concurrent — neither vector is ≤ the other elementwise — so it's a conflict to resolve",
+        "[0,0,1] happened before [2,1,0]",
+        "They are identical"
+      ],
+      "correct": 1,
+      "explanation": "Compare elementwise: [2,1,0] is not ≤ [0,0,1] (2 > 0), and [0,0,1] is not ≤ [2,1,0] (the third element 1 > 0). Neither dominates, so the events are concurrent — a genuine write conflict that the system must reconcile (last-write-wins, CRDTs, or app merge)."
+    }
+  ]
+}

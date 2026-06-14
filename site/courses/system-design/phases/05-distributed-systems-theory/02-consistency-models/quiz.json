@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Is 'consistency' a single on/off property?",
+      "options": [
+        "Yes — data is either consistent or not",
+        "No — it's a spectrum from strong (linearizable) to eventual, with useful models in between",
+        "Yes — but only for SQL databases",
+        "No — there are exactly two models"
+      ],
+      "correct": 1,
+      "explanation": "Consistency is a spectrum. At the strong end, the system acts like a single copy everyone sees instantly; at the weak end, replicas converge eventually. Causal consistency, read-your-writes, and monotonic reads sit usefully in between."
+    },
+    {
+      "stage": "pre",
+      "question": "Why not just use the strongest consistency (linearizability) everywhere?",
+      "options": [
+        "It is illegal in distributed systems",
+        "It requires coordination between replicas, adding latency to every operation and reducing availability during partitions",
+        "It corrupts data",
+        "It only works on a single machine"
+      ],
+      "correct": 1,
+      "explanation": "Strong consistency needs replicas to coordinate (agree) before answering, which costs latency on every operation and availability under partitions (PACELC). Most data — feeds, counts, presence — doesn't need it, so paying that cost everywhere is wasteful."
+    },
+    {
+      "stage": "post",
+      "question": "What does linearizability guarantee?",
+      "options": [
+        "Reads are eventually correct",
+        "The system behaves like a single copy: once a write completes, every later read sees that write or a newer one, never an older value",
+        "Each client sees its own writes but others may not",
+        "Writes are batched for efficiency"
+      ],
+      "correct": 1,
+      "explanation": "Linearizability makes the distributed system behave as if there's one copy, with each operation taking effect atomically in real-time order. After a write completes, no subsequent read by anyone can return a stale value. It's the strongest and most expensive single-object model."
+    },
+    {
+      "stage": "post",
+      "question": "A user refreshes a page and the view count goes from 100 down to 98. Which guarantee would prevent this?",
+      "options": [
+        "Read-your-writes",
+        "Monotonic reads — a client's successive reads never return an older value than one already seen",
+        "Linearizability is the only fix",
+        "Partition tolerance"
+      ],
+      "correct": 1,
+      "explanation": "Seeing a value go backward (100 then 98) violates monotonic reads, typically caused by hitting a more-lagged replica on the second read. Pinning the client to one replica (or one at least as fresh) provides monotonic reads cheaply, without full strong consistency."
+    },
+    {
+      "stage": "post",
+      "question": "What does eventual consistency actually promise?",
+      "options": [
+        "That data is unreliable and often wrong",
+        "That if writes stop, all replicas will converge to the same value — though reads may be stale until they do",
+        "That every read always sees the latest write",
+        "That writes are never lost under any circumstance"
+      ],
+      "correct": 1,
+      "explanation": "Eventual consistency guarantees convergence: absent new writes, replicas will agree eventually. Reads can return stale data in the meantime, and a conflict-resolution rule (last-write-wins, CRDTs) settles concurrent writes. For tolerant data it's correct, highly available, and fast — not 'unreliable'."
+    }
+  ]
+}

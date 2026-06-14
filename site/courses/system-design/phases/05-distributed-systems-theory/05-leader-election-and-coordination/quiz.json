@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why do many distributed systems designate a single leader?",
+      "options": [
+        "Leaders are cheaper to run",
+        "Having one node responsible for a task gives a single decision point, avoiding the conflicts and ordering problems of peer negotiation",
+        "It's required by TCP",
+        "Leaders never fail"
+      ],
+      "correct": 1,
+      "explanation": "A single leader provides one place where ordering and decisions happen, sidestepping a whole class of conflict and consistency problems. The cost is electing, monitoring, and replacing it — but it's usually worth it, which is why replication, Raft, and Kafka all use leaders."
+    },
+    {
+      "stage": "pre",
+      "question": "What are ZooKeeper and etcd best used for?",
+      "options": [
+        "Storing bulk application data like user records",
+        "Small, critical, must-be-consistent facts: leader election, locks, membership, configuration",
+        "Caching large media files",
+        "High-volume write workloads"
+      ],
+      "correct": 1,
+      "explanation": "They're small, CP, consensus-backed stores. Because every write needs a majority, they're slow for bulk data but ideal for the few critical, low-volume facts the whole cluster must agree on — leadership, locks, who's alive, consistent config."
+    },
+    {
+      "stage": "post",
+      "question": "How does a lease-based distributed lock prevent a crashed holder from blocking everyone forever?",
+      "options": [
+        "The lock never expires, so it can't block",
+        "The lock auto-expires after a timeout, so if the holder crashes the lock is released automatically",
+        "Other nodes forcibly kill the holder",
+        "Locks aren't used in distributed systems"
+      ],
+      "correct": 1,
+      "explanation": "A lease is a lock with a timeout. If the holder crashes or its session ends (e.g. an ephemeral node vanishes), the lease expires and another node can acquire the lock — so a dead holder never keeps it forever. The tradeoff is the risk of a paused holder overrunning its lease."
+    },
+    {
+      "stage": "post",
+      "question": "What problem does a fencing token solve?",
+      "options": [
+        "It encrypts the lock",
+        "A paused/old lock holder that wakes up after losing the lock is prevented from corrupting the resource, because the resource rejects its lower (stale) token",
+        "It speeds up lock acquisition",
+        "It compresses the coordination data"
+      ],
+      "correct": 1,
+      "explanation": "Each lock grant carries a monotonically increasing token. The protected resource records the highest token it has seen and rejects any operation with a lower one. So a zombie holder that wakes with token 33 after a new holder used 34 has its writes refused — fencing off split-brain at the resource."
+    },
+    {
+      "stage": "post",
+      "question": "Why is using a plain Redis key or a database row as a distributed lock risky?",
+      "options": [
+        "It's too slow to be useful",
+        "Under a partition or a paused process it can allow two holders (split-brain) and silent corruption, because it lacks consensus-backed grants and fencing",
+        "Redis cannot store keys",
+        "Database rows can't be deleted"
+      ],
+      "correct": 1,
+      "explanation": "Naive locks work until a partition or GC pause, when two clients can both believe they hold the lock — the exact failure locks should prevent. Correct distributed locking needs consensus-backed grants plus fencing tokens; rolling your own typically misses the fencing and edge cases."
+    }
+  ]
+}

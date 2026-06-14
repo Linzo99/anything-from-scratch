@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does the CAP theorem actually force you to choose between?",
+      "options": [
+        "Any two of consistency, availability, partition tolerance",
+        "Consistency or availability, specifically during a network partition",
+        "Latency or throughput",
+        "SQL or NoSQL"
+      ],
+      "correct": 1,
+      "explanation": "The precise statement: when a network partition occurs, you must choose between consistency and availability. Partition tolerance isn't optional in a distributed system, so the real choice is C vs A during a partition — not a free 'pick two of three'."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is partition tolerance considered mandatory for a distributed system?",
+      "options": [
+        "It is the cheapest property to implement",
+        "Network partitions are a physical reality that happen whether you 'choose' them or not, so the system must cope with them",
+        "Because consistency depends on it",
+        "It isn't mandatory; you can always avoid partitions"
+      ],
+      "correct": 1,
+      "explanation": "Cables fail, switches die, packets drop — partitions will happen. A distributed system can't opt out of them; it can only decide how to behave when one occurs. That's why P is a given and the actual decision is between C and A."
+    },
+    {
+      "stage": "post",
+      "question": "During a partition, a read arrives on the side that lacks the latest write. What does a CP system do?",
+      "options": [
+        "Returns the stale value it has",
+        "Returns an error or blocks rather than serve possibly-stale data, sacrificing availability",
+        "Crashes the whole cluster",
+        "Silently makes up a value"
+      ],
+      "correct": 1,
+      "explanation": "A CP system prioritizes consistency: if it can't guarantee the value is current, it refuses (error or block) rather than return stale data. This sacrifices availability on the affected side. An AP system would instead answer with the possibly-stale value to stay available."
+    },
+    {
+      "stage": "post",
+      "question": "Which pairing of data to CAP choice is most appropriate?",
+      "options": [
+        "Account balance → AP; likes count → CP",
+        "Cluster leader election → CP; social feed → AP",
+        "Everything should always be CP",
+        "Everything should always be AP"
+      ],
+      "correct": 1,
+      "explanation": "Match the choice to the cost of staleness vs downtime. Leader election must be CP — a wrong answer (two leaders) is catastrophic. A social feed can be AP — briefly stale is fine, but being down loses engagement. Balances lean CP; likes counts lean AP."
+    },
+    {
+      "stage": "post",
+      "question": "What does PACELC add to CAP?",
+      "options": [
+        "It replaces consistency with availability",
+        "It notes that even with no partition (Else), you still trade Latency vs Consistency — strong consistency costs coordination latency",
+        "It proves you can have all three of CAP",
+        "It only applies to single-node databases"
+      ],
+      "correct": 1,
+      "explanation": "CAP only covers behavior during a partition. PACELC extends it: if Partitioned, choose A or C; Else, choose Latency or Consistency. Even in normal operation, insisting on strong consistency means waiting for nodes to agree, which adds latency."
+    }
+  ]
+}
