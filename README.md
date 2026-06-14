@@ -14,6 +14,7 @@ Built on top of the original **[AI Engineering from Scratch](https://github.com/
 |---|---|---|
 | AI Engineering from Scratch | 20 | 468 |
 | Networking Basics from Scratch | 9 | 47 |
+| System Design from Scratch | 9 | 44 |
 
 More courses can be added in minutes with the `/generate-course` skill (see below).
 
