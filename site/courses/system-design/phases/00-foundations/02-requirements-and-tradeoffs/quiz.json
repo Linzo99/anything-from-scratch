@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which of these is a non-functional requirement?",
+      "options": [
+        "Users can create a short link",
+        "Users can view click analytics",
+        "The p99 redirect latency must be under 100ms",
+        "Users can delete their links"
+      ],
+      "correct": 2,
+      "explanation": "Non-functional requirements describe how well the system performs, not what features it has. Latency targets, availability, scale, and consistency are non-functional. The other three options are functional requirements (features)."
+    },
+    {
+      "stage": "pre",
+      "question": "A requirement says 'the system should be fast.' What is wrong with it?",
+      "options": [
+        "Nothing — it clearly states the goal",
+        "It is unmeasurable: 'fast' commits to no number or percentile, so no design choice can be justified against it",
+        "It should say 'slow' instead",
+        "Speed is never a real requirement"
+      ],
+      "correct": 1,
+      "explanation": "Vague adjectives hide in requirements. Until 'fast' becomes something like 'p99 under 100ms', you cannot tell whether a design is good enough or wildly over-engineered. Requirements must become numbers."
+    },
+    {
+      "stage": "post",
+      "question": "Approximately how much downtime per year does 99.9% availability ('three nines') allow?",
+      "options": [
+        "About 5 minutes",
+        "About 52 minutes",
+        "About 8.8 hours",
+        "About 3.65 days"
+      ],
+      "correct": 2,
+      "explanation": "Three nines (99.9%) allows roughly 8.77 hours of downtime per year. Each additional nine cuts this by about 10x: four nines is ~52 minutes, five nines is ~5 minutes. More nines cost disproportionately more to achieve."
+    },
+    {
+      "stage": "post",
+      "question": "A URL shortener has a read:write ratio of about 100:1. What does this fact most directly justify?",
+      "options": [
+        "Using a write-optimized append-only log as the primary store",
+        "Heavy caching and read replicas, since reads vastly dominate",
+        "Requiring strong consistency on every write",
+        "Sharding by timestamp"
+      ],
+      "correct": 1,
+      "explanation": "When reads dominate writes 100:1, the system is read-heavy. That single fact justifies investing in caches and read replicas to serve the flood of reads cheaply, while the rare writes can take a slower path."
+    },
+    {
+      "stage": "post",
+      "question": "Faced with 'design Twitter' in a limited time, what is the most important early move?",
+      "options": [
+        "Design every feature Twitter has, at least briefly",
+        "Scope the problem: pick a core subset (e.g. posting and the timeline) and explicitly exclude the rest",
+        "Start by choosing the programming language",
+        "Assume billions of users and design maximum redundancy everywhere"
+      ],
+      "correct": 1,
+      "explanation": "Scoping is the most important design move. You cannot design all of Twitter in an hour. Declaring what is in scope (posting, home timeline) and what is out (search, ads, DMs) lets you go deep on what matters rather than shallow on everything."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What best describes system design compared to ordinary application programming?",
+      "options": [
+        "Writing more efficient algorithms within a single function",
+        "Arranging components across machines so the whole system behaves well under load and failure",
+        "Choosing the best programming language for a project",
+        "Writing unit tests that cover every branch"
+      ],
+      "correct": 1,
+      "explanation": "System design operates above the level of individual programs. It is about how many machines exist, how they share work, what happens when one fails, and where data lives — decisions a compiler can never check for you."
+    },
+    {
+      "stage": "pre",
+      "question": "Is there usually a single 'correct' architecture for a given feature?",
+      "options": [
+        "Yes — there is always one optimal design",
+        "No — the right design depends on requirements and scale, and involves tradeoffs",
+        "Yes — as long as you use microservices",
+        "No — but only because engineers disagree for political reasons"
+      ],
+      "correct": 1,
+      "explanation": "The same feature is designed completely differently at 1,000 users versus 500 million, and differently again for read-heavy versus write-heavy workloads. Design follows from requirements and numbers; it is a series of tradeoffs, not a lookup."
+    },
+    {
+      "stage": "post",
+      "question": "Which five qualities does the lesson identify as the dials every design trades off?",
+      "options": [
+        "Speed, memory, disk, CPU, network",
+        "Scalability, availability, latency, consistency, cost",
+        "Security, privacy, compliance, auditing, encryption",
+        "Readability, testability, maintainability, modularity, reuse"
+      ],
+      "correct": 1,
+      "explanation": "Scalability, availability, latency, consistency, and cost are the five dials. The central fact of distributed systems is that you cannot maximize all of them at once — real designs pick a few and sacrifice the rest."
+    },
+    {
+      "stage": "post",
+      "question": "Why is 'stateless' a desirable property for app servers?",
+      "options": [
+        "It makes the code shorter and easier to read",
+        "It lets any server instance handle any request, so scaling out by adding machines is trivial",
+        "It removes the need for a database entirely",
+        "It guarantees strong consistency across the cluster"
+      ],
+      "correct": 1,
+      "explanation": "If a server keeps no client-specific session state locally, then every instance is interchangeable. A load balancer can send a given user's requests to any server, and you scale simply by adding more identical machines."
+    },
+    {
+      "stage": "post",
+      "question": "A product manager asks for a system that is always available, instantly consistent worldwide, and cheap. What is the right response?",
+      "options": [
+        "Build it with microservices, which provide all three",
+        "Push back: availability and strong worldwide consistency conflict, and both add cost",
+        "Agree, since modern cloud platforms make all three free",
+        "Add more caching, which resolves the conflict"
+      ],
+      "correct": 1,
+      "explanation": "You cannot maximize all five qualities at once. Strong worldwide consistency forces coordination that hurts availability during network partitions, and the redundancy and replication needed for high availability cost money. The job is to surface that conflict and choose."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "When given an open-ended problem like 'design YouTube', what should you do first?",
+      "options": [
+        "Pick the database technology you'll use",
+        "Clarify functional and non-functional requirements and scope the problem",
+        "Start drawing the full architecture immediately",
+        "Decide between microservices and a monolith"
+      ],
+      "correct": 1,
+      "explanation": "Requirements come first. You cannot estimate load, design an API, choose a datastore, or pick a bottleneck without first knowing what the system must do and how well. Jumping to tools or diagrams skips the inputs every later step depends on."
+    },
+    {
+      "stage": "pre",
+      "question": "Why follow a fixed framework instead of designing freely?",
+      "options": [
+        "Frameworks guarantee the design will be correct",
+        "It ensures full coverage in an order where each step feeds the next, and makes your thinking legible",
+        "It removes the need to know any technologies",
+        "Interviewers require the exact same words every time"
+      ],
+      "correct": 1,
+      "explanation": "A framework is a checklist that handles structure automatically, freeing attention for the hard parts. It prevents lopsided designs and sequences the work so each step has the inputs it needs from the previous one."
+    },
+    {
+      "stage": "post",
+      "question": "What is the correct order of the six framework steps?",
+      "options": [
+        "API → Requirements → Estimation → Data Model → High-Level → Deep Dive",
+        "Requirements → Estimation → API → Data Model → High-Level Design → Deep Dive",
+        "Estimation → Requirements → High-Level → API → Data Model → Deep Dive",
+        "Requirements → API → High-Level → Estimation → Data Model → Deep Dive"
+      ],
+      "correct": 1,
+      "explanation": "The order is requirements, estimation, API, data model, high-level design, then deep dive. Each step constrains the next: you cannot estimate without requirements, choose a datastore without access patterns, or pick a bottleneck without the architecture and the numbers."
+    },
+    {
+      "stage": "post",
+      "question": "In the deep-dive step, how do you decide what to focus on?",
+      "options": [
+        "Focus on whatever component you personally know best",
+        "Find the bottleneck — where the estimated load collides with a component's limits",
+        "Always deep-dive on the database, regardless of the system",
+        "Pick randomly to save time"
+      ],
+      "correct": 1,
+      "explanation": "The deep dive should target the bottleneck: the component that breaks first at the scale from step 2. A 100:1 read ratio points to caching; write QPS beyond one DB points to sharding; cross-node agreement points to consensus. Name the hard part explicitly and spend your time there."
+    },
+    {
+      "stage": "post",
+      "question": "A colleague opens with 'We'll use Kafka and microservices.' What is the problem?",
+      "options": [
+        "Kafka and microservices are always wrong choices",
+        "It's solution-first thinking — naming tools before establishing requirements and numbers, so the choice can't be justified",
+        "Nothing; starting with tools is the recommended approach",
+        "They should have started with the deep dive instead"
+      ],
+      "correct": 1,
+      "explanation": "Solution-first thinking is the classic anti-pattern. Maybe Kafka is right, but you can't know until steps 1-2 establish requirements and scale. Tools are the answer to the early steps, not the starting point. The fix is to redirect to requirements first."
+    }
+  ]
+}

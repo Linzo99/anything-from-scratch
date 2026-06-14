@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Roughly how many seconds are in a day, the number you divide by to turn requests/day into average QPS?",
+      "options": [
+        "About 3,600",
+        "About 86,400",
+        "About 1,000,000",
+        "About 604,800"
+      ],
+      "correct": 1,
+      "explanation": "A day has 86,400 seconds (24 x 60 x 60). For fast mental math many engineers round it to ~100,000 (10^5). 3,600 is an hour; 604,800 is a week."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is peak QPS, not average QPS, used for capacity planning?",
+      "options": [
+        "Average QPS is impossible to calculate",
+        "Traffic is bursty, so the system must survive the peak, which is often several times the average",
+        "Peak QPS is always exactly double the average",
+        "Average QPS only applies to storage, not requests"
+      ],
+      "correct": 1,
+      "explanation": "Real traffic is never flat — it spikes at busy hours. If you provision only for the average, the system falls over at peak. Peaks are commonly 2-10x the average, captured by a 'peak factor'."
+    },
+    {
+      "stage": "post",
+      "question": "An app has 10M DAU making 20 requests each per day. What is the approximate average QPS?",
+      "options": [
+        "About 230 QPS",
+        "About 2,300 QPS",
+        "About 23,000 QPS",
+        "About 200,000 QPS"
+      ],
+      "correct": 1,
+      "explanation": "10M x 20 = 200M requests/day. Divided by 86,400 seconds gives about 2,300 average QPS. Apply a 5x peak factor and you get ~11,500 peak QPS — past a single server, so you need a load balancer."
+    },
+    {
+      "stage": "post",
+      "question": "Which ordering of access latencies (fastest to slowest) is correct?",
+      "options": [
+        "Cross-continent round trip < SSD read < RAM read < L1 cache",
+        "L1 cache < RAM read < SSD read < cross-continent round trip",
+        "RAM read < L1 cache < cross-continent round trip < SSD read",
+        "SSD read < RAM read < L1 cache < cross-continent round trip"
+      ],
+      "correct": 1,
+      "explanation": "L1 cache (~1ns) < main memory (~100ns) < SSD random read (~100us) < cross-continent round trip (~150ms). Memory is ~100x faster than SSD, and a cross-continent trip dwarfs everything — which is exactly why caching and CDNs exist."
+    },
+    {
+      "stage": "post",
+      "question": "Your estimate assumes 500 KB per photo but the real average is 800 KB. Why is the estimate still useful?",
+      "options": [
+        "It isn't — you must redo it with the exact number",
+        "The order of magnitude (petabytes/year, not gigabytes) is unchanged, so the design conclusion holds",
+        "Because 800 KB rounds down to 500 KB",
+        "Because storage cost is fixed regardless of size"
+      ],
+      "correct": 1,
+      "explanation": "Back-of-the-envelope math targets order of magnitude, not precision. A 1.6x error still lands you at 'petabytes per year', so the conclusion (object storage + CDN, not a DB blob column) is the same. Round aggressively and move on."
+    }
+  ]
+}
