@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between an SLO and an SLA?",
+      "options": [
+        "They are the same thing",
+        "An SLO is the internal target the team commits to; an SLA is a customer-facing contract with penalties, usually set looser than the SLO",
+        "An SLA is stricter than an SLO",
+        "An SLO only applies to latency"
+      ],
+      "correct": 1,
+      "explanation": "The SLO is the goal you hold yourselves to internally (e.g. 99.9%). The SLA is the promise to customers with consequences if missed (e.g. 99.5% or a refund). You set the SLO stricter than the SLA to have a safety margin before breaking a contract. The SLI is the actual measured number."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is 'aim for 100% reliability' the wrong goal?",
+      "options": [
+        "100% is easy to achieve",
+        "It's impossibly expensive and unnecessary — some failure is acceptable, which is exactly what the error budget formalizes",
+        "Users prefer unreliable systems",
+        "Because SLAs forbid it"
+      ],
+      "correct": 1,
+      "explanation": "Perfect reliability costs more than all the prior nines combined and users can't perceive the difference for most products. The error budget exists because some failure is acceptable; chasing zero wastes enormous effort for imperceptible gain."
+    },
+    {
+      "stage": "post",
+      "question": "Why should a latency SLO use a percentile (like p99) rather than the average?",
+      "options": [
+        "Averages are harder to compute",
+        "The average hides the slow tail — a few very slow requests barely move the average but represent real users suffering; percentiles capture the tail",
+        "Percentiles are always smaller",
+        "Averages only work for errors, not latency"
+      ],
+      "correct": 1,
+      "explanation": "If 99 requests take 10ms and one takes 5s, the average looks fine (~60ms) but a real user waited 5s. Percentiles (p95, p99, p99.9) expose the tail that users actually complain about — and in fan-out requests one slow dependency at p99 can dominate the whole request."
+    },
+    {
+      "stage": "post",
+      "question": "An SLO of 99.9% over 100M monthly requests gives what error budget, and how is it used?",
+      "options": [
+        "Zero failures allowed; never deploy",
+        "100,000 allowed failures/month — a 'currency': ship features while budget remains, freeze risky changes when it's exhausted",
+        "1,000,000 failures; ignore reliability",
+        "It can't be calculated"
+      ],
+      "correct": 1,
+      "explanation": "0.1% of 100M = 100,000 allowed failures per month. The error budget reframes reliability as a currency that resolves the feature-vs-stability fight: budget remaining → take risks and ship; budget exhausted → freeze and fix until back in budget."
+    },
+    {
+      "stage": "post",
+      "question": "Why do you provision capacity for peak load with headroom (e.g. 70% utilization) rather than to exactly fit the load?",
+      "options": [
+        "To waste money on purpose",
+        "Near 100% utilization latency explodes (queueing) and there's no slack to absorb traffic spikes or a server failure",
+        "Headroom makes servers faster individually",
+        "Because peak load never actually happens"
+      ],
+      "correct": 1,
+      "explanation": "A system near saturation has rapidly growing queue/wait times, so latency spikes and breaks the SLO. Running at 100% also leaves no room to absorb a burst or redistribute a failed server's load. Headroom (e.g. 70% target) provisions for peak plus failures plus growth."
+    }
+  ]
+}

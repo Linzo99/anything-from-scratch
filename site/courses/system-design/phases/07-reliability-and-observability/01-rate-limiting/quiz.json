@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the primary purpose of rate limiting?",
+      "options": [
+        "To make responses load faster",
+        "To cap how much of a service any single client can consume, protecting availability and fairness",
+        "To encrypt client requests",
+        "To cache responses"
+      ],
+      "correct": 1,
+      "explanation": "Rate limiting caps requests per client per time window so no single caller — malicious, buggy, or greedy — can exhaust the service and harm everyone. It protects availability, enforces fairness, and supports tiered/monetized APIs."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the edge-case bug with a naive fixed-window counter ('100 per minute, reset at the boundary')?",
+      "options": [
+        "It can never allow any requests",
+        "A client can send 100 just before the boundary and 100 just after — ~200 in a couple seconds, double the intended rate",
+        "It uses too much memory",
+        "It blocks all clients equally"
+      ],
+      "correct": 1,
+      "explanation": "Because the counter resets at fixed clock boundaries, requests clustered around the boundary (end of one window + start of the next) can reach 2x the limit in a short span — often at the worst moment. Token bucket and sliding window avoid this."
+    },
+    {
+      "stage": "post",
+      "question": "How does the token-bucket algorithm handle a client that has been idle?",
+      "options": [
+        "It blocks them for being idle",
+        "Their bucket has refilled to capacity, so they can make a burst of requests up to the bucket size before being throttled to the refill rate",
+        "It gives them unlimited requests forever",
+        "It resets their limit to zero"
+      ],
+      "correct": 1,
+      "explanation": "Tokens accumulate up to the capacity while idle. So a quiet client has a full bucket and can fire a burst (up to capacity) immediately, then is limited to the steady refill rate. This matches real bursty traffic, which is why token bucket is so widely used."
+    },
+    {
+      "stage": "post",
+      "question": "What status code should a rate limiter return when a client exceeds its limit?",
+      "options": [
+        "404 Not Found",
+        "429 Too Many Requests, ideally with a Retry-After header",
+        "500 Internal Server Error",
+        "200 OK with empty body"
+      ],
+      "correct": 1,
+      "explanation": "HTTP 429 Too Many Requests signals the client has exceeded its rate limit. A Retry-After header tells well-behaved clients when to try again so they can back off (Lesson 02), while the limiter shields the backend from the rest."
+    },
+    {
+      "stage": "post",
+      "question": "Why does running an independent rate limiter on each of 4 gateway instances fail to enforce a global limit?",
+      "options": [
+        "The instances crash",
+        "Each instance allows the full limit, so a client spread across them gets up to 4x the intended global limit — the counter must be shared (e.g. Redis)",
+        "Rate limiting can't run on a gateway",
+        "It actually works perfectly"
+      ],
+      "correct": 1,
+      "explanation": "If each of N instances independently allows, say, 100/min, a client whose requests land across all of them gets 100N/min total. To enforce a single global limit, the counter must be shared across instances with atomic operations — the distributed rate limiter of Phase 8."
+    }
+  ]
+}

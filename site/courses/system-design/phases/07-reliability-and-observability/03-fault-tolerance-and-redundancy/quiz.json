@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What mindset does fault-tolerant design require about components?",
+      "options": [
+        "Assume good hardware never fails",
+        "Assume every component will fail, and design so each failure is absorbed rather than causing an outage",
+        "Only worry about failures after they happen",
+        "Failures only matter for databases"
+      ],
+      "correct": 1,
+      "explanation": "At scale, something is always failing — servers, disks, networks, whole data centers. Fault tolerance treats failure as the normal case and ensures no single failure becomes a user-visible outage. (Netflix's Chaos Monkey even kills servers on purpose to prove it.)"
+    },
+    {
+      "stage": "pre",
+      "question": "What is a single point of failure (SPOF)?",
+      "options": [
+        "A component that fails most often",
+        "Any component whose failure alone takes down the whole system",
+        "The slowest component in the system",
+        "A component with no backups for its data"
+      ],
+      "correct": 1,
+      "explanation": "A SPOF is anything that, if it fails by itself, causes a system-wide outage — e.g. a single load balancer in front of redundant servers. Finding and removing SPOFs (via redundancy) is the first task of fault-tolerant design."
+    },
+    {
+      "stage": "post",
+      "question": "Three services each 99.9% available are chained in series (a request needs all three). What is the combined availability?",
+      "options": [
+        "Higher than 99.9%",
+        "About 99.7% — availabilities multiply, so the chain is less available than any part",
+        "Exactly 99.9%",
+        "100%"
+      ],
+      "correct": 1,
+      "explanation": "In series, a request needs every component up, so availabilities multiply: 0.999^3 ≈ 0.997 = 99.7%. Each added dependency drags availability down, which is why long dependency chains are fragile."
+    },
+    {
+      "stage": "post",
+      "question": "Two servers each 99% available run in parallel (only one needed). What's the combined availability?",
+      "options": [
+        "98% (they drag each other down)",
+        "99.99% — both-down probability is 0.01 × 0.01 = 0.0001, so the pair is far more available than one",
+        "99% (no change)",
+        "50%"
+      ],
+      "correct": 1,
+      "explanation": "In parallel you only need one up, so the FAILURE probabilities multiply: both down = 0.01 × 0.01 = 0.0001 (0.01%), giving 99.99% availability. This is the core case for redundancy — two cheap independent parts beat one expensive one. It assumes failures are independent."
+    },
+    {
+      "stage": "post",
+      "question": "Why must redundant copies be placed in different failure domains (racks, AZs, regions)?",
+      "options": [
+        "To reduce network latency",
+        "Because copies in the same domain share dependencies (power, network), so one event takes them all down — the availability math assumes independent failures",
+        "To save money on hardware",
+        "It doesn't matter where copies are placed"
+      ],
+      "correct": 1,
+      "explanation": "Redundancy only helps if copies fail independently. Two replicas in the same rack share a power supply and switch, so one rack failure kills both. Spreading across failure domains (separate AZs/regions) ensures a single event can't take out all copies — preserving the independence the math assumes."
+    }
+  ]
+}

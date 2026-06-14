@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can naive retries make an outage worse?",
+      "options": [
+        "Retries use more disk space",
+        "When many clients retry a struggling dependency at once, they multiply its load, causing more failures and more retries — a retry storm",
+        "Retries always corrupt data",
+        "Retries are slower than giving up"
+      ],
+      "correct": 1,
+      "explanation": "A struggling dependency that times out gets immediately retried by every caller, doubling its load right when it's overwhelmed. More timeouts trigger more retries, spiraling a recoverable slowdown into a full collapse — the retries become the attack."
+    },
+    {
+      "stage": "pre",
+      "question": "Why add jitter (randomness) to exponential backoff?",
+      "options": [
+        "To make the code harder to read",
+        "To de-synchronize retries so clients that failed together don't all retry at the same backed-off moment, re-creating a spike",
+        "Jitter makes retries faster",
+        "It encrypts the retry"
+      ],
+      "correct": 1,
+      "explanation": "Exponential backoff alone still has all clients retry at the same later time if they failed together — just a delayed synchronized spike. Jitter randomizes each client's wait so retries spread out, actually breaking the thundering herd."
+    },
+    {
+      "stage": "post",
+      "question": "What does a circuit breaker do in its 'Open' state?",
+      "options": [
+        "Retries the dependency as fast as possible",
+        "Rejects calls immediately (fails fast) without calling the dependency, protecting the caller from wasted timeouts",
+        "Sends all traffic to a backup database",
+        "Logs errors but still calls the dependency"
+      ],
+      "correct": 1,
+      "explanation": "When Open (tripped), the breaker fails fast — returning an error instantly instead of calling the known-bad dependency. This stops callers from wasting seconds on timeouts and exhausting their own resources, and stops piling load on the dead dependency."
+    },
+    {
+      "stage": "post",
+      "question": "What is the purpose of the circuit breaker's 'Half-Open' state?",
+      "options": [
+        "To permanently block the dependency",
+        "To let a single trial call through after a cooldown to test whether the dependency has recovered, returning to Closed if it succeeds",
+        "To double the request rate",
+        "To skip the dependency forever"
+      ],
+      "correct": 1,
+      "explanation": "After a cooldown, the breaker moves to Half-Open and allows one trial call. Success means the dependency recovered → back to Closed (normal). Failure → back to Open for another cooldown. This probes for recovery without flooding a still-broken dependency."
+    },
+    {
+      "stage": "post",
+      "question": "When is retrying a failed call NOT safe?",
+      "options": [
+        "Never — retries are always safe",
+        "For non-idempotent operations (e.g. a payment) or deterministic failures, where retrying causes double effects or just wastes resources",
+        "Only on weekends",
+        "Only for read operations"
+      ],
+      "correct": 1,
+      "explanation": "Retries suit transient failures of idempotent operations. Retrying a non-idempotent payment can double-charge; retrying a deterministic failure (bad input, a real bug) will fail again and waste resources. Make operations idempotent (Phase 6) before retrying side effects."
+    }
+  ]
+}

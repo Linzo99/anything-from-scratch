@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between monitoring and observability?",
+      "options": [
+        "They are identical",
+        "Monitoring watches known failure modes with predefined alerts; observability is the broader ability to investigate unknown problems from emitted telemetry",
+        "Observability only applies to databases",
+        "Monitoring is newer than observability"
+      ],
+      "correct": 1,
+      "explanation": "Monitoring answers 'is the thing I worried about happening?' via predefined metrics and alerts. Observability answers 'why is this weird thing I never imagined happening?' — investigating arbitrary, unforeseen problems. Complex systems mostly fail in unforeseen ways, so you need both."
+    },
+    {
+      "stage": "pre",
+      "question": "Can you add observability to a system during an outage to debug it?",
+      "options": [
+        "Yes, you just turn it on",
+        "No — the telemetry (metrics, logs, traces) must already be flowing; instrumentation is a design-time investment made before incidents",
+        "Yes, but only for databases",
+        "Observability isn't needed if you have backups"
+      ],
+      "correct": 1,
+      "explanation": "Observability depends on telemetry you emit continuously. You can't retroactively gather data about what already happened, so instrumentation has to be in place beforehand. That's why it's part of designing the system, not an afterthought."
+    },
+    {
+      "stage": "post",
+      "question": "What are the three pillars of observability?",
+      "options": [
+        "CPU, memory, disk",
+        "Metrics, logs, and traces",
+        "Alerts, dashboards, reports",
+        "Backups, replicas, failover"
+      ],
+      "correct": 1,
+      "explanation": "Metrics (numbers over time — that something is wrong), logs (discrete event detail — what exactly happened), and traces (a request's journey across services — where it happened). They're complementary; each answers a different kind of question."
+    },
+    {
+      "stage": "post",
+      "question": "Why is distributed tracing essential in a microservices system?",
+      "options": [
+        "It reduces network traffic",
+        "It follows one request across all the services it touches via a shared trace ID, instantly showing which service caused latency",
+        "It replaces the need for logs",
+        "It encrypts requests between services"
+      ],
+      "correct": 1,
+      "explanation": "One request fans out across many services. A trace propagates a shared trace ID so each service's span is stitched into a timeline. The waterfall view shows that, say, the inventory service took 1800ms — pinpointing the bottleneck without hand-correlating timestamps across separate logs."
+    },
+    {
+      "stage": "post",
+      "question": "Why should you alert on symptoms rather than every low-level cause?",
+      "options": [
+        "Symptoms are easier to encrypt",
+        "Alerting on every cause (e.g. any CPU blip) creates noisy, non-actionable pages that cause alert fatigue, so real issues get ignored; symptom alerts tie to user impact",
+        "Causes never matter",
+        "It uses less storage"
+      ],
+      "correct": 1,
+      "explanation": "Too many noisy alerts desensitize engineers, and the real alert gets lost in the flood. Alerting on user-facing symptoms (errors users see, SLO breaches) that are actionable keeps signal high. A harmless CPU spike shouldn't page anyone."
+    }
+  ]
+}
