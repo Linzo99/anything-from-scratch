@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is a shared distributed cache (Redis) often preferred over per-instance in-process caches once you run many app servers?",
+      "options": [
+        "In-process caches are slower per hit",
+        "A shared cache gives one consistent copy that all servers see and that survives app restarts, instead of N separate caches",
+        "Redis stores data on disk, which is faster than RAM",
+        "Distributed caches never need eviction"
+      ],
+      "correct": 1,
+      "explanation": "Per-instance caches are separate (each cold for what others warmed, each with its own copy) and die with the process. A distributed cache provides one shared copy, one place to invalidate, and persistence across app restarts — at the cost of a network round trip."
+    },
+    {
+      "stage": "pre",
+      "question": "What is a 'cache stampede' / thundering herd?",
+      "options": [
+        "When the cache server runs out of memory",
+        "When a popular key expires (or the cache is cold) and many concurrent requests all miss and hit the database simultaneously with the same query",
+        "When too many keys are stored at once",
+        "When the cache returns wrong values"
+      ],
+      "correct": 1,
+      "explanation": "When a hot key expires, hundreds of concurrent requests can all check the cache, all miss, and all run the same expensive query at once — because none has finished repopulating the cache. One expired key can generate hundreds of identical DB queries and overload the database."
+    },
+    {
+      "stage": "post",
+      "question": "How does a per-key lock (request coalescing) prevent a stampede?",
+      "options": [
+        "It blocks all reads until the cache is manually refreshed",
+        "Only the first request acquires the lock and queries the DB; the others wait and then read the freshly-cached value",
+        "It deletes the key so no one can read it",
+        "It disables the cache during high load"
+      ],
+      "correct": 1,
+      "explanation": "With request coalescing (single-flight), the first thread to miss acquires a lock and recomputes the value once. Concurrent missers wait on the lock and then read the value it cached — collapsing 100 would-be queries into 1."
+    },
+    {
+      "stage": "post",
+      "question": "What does 'TTL jitter' (randomizing expiry times) help with?",
+      "options": [
+        "Making the cache use less memory",
+        "Preventing many keys from expiring at the exact same instant, which would synchronize their recomputation",
+        "Encrypting the cached values",
+        "Increasing the hit ratio to 100%"
+      ],
+      "correct": 1,
+      "explanation": "If many keys are set with the same TTL, they expire together and cause a synchronized wave of misses. Adding randomness (e.g. 300s ± 30s) spreads expirations over time, so recomputation is staggered rather than a thundering herd."
+    },
+    {
+      "stage": "post",
+      "question": "Why can 'just add Redis' sometimes make database load WORSE at the dangerous moments?",
+      "options": [
+        "Redis is slower than a database",
+        "All app instances now miss in lockstep on a shared expired key or a cold/failed cache, whereas independent in-process caches miss at different times",
+        "Redis corrupts data",
+        "Redis cannot store hot keys"
+      ],
+      "correct": 1,
+      "explanation": "A shared cache concentrates risk: with synchronized TTLs or a cold/failed Redis, every instance misses simultaneously and floods the DB. Independent in-process caches at least miss at staggered times. The cache cuts steady-state load hugely, but the transitions (expiry, cold start, failover) need explicit handling."
+    }
+  ]
+}

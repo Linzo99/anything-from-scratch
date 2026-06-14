@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the fundamental reason a CDN reduces latency for distant users?",
+      "options": [
+        "It compresses files more than the origin can",
+        "It serves content from a cache physically near the user, avoiding a long round trip across the globe",
+        "It runs the application faster than the origin server",
+        "It uses a faster version of HTTP only available to CDNs"
+      ],
+      "correct": 1,
+      "explanation": "Latency is bounded by physics — a cross-continent round trip is ~150ms of pure transit. A CDN can't make light faster, so it moves copies of the content to edge locations near users, turning a transcontinental trip into a few-millisecond local fetch."
+    },
+    {
+      "stage": "pre",
+      "question": "After you set a one-year max-age on a file, how do you ship an update without waiting a year?",
+      "options": [
+        "You can't — you must wait for the year to pass",
+        "Give the new version a new URL (cache busting via content-hashed filenames), so caches never serve the old one",
+        "Restart all the CDN servers manually",
+        "Reduce max-age to zero retroactively on cached copies"
+      ],
+      "correct": 1,
+      "explanation": "The standard pattern is cache busting: fingerprint asset filenames with a content hash (app.3f9a2c.js). A new build produces a new filename/URL the CDN has never cached, and the HTML points to it. Old URLs are simply never requested again, sidestepping invalidation."
+    },
+    {
+      "stage": "post",
+      "question": "How does anycast route a user to the nearest CDN PoP?",
+      "options": [
+        "It measures every user's GPS location",
+        "The same IP address is advertised from every PoP, and internet routing naturally delivers each user's packets to the closest one",
+        "Each user manually selects a PoP",
+        "It assigns a unique IP per user"
+      ],
+      "correct": 1,
+      "explanation": "With anycast, all PoPs announce the same IP address. The internet's routing then directs each user's traffic to the topologically nearest PoP advertising that address — no per-user configuration needed."
+    },
+    {
+      "stage": "post",
+      "question": "What happens on a CDN cache MISS at an edge PoP?",
+      "options": [
+        "The request fails",
+        "The PoP fetches from the origin, caches the result per the cache rules, and serves it — so the next user in that region gets a hit",
+        "The user is redirected to the origin permanently",
+        "The CDN deletes the content everywhere"
+      ],
+      "correct": 1,
+      "explanation": "On a miss, the edge fetches the content from the origin (your servers or object store), stores it according to the response's cache headers, and returns it. The first request to a region pays the long trip; everyone after rides the now-warm edge cache."
+    },
+    {
+      "stage": "post",
+      "question": "A team sets `Cache-Control: public, max-age=600` on an endpoint that returns the logged-in user's profile. What's the danger?",
+      "options": [
+        "Nothing — this is correct",
+        "A shared cache (CDN) may store one user's private profile and serve it to other users; personal responses need no-store or private",
+        "The profile will load too slowly",
+        "The CDN will refuse to cache it"
+      ],
+      "correct": 1,
+      "explanation": "`public` allows shared caches like the CDN to store the response. For per-user data, a cached copy can be served to the wrong user — a serious data-leak bug. Personalized responses should use `no-store` (don't cache) or `private` (browser only, never the CDN)."
+    }
+  ]
+}

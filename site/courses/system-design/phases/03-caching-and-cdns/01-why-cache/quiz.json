@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the primary benefit of caching in a read-heavy system?",
+      "options": [
+        "It permanently stores all data so the database can be deleted",
+        "It serves repeated reads from a fast copy, reducing both latency and load on the expensive origin",
+        "It encrypts data automatically",
+        "It guarantees data is always perfectly up to date"
+      ],
+      "correct": 1,
+      "explanation": "A cache keeps a copy of answers in a fast store so repeated reads skip the slow, hard-to-scale database. This cuts latency (memory vs disk) and, crucially at scale, absorbs read load so the origin only handles the rare miss."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is caching NOT 'free performance'?",
+      "options": [
+        "Caches are extremely expensive to buy",
+        "A cache is a second copy of data, and keeping it consistent with the origin is genuinely hard — stale values cause bugs",
+        "Caches make all reads slower",
+        "Caches can only store text"
+      ],
+      "correct": 1,
+      "explanation": "Introducing a cache means data exists in two places that can disagree. Cache invalidation is famously hard; a wrong or stale value can show users deleted posts or incorrect prices. A cache is also a component that can fail and unleash load on the database."
+    },
+    {
+      "stage": "post",
+      "question": "A service handles 1,000,000 reads. Going from a 90% to a 99% hit ratio changes origin reads from how much to how much?",
+      "options": [
+        "From 100,000 to 10,000 — a further 10x reduction",
+        "From 900,000 to 990,000 — load increases",
+        "From 10,000 to 1,000",
+        "It makes no difference"
+      ],
+      "correct": 0,
+      "explanation": "At 90% hit ratio, 10% (100,000) reach the origin. At 99%, only 1% (10,000) do. Each '9' of hit ratio cuts origin load by roughly 10x — which can shrink the database tier dramatically. That nonlinear payoff is why caching is the first lever in read-heavy systems."
+    },
+    {
+      "stage": "post",
+      "question": "Why does caching only help when access has 'locality'?",
+      "options": [
+        "Locality means the data is stored nearby on disk",
+        "Caching reuses previously fetched answers; if access is skewed (some data far hotter), a small cache captures most reads — with no repeats there's nothing to reuse",
+        "Locality refers to the server's physical location",
+        "Caching works equally well for perfectly uniform random access"
+      ],
+      "correct": 1,
+      "explanation": "Caches exploit temporal/spatial locality — the fact that some data is requested far more than the rest. A cache holding the hot set captures most reads cheaply. If every access were a unique value never requested again, there would be nothing to reuse and caching wouldn't help."
+    },
+    {
+      "stage": "post",
+      "question": "Which statement about cache layers is correct?",
+      "options": [
+        "Only the database can have a cache",
+        "Caches exist at many layers (browser, CDN, reverse proxy, app, distributed, DB), and each layer that serves a request shields everything below it",
+        "Having multiple cache layers is always a bug",
+        "The closer a cache is to the database, the bigger the win"
+      ],
+      "correct": 1,
+      "explanation": "Caches appear up and down the stack. A request is satisfied at the first layer holding the answer, and that layer protects all layers beneath it from the load. Generally the closer the cache is to the user (browser, CDN), the larger the latency and load win."
+    }
+  ]
+}

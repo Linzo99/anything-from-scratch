@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does a cache need an eviction policy at all?",
+      "options": [
+        "To encrypt the cached data",
+        "Because memory is finite, so when the cache is full a new entry forces an old one out — and which one matters",
+        "To make the cache slower on purpose",
+        "Eviction policies are only for databases"
+      ],
+      "correct": 1,
+      "explanation": "A cache holds only a small fraction of the data. Once full, every new entry requires removing an existing one. Evicting a hot item means an immediate miss and reload (self-inflicted), so the policy choice directly determines the hit ratio."
+    },
+    {
+      "stage": "pre",
+      "question": "What does LRU (Least Recently Used) bet on?",
+      "options": [
+        "That the oldest-inserted data is the least useful",
+        "Temporal locality — data used recently is likely to be used again soon",
+        "That all data is equally likely to be accessed",
+        "That frequency never changes"
+      ],
+      "correct": 1,
+      "explanation": "LRU evicts whatever hasn't been touched for the longest time, betting on temporal locality. Most real workloads exhibit this (recently used → reused soon), which is why LRU and its approximations are the common default."
+    },
+    {
+      "stage": "post",
+      "question": "How does an LRU cache achieve O(1) for both lookup and marking most-recently-used?",
+      "options": [
+        "By scanning a sorted array on each access",
+        "A hash map gives O(1) key lookup; a doubly linked list gives O(1) move-to-front and tail removal",
+        "By using a single linked list only",
+        "By re-sorting all entries after every access"
+      ],
+      "correct": 1,
+      "explanation": "The hash map maps each key to its node for O(1) lookup. The doubly linked list orders nodes by recency (MRU at head, LRU at tail); because each node has prev/next pointers, you can unlink and move it to the head, or remove the tail, all in O(1)."
+    },
+    {
+      "stage": "post",
+      "question": "On the access sequence A B C A B D with an LRU cache of size 3, what gets evicted when D is accessed?",
+      "options": [
+        "A, because it was inserted first",
+        "C, because it is the least recently used at that point",
+        "B, because it was accessed twice",
+        "Nothing is evicted"
+      ],
+      "correct": 1,
+      "explanation": "After A B C A B, the recency order (most to least) is B, A, C. Adding D requires evicting the least recently used, which is C. LRU correctly keeps A and B (recently reused) and sheds the genuinely cold C. FIFO would have wrongly evicted A."
+    },
+    {
+      "stage": "post",
+      "question": "What is LRU's classic failure case?",
+      "options": [
+        "It cannot store more than 100 entries",
+        "A large one-time scan (many unique keys read once) evicts the entire hot set — cache pollution",
+        "It is too slow to be practical",
+        "It only works with integer keys"
+      ],
+      "correct": 1,
+      "explanation": "If a scan reads more distinct keys than the cache holds, each new key evicts a hot entry to store data that's never read again, flushing the useful hot set — LRU pollution. LFU resists this (one-time accesses never build frequency), and real systems use hybrids like TinyLFU/ARC."
+    }
+  ]
+}

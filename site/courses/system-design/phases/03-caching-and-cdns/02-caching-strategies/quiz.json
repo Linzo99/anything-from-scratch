@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In cache-aside, what happens on a cache miss?",
+      "options": [
+        "The request fails with an error",
+        "The app loads the value from the database and populates the cache for next time",
+        "The database is bypassed entirely",
+        "The cache is cleared completely"
+      ],
+      "correct": 1,
+      "explanation": "Cache-aside (lazy loading) checks the cache first; on a miss it reads from the database and stores the result in the cache so subsequent reads of that key are hits. Only requested data ends up cached, which is memory-efficient."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the main risk of write-back (write-behind) caching?",
+      "options": [
+        "Reads become permanently slow",
+        "Data loss — writes acknowledged from the cache may never reach the DB if the cache dies before flushing",
+        "It uses too little memory",
+        "It cannot cache strings"
+      ],
+      "correct": 1,
+      "explanation": "Write-back acks writes immediately from the cache and flushes to the DB asynchronously. If the cache crashes before flushing, those writes are lost and the DB is stale. That's why it's used for tolerant data (counters, metrics), not critical records."
+    },
+    {
+      "stage": "post",
+      "question": "Why does cache-aside DELETE the cache entry on a write rather than UPDATE it with the new value?",
+      "options": [
+        "Deleting is faster than updating",
+        "Updating has a race condition where concurrent writers can leave the cache holding an older value permanently; deleting forces a fresh read",
+        "Caches don't support updates",
+        "Deleting saves memory"
+      ],
+      "correct": 1,
+      "explanation": "If you 'write DB then set cache to new value', two concurrent writers can interleave so the cache ends up with the stale value forever. Deleting the entry instead forces the next read to reload from the DB, avoiding the race. Invalidation is safer than update."
+    },
+    {
+      "stage": "post",
+      "question": "What does attaching a TTL to cache entries guarantee?",
+      "options": [
+        "That data is never stale",
+        "That a cached value can be stale for at most the TTL duration, even if explicit invalidation is missed",
+        "That writes are durable",
+        "That the cache never runs out of memory"
+      ],
+      "correct": 1,
+      "explanation": "TTL is a safety net: after it expires, the entry is treated as a miss and re-fetched. So even if invalidation logic has a gap, no value stays stale longer than the TTL. For data tolerant of brief staleness, a TTL alone (no explicit invalidation) is often enough and simpler."
+    },
+    {
+      "stage": "post",
+      "question": "For an account balance that must never read stale immediately after a write, which approach fits best?",
+      "options": [
+        "Write-back, for fast writes",
+        "Write-through (or read-from-source after write), so the cache is consistent with the DB before the write is acknowledged",
+        "A very long TTL with no invalidation",
+        "No cache discipline at all"
+      ],
+      "correct": 1,
+      "explanation": "Write-through updates the cache and DB together before acking, so a subsequent read is guaranteed fresh. Write-back risks loss and lag; a long TTL with no invalidation guarantees staleness. For read-after-write correctness on critical data, write-through (or reading from the source) is the safe choice."
+    }
+  ]
+}
