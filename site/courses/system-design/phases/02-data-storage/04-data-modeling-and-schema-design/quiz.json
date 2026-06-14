@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Storing a customer's email in every one of their order rows causes which problem?",
+      "options": [
+        "Queries become impossible",
+        "An update anomaly: changing the email means updating many rows, and missing any creates contradictory data",
+        "The database runs out of primary keys",
+        "Foreign keys stop working"
+      ],
+      "correct": 1,
+      "explanation": "Redundant data causes update anomalies. If the email is duplicated across a thousand order rows, a single change requires updating all of them; any missed row leaves the database with contradictory copies of the same fact."
+    },
+    {
+      "stage": "pre",
+      "question": "What does normalization fundamentally aim to do?",
+      "options": [
+        "Make every query a join",
+        "Store each fact exactly once, in the table it belongs to",
+        "Duplicate data for faster reads",
+        "Remove all primary keys"
+      ],
+      "correct": 1,
+      "explanation": "Normalization structures data so each fact lives in one place. This eliminates redundancy and the update/insert/delete anomalies it causes. Relationships are then resolved at read time with joins."
+    },
+    {
+      "stage": "post",
+      "question": "What is the cost of denormalizing (e.g. copying customer_name into the orders table)?",
+      "options": [
+        "It makes reads slower",
+        "You now have multiple copies of the same fact to keep in sync, risking data drift",
+        "It deletes the original data",
+        "It disables indexing"
+      ],
+      "correct": 1,
+      "explanation": "Denormalization trades write complexity for read speed. By storing redundant pre-joined data you skip the join on reads, but every change to the duplicated fact must update all copies — miss one and the data drifts out of sync."
+    },
+    {
+      "stage": "post",
+      "question": "What does a foreign key enforce?",
+      "options": [
+        "That a column is indexed",
+        "Referential integrity — you can't reference a row (e.g. a customer) that doesn't exist",
+        "That values are unique",
+        "That the column is encrypted"
+      ],
+      "correct": 1,
+      "explanation": "A foreign key points to another table's primary key and enforces referential integrity: the database rejects an order whose customer_id has no matching customer. This keeps relationships valid automatically."
+    },
+    {
+      "stage": "post",
+      "question": "What is the recommended default approach to schema design?",
+      "options": [
+        "Always denormalize first for performance",
+        "Normalize first (each fact once); denormalize only for a specific hot read you've measured as too slow",
+        "Put everything in one wide table",
+        "Avoid foreign keys to keep writes fast"
+      ],
+      "correct": 1,
+      "explanation": "Normalize by default — it's correct, flexible, and a well-indexed join is fast for most applications. Denormalize deliberately, only where a specific hot read is measurably too slow and you accept the consistency burden. Premature denormalization causes data-drift bugs."
+    }
+  ]
+}

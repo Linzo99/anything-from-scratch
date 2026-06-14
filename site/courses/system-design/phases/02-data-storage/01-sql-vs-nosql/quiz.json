@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What should most directly drive the choice between SQL and a NoSQL store?",
+      "options": [
+        "Which database is most popular this year",
+        "The system's access patterns — how data is actually read and written",
+        "The programming language of the application",
+        "Whichever has the shortest name"
+      ],
+      "correct": 1,
+      "explanation": "Picking a database means picking a data model, and the data model should follow from access patterns: do you read by key, by range, with joins, or by graph traversal? 'SQL vs NoSQL' is the wrong framing — the access pattern narrows the field for you."
+    },
+    {
+      "stage": "pre",
+      "question": "Is 'NoSQL' a single kind of database?",
+      "options": [
+        "Yes — all NoSQL databases work the same way",
+        "No — it lumps together key-value, document, wide-column, and graph models, each suited to different patterns",
+        "Yes — NoSQL just means 'no SQL language'",
+        "No — NoSQL only refers to MongoDB"
+      ],
+      "correct": 1,
+      "explanation": "'NoSQL' is an umbrella over at least four very different models: key-value, document, wide-column, and graph. Each is good for some access patterns and useless for others, so treating NoSQL as one thing leads to poor choices."
+    },
+    {
+      "stage": "post",
+      "question": "What is denormalization and what tradeoff does it make?",
+      "options": [
+        "Splitting data into more tables to save space; trades reads for writes",
+        "Storing data pre-joined in read-shaped form to avoid joins; trades write complexity and query flexibility for read speed and scale",
+        "Encrypting data at rest; trades CPU for security",
+        "Removing all indexes; trades correctness for speed"
+      ],
+      "correct": 1,
+      "explanation": "Denormalization stores data in the shape you'll read it (e.g. embedding a user's posts inside the user document) so reads are one fast key lookup. The cost is harder writes (updating duplicated data) and loss of flexible cross-entity queries."
+    },
+    {
+      "stage": "post",
+      "question": "For storing IoT sensor readings arriving at 1,000,000 writes per second, queried by device and time range, which model fits best?",
+      "options": [
+        "Graph database",
+        "Wide-column store (e.g. Cassandra), built for write-heavy scale and key/range queries",
+        "A single relational instance",
+        "Key-value store with no range support"
+      ],
+      "correct": 1,
+      "explanation": "Wide-column stores are designed for massive write volumes and queries by partition key and range — exactly the time-series/event-log pattern. A single relational instance can't absorb that write rate, and a plain key-value store can't do range queries."
+    },
+    {
+      "stage": "post",
+      "question": "Why is 'NoSQL scales, SQL doesn't' a misleading claim?",
+      "options": [
+        "It's completely true with no nuance",
+        "Modern relational databases scale enormously, and NoSQL only 'scales' for the specific access patterns it was designed for",
+        "Because SQL databases cannot store more than a gigabyte",
+        "Because NoSQL databases never need maintenance"
+      ],
+      "correct": 1,
+      "explanation": "Relational databases with replicas, partitioning, and managed services scale very far, and most apps never outgrow a tuned Postgres. NoSQL scales only for its intended patterns — ask a key-value store for an ad-hoc cross-entity report and you're stuck. Choose based on which tradeoff you need."
+    }
+  ]
+}

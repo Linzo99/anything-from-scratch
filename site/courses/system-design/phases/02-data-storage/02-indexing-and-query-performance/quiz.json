@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Without any index, how does a database find rows matching `WHERE email = 'x'`?",
+      "options": [
+        "It instantly knows the location of every value",
+        "It performs a full table scan, checking every row — O(n)",
+        "It refuses to run the query",
+        "It asks the operating system to sort the table first"
+      ],
+      "correct": 1,
+      "explanation": "A table is an unordered heap by default, so without an index the database must examine every row to find matches — a full table scan. This is O(n) and fine for small tables but devastating as the table grows to millions of rows."
+    },
+    {
+      "stage": "pre",
+      "question": "Are indexes free to add?",
+      "options": [
+        "Yes — add one to every column for maximum speed",
+        "No — each index must be kept in sync, so every insert/update/delete does more work and uses more disk",
+        "Yes — indexes only cost a tiny amount of memory once",
+        "No — but only because they require a license"
+      ],
+      "correct": 1,
+      "explanation": "Every index is extra sorted data the database maintains. Each write must update the table and every relevant index, so over-indexing a write-heavy table slows writes and bloats disk. You index for important queries, not everything."
+    },
+    {
+      "stage": "post",
+      "question": "In `EXPLAIN QUERY PLAN` output, what does seeing `SEARCH users USING INDEX ...` instead of `SCAN users` tell you?",
+      "options": [
+        "The query failed",
+        "The database is using an index to jump to matching rows rather than scanning the whole table",
+        "The table has no rows",
+        "The index is corrupt"
+      ],
+      "correct": 1,
+      "explanation": "`SCAN` means a full table scan (no usable index); `SEARCH ... USING INDEX` means the database is using the index for an O(log n) lookup. Flipping a query from SCAN to SEARCH by adding the right index is the core skill of indexing."
+    },
+    {
+      "stage": "post",
+      "question": "You have a composite index on `(city, created)`. Which query can it help, per the leftmost-prefix rule?",
+      "options": [
+        "WHERE created = '2024-01-15' (filtering only on created)",
+        "WHERE city = 'city42' (filtering on the leftmost column)",
+        "Any query on the table, regardless of columns",
+        "Only queries that use neither column"
+      ],
+      "correct": 1,
+      "explanation": "A composite index is sorted by its columns left to right. It serves queries filtering a leftmost prefix — so `city` alone, or `city` + `created`, work; but `created` alone skips the leading column and cannot use the index."
+    },
+    {
+      "stage": "post",
+      "question": "Why might a database IGNORE an index and choose a full scan anyway?",
+      "options": [
+        "Indexes never actually work",
+        "When the query matches most of the rows, scanning can be cheaper than millions of individual index lookups",
+        "Because scans are always faster than indexes",
+        "Because EXPLAIN disables all indexes"
+      ],
+      "correct": 1,
+      "explanation": "The query planner estimates cost. If a query matches a large fraction of rows (say 90%), doing an index lookup per match is more work than just scanning sequentially, so the planner correctly chooses a scan. Always verify with the query plan rather than assuming."
+    }
+  ]
+}

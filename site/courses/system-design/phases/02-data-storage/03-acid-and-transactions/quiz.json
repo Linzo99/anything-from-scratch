@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A money transfer debits one account and credits another. The system crashes after the debit but before the credit. What guarantee prevents money from vanishing?",
+      "options": [
+        "Durability",
+        "Atomicity — the transaction is all-or-nothing, so the debit is rolled back",
+        "Indexing",
+        "Replication"
+      ],
+      "correct": 1,
+      "explanation": "Atomicity makes a transaction all-or-nothing. If the credit never happens, the debit is undone on recovery, so the database never ends up in the half-completed state where money disappeared. Both updates commit together or neither does."
+    },
+    {
+      "stage": "pre",
+      "question": "Why don't databases just always use the strongest isolation level?",
+      "options": [
+        "The strongest level corrupts data",
+        "Stronger isolation requires more locking/coordination, which reduces concurrency and throughput",
+        "It is illegal in some databases",
+        "Weaker levels are always more correct"
+      ],
+      "correct": 1,
+      "explanation": "Perfect isolation (Serializable) makes transactions behave as if run one at a time, which requires locking or extra coordination that limits how many can run concurrently. So databases offer a dial; you pick the weakest level still correct for your use case."
+    },
+    {
+      "stage": "post",
+      "question": "What is a 'lost update'?",
+      "options": [
+        "A transaction that never started",
+        "Two transactions both read the same value, both modify it, and both write back — so one update is silently overwritten",
+        "A row deleted by accident",
+        "A query that returns no rows"
+      ],
+      "correct": 1,
+      "explanation": "If T1 and T2 both read X=10, both compute 11, and both write 11, the result is 11 when it should be 12 — one update is lost. The fix is an atomic 'SET x = x + 1', a higher isolation level, or explicit locking (SELECT ... FOR UPDATE)."
+    },
+    {
+      "stage": "post",
+      "question": "Which isolation level makes transactions behave exactly as if they ran one at a time?",
+      "options": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Serializable",
+        "Repeatable Read"
+      ],
+      "correct": 2,
+      "explanation": "Serializable is the strongest level: it prevents dirty reads, non-repeatable reads, and phantoms, making concurrent execution equivalent to some serial order. It's the most correct but the slowest. Read Committed is a common high-concurrency default."
+    },
+    {
+      "stage": "post",
+      "question": "How does MVCC improve concurrency compared to pure locking?",
+      "options": [
+        "It deletes old data to free locks",
+        "It keeps multiple versions of a row so readers see a consistent snapshot without blocking writers (and vice versa)",
+        "It disables isolation entirely",
+        "It forces all transactions to run serially"
+      ],
+      "correct": 1,
+      "explanation": "Multi-Version Concurrency Control stores several versions of each row. A reader sees a consistent snapshot as of when its transaction started, so it doesn't block writers and writers don't block it — far better concurrency than locking every row a reader touches."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is storing 50 MB videos as BLOB columns in a relational database a poor choice?",
+      "options": [
+        "Databases cannot store binary data at all",
+        "It bloats tables and backups, thrashes the cache, and consumes DB resources for data that needs no querying or transactions",
+        "Videos must always be stored as text",
+        "It violates the SQL standard"
+      ],
+      "correct": 1,
+      "explanation": "A database is tuned for many small, structured, queryable rows. Large blobs bloat the table and backups, evict useful rows from the buffer cache, and tie up scarce connections streaming bytes — wasting the DB's expensive capabilities (indexing, joins, ACID) on data that needs none of them."
+    },
+    {
+      "stage": "pre",
+      "question": "In the common pattern, where do the blob and its metadata live?",
+      "options": [
+        "Both in the database",
+        "The blob in object storage; only a pointer (key/URL) plus structured metadata in the database",
+        "Both on the app server's local disk",
+        "The blob in the database; the metadata in object storage"
+      ],
+      "correct": 1,
+      "explanation": "The standard split: big unstructured blobs go in object storage (cheap, durable, scalable), and the database stores just the object's key/URL alongside the structured metadata you actually query. Small structured data in the DB, big blobs in object storage."
+    },
+    {
+      "stage": "post",
+      "question": "What problem do presigned URLs solve?",
+      "options": [
+        "They compress files before upload",
+        "They let clients transfer bytes directly to/from the object store, so large files never proxy through your app servers",
+        "They encrypt the database",
+        "They make object storage queryable like SQL"
+      ],
+      "correct": 1,
+      "explanation": "A presigned URL is a temporary, signed link granting permission to PUT or GET a specific object. The client uses it to transfer bytes straight to/from the store, so your app servers only do a tiny authorization step instead of proxying gigabytes."
+    },
+    {
+      "stage": "post",
+      "question": "When object storage sits behind a CDN, what happens on the SECOND request for the same image?",
+      "options": [
+        "It re-fetches from the database every time",
+        "It's served from the CDN edge cache, avoiding both the object store and your servers",
+        "It fails because objects can only be read once",
+        "It triggers a full table scan"
+      ],
+      "correct": 1,
+      "explanation": "The first request is a cache miss: the CDN fetches from the origin (the bucket) and caches it at the edge. Subsequent requests are served from the nearby edge with low latency, offloading both your object store and your application entirely."
+    },
+    {
+      "stage": "post",
+      "question": "Why is treating object storage like a mounted POSIX filesystem a mistake?",
+      "options": [
+        "Object storage is faster than any filesystem for random access",
+        "It has no real directories (just key prefixes), no in-place edits, and isn't built for low-latency random access within a file — it's for whole-object operations",
+        "Object storage cannot store more than 1 GB total",
+        "Filesystems are always cheaper"
+      ],
+      "correct": 1,
+      "explanation": "Object storage optimizes for durable, whole-object PUT/GET at massive scale. There are no true folders (prefixes only), you replace whole objects rather than editing in place, and it lacks the low-latency random access of a disk. Designing as if it were a local filesystem (e.g. appending on every write) leads to bad designs."
+    }
+  ]
+}
