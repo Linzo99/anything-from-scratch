@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "A worker processes a message then crashes before acknowledging it. Why is this a fundamental problem?",
+      "options": [
+        "The worker leaks memory",
+        "The broker can't tell whether the work succeeded, so it must choose between possibly losing the message or possibly redelivering (duplicating) it",
+        "The message is automatically corrected",
+        "Acks are never needed"
+      ],
+      "correct": 1,
+      "explanation": "When the ack is lost, the broker genuinely cannot distinguish 'succeeded but ack lost' from 'failed'. Not redelivering risks loss (at-most-once); redelivering risks duplicates (at-least-once). There's no free third option."
+    },
+    {
+      "stage": "pre",
+      "question": "What does 'at-least-once' delivery mean?",
+      "options": [
+        "Each message delivered exactly one time, guaranteed",
+        "Each message delivered one or more times — never lost, but possibly duplicated",
+        "Messages may be lost but never duplicated",
+        "Messages are delivered only on success"
+      ],
+      "correct": 1,
+      "explanation": "At-least-once redelivers on uncertainty, so a message is never lost but may arrive more than once. It's the common safe default — combined with idempotent consumers to make the inevitable duplicates harmless."
+    },
+    {
+      "stage": "post",
+      "question": "Why is true end-to-end exactly-once DELIVERY effectively impossible?",
+      "options": [
+        "Networks are too slow",
+        "The network can drop the very ack that would resolve the ambiguity, so the sender can never be certain whether to redeliver — any choice risks loss or duplication",
+        "Brokers refuse to implement it",
+        "It's actually trivial to achieve"
+      ],
+      "correct": 1,
+      "explanation": "The crash-before-ack ambiguity can't be eliminated, because the message that would resolve it can itself be lost. So exactly-once as a delivery guarantee doesn't exist in general. What's achievable is exactly-once PROCESSING: at-least-once + dedup."
+    },
+    {
+      "stage": "post",
+      "question": "Which operation is naturally idempotent (safe to apply multiple times)?",
+      "options": [
+        "balance = balance + 100",
+        "SET balance = 100 (set an absolute value)",
+        "append item to a list",
+        "POST to create a new record"
+      ],
+      "correct": 1,
+      "explanation": "Setting an absolute value (SET balance = 100) yields the same result no matter how many times it runs. Incrementing, appending, and creating are NOT idempotent — repeating them changes the result, so they need a dedup key to be made safe under at-least-once delivery."
+    },
+    {
+      "stage": "post",
+      "question": "How do you achieve effectively-exactly-once processing under at-least-once delivery?",
+      "options": [
+        "Disable retries entirely",
+        "Attach a unique idempotency key to each message and have the consumer atomically skip keys it has already processed",
+        "Hope duplicates never happen",
+        "Process every message twice on purpose"
+      ],
+      "correct": 1,
+      "explanation": "Each message carries a unique idempotency key. The consumer records processed keys in a durable, shared store and skips any key it has seen — atomically (e.g. a DB unique constraint or atomic set). Duplicates are then absorbed harmlessly, giving the effect of exactly-once."
+    }
+  ]
+}

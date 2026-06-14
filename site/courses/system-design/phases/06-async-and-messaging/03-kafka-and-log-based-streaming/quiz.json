@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "How does a traditional message queue handle a message after it's consumed?",
+      "options": [
+        "It keeps it forever for replay",
+        "It deletes/acknowledges it — the message is gone once handled",
+        "It copies it to every other consumer",
+        "It moves it to a database"
+      ],
+      "correct": 1,
+      "explanation": "Traditional queues treat messages as transient: delivered, acknowledged, deleted. That's fine for 'do this once' but means you can't replay history or add a consumer that needs past events. Kafka's log model keeps events instead."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the core data structure behind Kafka?",
+      "options": [
+        "A balanced binary tree",
+        "An append-only, ordered, retained log that consumers read at their own position",
+        "A hash table",
+        "A priority queue"
+      ],
+      "correct": 1,
+      "explanation": "A Kafka topic (partition) is an append-only commit log: producers append to the end, records are immutable and retained, and each consumer tracks its own offset (read position). Reading does not remove records."
+    },
+    {
+      "stage": "post",
+      "question": "What ordering guarantee does Kafka provide?",
+      "options": [
+        "Total ordering across the entire topic",
+        "Ordering only within a single partition, not across partitions",
+        "No ordering at all",
+        "Ordering only for the first consumer"
+      ],
+      "correct": 1,
+      "explanation": "Kafka guarantees order within a partition. Records with the same key go to the same partition (so all of one entity's events stay ordered), but events on different partitions have no guaranteed relative order. Global ordering requires a single partition, sacrificing parallelism."
+    },
+    {
+      "stage": "post",
+      "question": "How does Kafka act like both a queue and pub/sub?",
+      "options": [
+        "It randomly picks one behavior per message",
+        "Within a consumer group, partitions are split among consumers (queue-like); across groups, each group reads the full stream independently (pub/sub-like)",
+        "It only behaves like a queue",
+        "It duplicates every message to every consumer always"
+      ],
+      "correct": 1,
+      "explanation": "Consumers in one group divide the partitions among themselves, so work is load-balanced like a queue. Separate consumer groups each receive the entire stream and track their own offsets, so it fans out like pub/sub. One topic serves both patterns."
+    },
+    {
+      "stage": "post",
+      "question": "A billing consumer had a bug for 2 hours. Why can Kafka fix the resulting data when a traditional queue cannot?",
+      "options": [
+        "Kafka automatically corrects bugs",
+        "The events are retained, so you can reset the consumer's offset and replay/reprocess the affected period; a delete-on-consume queue no longer has those messages",
+        "Kafka stores the corrected output, not events",
+        "Traditional queues also retain everything"
+      ],
+      "correct": 1,
+      "explanation": "Because Kafka keeps the log (events aren't deleted on read), you can rewind the billing consumer's offset and reprocess the two hours with the fixed code. A traditional queue discarded those messages when they were consumed, so the history is unrecoverable."
+    }
+  ]
+}

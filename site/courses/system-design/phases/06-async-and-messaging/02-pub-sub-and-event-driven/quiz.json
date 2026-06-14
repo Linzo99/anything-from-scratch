@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the key difference between a message queue and pub/sub?",
+      "options": [
+        "Queues are faster than pub/sub",
+        "A queue delivers each message to one consumer (load-balancing); pub/sub delivers each event to all subscribers (fan-out)",
+        "Pub/sub can only send text",
+        "There is no difference"
+      ],
+      "correct": 1,
+      "explanation": "A queue distributes work — each message is handled once by one consumer. Pub/sub broadcasts — every subscriber of a topic gets its own copy of each event. Queues solve 'do this work once'; pub/sub solves 'many things react to this event'."
+    },
+    {
+      "stage": "pre",
+      "question": "In pub/sub, what does the publisher know about its subscribers?",
+      "options": [
+        "It maintains a list of every subscriber and calls each one",
+        "Nothing — it publishes to a topic, and the broker delivers to whoever subscribed",
+        "Only the first subscriber",
+        "It must approve each subscriber"
+      ],
+      "correct": 1,
+      "explanation": "The publisher is decoupled from subscribers: it emits an event to a topic without knowing who (if anyone) listens. The broker routes copies to all subscribers. This is why you can add a new reaction by adding a subscriber, with no change to the publisher."
+    },
+    {
+      "stage": "post",
+      "question": "A 'user.signed_up' event should trigger email, billing, AND analytics independently. Which pattern fits?",
+      "options": [
+        "A single queue with three workers sharing the load",
+        "Pub/sub fan-out, so each of the three services receives its own copy of the event",
+        "Direct synchronous calls only",
+        "A database trigger"
+      ],
+      "correct": 1,
+      "explanation": "All three must react to the same event, so you need fan-out: pub/sub delivers a copy to each subscriber. A shared queue would give the event to only one of the three workers, so the other two reactions would never happen."
+    },
+    {
+      "stage": "post",
+      "question": "What is the main downside of event-driven architecture compared to direct calls?",
+      "options": [
+        "It cannot scale",
+        "The end-to-end flow is harder to see and debug — logic is spread across many independent subscribers with no single call stack",
+        "It only works on one machine",
+        "Events cannot carry data"
+      ],
+      "correct": 1,
+      "explanation": "Decoupling comes at the cost of traceability. With direct calls you can read the flow top to bottom; with events the behavior is emergent across many independently-deployed reactions, so answering 'why did X happen?' means tracing events across services."
+    },
+    {
+      "stage": "post",
+      "question": "Why is event-driven architecture more resilient to a subscriber being down?",
+      "options": [
+        "Subscribers never go down",
+        "With a durable broker, the event waits and is processed when the subscriber recovers, while the original action still succeeded",
+        "The publisher retries synchronously until the subscriber is up",
+        "The event is discarded so nothing breaks"
+      ],
+      "correct": 1,
+      "explanation": "Because the publisher doesn't call subscribers directly, a down subscriber doesn't fail the original action. A durable broker holds the event until the subscriber recovers and processes it. The order succeeds even if, say, the email service is temporarily offline."
+    }
+  ]
+}

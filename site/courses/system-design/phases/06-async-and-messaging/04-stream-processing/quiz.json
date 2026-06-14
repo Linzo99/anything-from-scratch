@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the fundamental difference between batch and stream processing?",
+      "options": [
+        "Stream processing uses more CPU",
+        "Batch processes a bounded dataset all at once; stream processes an unbounded, never-ending flow continuously as events arrive",
+        "Batch is always wrong",
+        "They are the same with different names"
+      ],
+      "correct": 1,
+      "explanation": "Batch runs once over a fixed pile of data (high latency, simple). Stream processing runs forever over an endless stream, updating results as each event arrives (low latency, but must handle unbounded, out-of-order data)."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can't you simply compute 'the average' of a stream?",
+      "options": [
+        "Averages are too slow to compute",
+        "The stream is unbounded — it never ends — so you must chop it into finite windows to produce results",
+        "Streams can't hold numbers",
+        "You can, instantly, at any time"
+      ],
+      "correct": 1,
+      "explanation": "An unbounded stream has no end, so there's no point at which 'the average' is final. Stream processing uses windows (tumbling, sliding, session) to carve the infinite stream into finite slices over which results can be computed and emitted."
+    },
+    {
+      "stage": "post",
+      "question": "What is the difference between event time and processing time?",
+      "options": [
+        "They are always identical",
+        "Event time is when the event actually happened; processing time is when your system received/processed it — they differ due to delays and out-of-order arrival",
+        "Event time is in UTC; processing time is local",
+        "Processing time is always earlier than event time"
+      ],
+      "correct": 1,
+      "explanation": "Event time is the real moment the event occurred (a timestamp in the event). Processing time is when it reached your processor. Network delays, retries, and offline devices make them differ, so an event from 11:59:58 might arrive at 12:00:03."
+    },
+    {
+      "stage": "post",
+      "question": "Why should you usually window by event time rather than processing time?",
+      "options": [
+        "Processing time is harder to read",
+        "Event time reflects when things actually happened, giving correct, reproducible results; processing time depends on arrival speed and gives non-reproducible counts",
+        "Event time is always faster",
+        "Processing time doesn't exist in real systems"
+      ],
+      "correct": 1,
+      "explanation": "You care when events happened, not when you happened to see them. Event-time windows are correct and reproducible. Processing-time windows put the same events in different windows depending on processing speed/delays — wrong and non-deterministic. The cost of event time is handling late, out-of-order data."
+    },
+    {
+      "stage": "post",
+      "question": "What problem does a watermark solve in stream processing?",
+      "options": [
+        "It encrypts the stream",
+        "It estimates that all events up to time T have arrived, so a window can be finalized and emitted despite late/out-of-order data",
+        "It compresses windows",
+        "It guarantees no event is ever late"
+      ],
+      "correct": 1,
+      "explanation": "Since events can arrive late, you need a rule for when to consider a window complete. A watermark is the processor's estimate of 'I've seen everything up to time T.' When it passes a window's end, the window emits. Late events after the watermark are dropped, side-output, or used to correct — a latency-vs-completeness tradeoff."
+    }
+  ]
+}

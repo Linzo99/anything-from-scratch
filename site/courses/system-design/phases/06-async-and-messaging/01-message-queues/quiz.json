@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the main reason to move slow work onto a message queue instead of doing it in the request?",
+      "options": [
+        "It makes the slow work itself run faster",
+        "It decouples the fast response from the slow work, so the user gets an instant reply and the work happens in the background",
+        "It removes the need for any workers",
+        "It guarantees the work never fails"
+      ],
+      "correct": 1,
+      "explanation": "A queue lets the producer accept the request and return immediately while workers do the slow work later. The work isn't faster — it's moved off the critical path — so the user isn't stuck waiting and servers aren't tied up holding requests."
+    },
+    {
+      "stage": "pre",
+      "question": "How does a queue help during a sudden traffic spike?",
+      "options": [
+        "It drops the excess requests",
+        "It buffers the excess work so arrival rate and processing rate are independent; workers drain the backlog steadily",
+        "It makes the workers process infinitely fast",
+        "It rejects all requests until the spike ends"
+      ],
+      "correct": 1,
+      "explanation": "The queue acts as a shock absorber: a burst of 10,000 jobs is accepted instantly and buffered, then drained at the workers' steady rate. Without it, the spike would overwhelm servers and drop work. The trade is that buffered jobs wait a bit longer."
+    },
+    {
+      "stage": "post",
+      "question": "What does a steadily growing queue depth indicate?",
+      "options": [
+        "The system is perfectly healthy",
+        "Arrivals are exceeding processing capacity — you're falling behind and need more workers or to shed load",
+        "The queue is about to make jobs faster",
+        "Workers are processing too quickly"
+      ],
+      "correct": 1,
+      "explanation": "Queue depth is a health signal. Near zero means workers keep up. Steadily growing means the arrival rate exceeds processing capacity; left unchecked the queue grows unbounded until it exhausts memory/disk. The fix is more workers or backpressure — not a bigger queue."
+    },
+    {
+      "stage": "post",
+      "question": "A worker crashes mid-job before acknowledging the message. What typically happens?",
+      "options": [
+        "The message is lost forever",
+        "The unacknowledged message is redelivered to another worker, at the cost of possible duplicate processing",
+        "The entire queue is deleted",
+        "The producer is notified to recompute it"
+      ],
+      "correct": 1,
+      "explanation": "Workers ack only after success. If a worker dies before acking, the message reappears (after a visibility timeout) and another worker processes it — so work isn't lost. The tradeoff is that the job might run twice, which is why consumers should be idempotent (Lesson 05)."
+    },
+    {
+      "stage": "post",
+      "question": "Which kind of work is a queue NOT suitable for?",
+      "options": [
+        "Sending a confirmation email after signup",
+        "Generating a thumbnail for an uploaded image",
+        "Computing the exact page content the user is waiting to see in this response",
+        "Recording analytics events"
+      ],
+      "correct": 2,
+      "explanation": "Queues fit asynchronous work whose result the user doesn't need right now (emails, thumbnails, analytics). You can't queue work whose output must be in the current response — the user is waiting for it, so it has to happen synchronously."
+    }
+  ]
+}
