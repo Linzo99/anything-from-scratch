@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the core distinction between a forward proxy and a reverse proxy?",
+      "options": [
+        "Forward proxies are faster than reverse proxies",
+        "A forward proxy acts on behalf of clients; a reverse proxy acts on behalf of servers",
+        "Forward proxies use TCP; reverse proxies use UDP",
+        "There is no real difference; the terms are interchangeable"
+      ],
+      "correct": 1,
+      "explanation": "The defining difference is which side they represent. A forward proxy sits in front of clients (the server sees the proxy's IP). A reverse proxy sits in front of servers (the client sees one address hiding a pool of backends)."
+    },
+    {
+      "stage": "pre",
+      "question": "Why terminate TLS at a reverse proxy rather than at each backend?",
+      "options": [
+        "TLS cannot run on application servers",
+        "One certificate to manage and the crypto work happens once, so backends speak plain HTTP on the trusted internal network",
+        "It makes the connection less secure on purpose",
+        "Backends are required by law to avoid encryption"
+      ],
+      "correct": 1,
+      "explanation": "Terminating TLS at the proxy means one certificate to rotate instead of one per server, and the expensive encryption/decryption happens at the edge. Backends then receive plain HTTP over a trusted internal network, saving CPU."
+    },
+    {
+      "stage": "post",
+      "question": "Which capability is characteristic of an API gateway but beyond a plain load balancer?",
+      "options": [
+        "Forwarding TCP packets to a backend",
+        "Centralized authentication, rate limiting, and request aggregation across different services",
+        "Having an IP address",
+        "Running on Linux"
+      ],
+      "correct": 1,
+      "explanation": "A load balancer's core job is spreading traffic across identical backends. An API gateway adds application-level policy: authenticating once at the edge, enforcing rate limits, routing by API version, and aggregating multiple service calls into one response."
+    },
+    {
+      "stage": "post",
+      "question": "When does an API gateway provide the most value?",
+      "options": [
+        "When you have a single monolithic service",
+        "When you have many microservices that would otherwise each re-implement auth, rate limiting, and logging",
+        "Only when traffic is below 10 requests per second",
+        "Never; reverse proxies always suffice"
+      ],
+      "correct": 1,
+      "explanation": "The gateway pattern shines with microservices. Instead of every service duplicating cross-cutting concerns (auth, rate limiting, observability), the gateway handles them once at the edge, letting each service focus on its domain. For a single service, a plain reverse proxy is usually enough."
+    },
+    {
+      "stage": "post",
+      "question": "What is 'request aggregation' at an API gateway?",
+      "options": [
+        "Compressing requests to save bandwidth",
+        "The gateway fans one client request out to several backend services and merges their responses",
+        "Storing requests in a queue for later",
+        "Rejecting requests that exceed a rate limit"
+      ],
+      "correct": 1,
+      "explanation": "Request aggregation lets a client (e.g. a mobile app) make one call that the gateway expands into several backend calls, combining the results into a single response. This reduces round trips for the client and keeps orchestration logic out of the clients."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't plain request/response HTTP push an update to the client the instant it happens?",
+      "options": [
+        "HTTP is too slow to carry small messages",
+        "HTTP is request/response: the server can only answer when the client asks, it cannot speak first",
+        "HTTP cannot transmit JSON",
+        "Browsers block all server messages for security"
+      ],
+      "correct": 1,
+      "explanation": "Classic HTTP follows a strict request/response model — the client asks, the server answers, the exchange ends. The server has no way to initiate a message. Realtime techniques exist precisely to work around this and let the server deliver updates promptly."
+    },
+    {
+      "stage": "pre",
+      "question": "What is the main downside of short polling every few seconds?",
+      "options": [
+        "It cannot deliver JSON",
+        "It wastes many requests on empty responses and adds latency up to the poll interval",
+        "It requires WebSocket support in the browser",
+        "It only works on localhost"
+      ],
+      "correct": 1,
+      "explanation": "Short polling asks on a fixed timer, so most responses are empty 'nothing new' answers, each carrying full HTTP headers. Updates also lag by up to one interval. At scale this overhead can dwarf the actual data being delivered."
+    },
+    {
+      "stage": "post",
+      "question": "How does long polling differ from short polling?",
+      "options": [
+        "Long polling uses UDP instead of TCP",
+        "The server holds the request open until an event occurs (or it times out), then responds, so updates arrive near-instantly with no empty responses",
+        "Long polling sends larger payloads",
+        "Long polling only works server-to-server"
+      ],
+      "correct": 1,
+      "explanation": "Instead of answering immediately with 'nothing new', the server holds the request open until there is something to send. This delivers updates with near-zero latency and avoids the stream of empty responses, at the cost of holding a request open per waiting client."
+    },
+    {
+      "stage": "post",
+      "question": "For a one-way live feed (e.g. a scores ticker) where the client never needs to send data back, which is the simplest fit?",
+      "options": [
+        "WebSockets, always the right realtime choice",
+        "Server-Sent Events (SSE) — a one-way server→client stream over a single HTTP connection",
+        "Short polling at 100ms",
+        "gRPC unary calls"
+      ],
+      "correct": 1,
+      "explanation": "SSE is purpose-built for one-way server→client streaming. It uses a single long-lived HTTP connection, is built into browsers via EventSource, and auto-reconnects. WebSockets would work but add bidirectional complexity you don't need for a pure feed."
+    },
+    {
+      "stage": "post",
+      "question": "You adopt WebSockets and now have 1,000,000 concurrent users. What new problem appears?",
+      "options": [
+        "WebSockets stop working above 1000 users",
+        "You must maintain 1,000,000 open stateful sockets and route each message to the correct one across your server fleet",
+        "JSON parsing becomes impossible",
+        "DNS lookups dominate the latency"
+      ],
+      "correct": 1,
+      "explanation": "Each WebSocket is a persistent, stateful connection. At a million concurrent users that's a million open sockets to hold and manage, plus the challenge of routing a message to the specific server holding the right socket — which needs infrastructure like a pub/sub layer (addressed in the chat capstone)."
+    }
+  ]
+}

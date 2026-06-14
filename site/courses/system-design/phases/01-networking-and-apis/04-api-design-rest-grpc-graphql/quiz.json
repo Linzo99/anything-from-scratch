@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which API style is generally best for high-volume communication between your own internal microservices?",
+      "options": [
+        "REST with JSON, for human readability",
+        "gRPC, for compact binary payloads, strong typing, and HTTP/2 performance",
+        "GraphQL, because internal services need flexible queries",
+        "It doesn't matter; all three perform identically"
+      ],
+      "correct": 1,
+      "explanation": "gRPC uses Protocol Buffers (compact binary) over HTTP/2, giving small payloads and fast parsing — ideal for service-to-service traffic where both ends are yours and volume is high. REST's JSON and GraphQL's query engine add overhead you don't need internally."
+    },
+    {
+      "stage": "pre",
+      "question": "What is 'over-fetching' in REST?",
+      "options": [
+        "Making too many requests per second",
+        "Receiving more fields than you need because the endpoint returns a fixed shape",
+        "Fetching data before the user requests it",
+        "Requesting data that doesn't exist yet"
+      ],
+      "correct": 1,
+      "explanation": "Over-fetching means the endpoint returns its full fixed response (e.g. the whole user object) even when the client only needed one field like the name. The wasted bytes add up, especially on mobile networks. GraphQL eliminates this by letting clients pick fields."
+    },
+    {
+      "stage": "post",
+      "question": "How does GraphQL solve both over-fetching and under-fetching?",
+      "options": [
+        "By compressing all responses with gzip",
+        "The client specifies exactly the fields it wants and gets them in a single round trip",
+        "By caching every possible query in advance",
+        "By forbidding nested data"
+      ],
+      "correct": 1,
+      "explanation": "With GraphQL the client declares the precise shape it needs (e.g. name + last 3 post titles), so no extra fields come back (no over-fetch) and related data is assembled in one request (no under-fetch / multiple round trips)."
+    },
+    {
+      "stage": "post",
+      "question": "Why is Protocol Buffers (used by gRPC) more efficient than JSON?",
+      "options": [
+        "It encrypts data, making it smaller",
+        "It is a compact binary format with a known schema, so it's smaller on the wire and faster to parse than text JSON",
+        "It only works for integers",
+        "It avoids using HTTP entirely"
+      ],
+      "correct": 1,
+      "explanation": "Protobuf serializes to a compact binary representation using a predefined schema, so field names aren't repeated as text and values are packed tightly. That means fewer bytes transmitted and much faster parsing than parsing textual JSON."
+    },
+    {
+      "stage": "post",
+      "question": "A large company uses GraphQL at the edge for its mobile app and gRPC between backend services. What does this illustrate?",
+      "options": [
+        "The company hasn't standardized and should pick one",
+        "The styles coexist by design — each is chosen for the relationship it fits best",
+        "GraphQL is being phased out",
+        "gRPC is only a temporary measure"
+      ],
+      "correct": 1,
+      "explanation": "The styles are not ranked; they coexist. GraphQL fits a flexible, latency-sensitive client (mobile), while gRPC fits high-volume internal service-to-service calls. The right question is always 'which fits this relationship?', not 'which is best overall?'."
+    }
+  ]
+}

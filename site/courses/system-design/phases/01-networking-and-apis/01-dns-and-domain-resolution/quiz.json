@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the fundamental job of DNS?",
+      "options": [
+        "To encrypt traffic between client and server",
+        "To resolve human-readable domain names to IP addresses",
+        "To balance load across servers at the TCP level",
+        "To store website content for fast delivery"
+      ],
+      "correct": 1,
+      "explanation": "DNS is the distributed directory that maps names like example.com to IP addresses like 93.184.216.34. It runs before every connection. It does not encrypt traffic (that's TLS) or store content (that's a CDN)."
+    },
+    {
+      "stage": "pre",
+      "question": "If you change a DNS record, when does the change take effect for all users?",
+      "options": [
+        "Instantly, everywhere",
+        "Only after the cached answers expire, up to the record's TTL (sometimes longer)",
+        "After exactly 24 hours, always",
+        "Only when users restart their computers"
+      ],
+      "correct": 1,
+      "explanation": "DNS answers are cached at resolvers, the OS, and the browser for the record's TTL. Until those caches expire, users get the old answer. This is why DNS-based failover is 'eventually' fast, bounded by TTL, not instant."
+    },
+    {
+      "stage": "post",
+      "question": "Which sequence correctly describes recursive DNS resolution?",
+      "options": [
+        "Client → authoritative → TLD → root",
+        "Recursive resolver queries root → TLD server → authoritative server, then caches and returns the answer",
+        "Client queries the authoritative server directly, skipping all others",
+        "Browser → CDN → database → IP"
+      ],
+      "correct": 1,
+      "explanation": "The recursive resolver walks the hierarchy on your behalf: it asks a root server (which points to the TLD), then the TLD server (which points to the domain's authoritative server), then the authoritative server (which gives the IP). It caches the result for the TTL."
+    },
+    {
+      "stage": "post",
+      "question": "You're planning a region migration and want the DNS cutover to be fast. What should you do beforehand?",
+      "options": [
+        "Raise the TTL to 86400 so answers cache longer",
+        "Lower the TTL in advance so old answers expire quickly at cutover time",
+        "Delete the A record entirely the day before",
+        "Switch from A records to MX records"
+      ],
+      "correct": 1,
+      "explanation": "Lowering the TTL ahead of time (e.g. to 60s) means cached answers expire quickly, so when you flip the record at cutover, clients pick up the new IP within seconds. You raise it back afterward to reduce lookup load."
+    },
+    {
+      "stage": "post",
+      "question": "What does GeoDNS let you do?",
+      "options": [
+        "Encrypt DNS queries end to end",
+        "Return different IP addresses based on the resolver's location, routing users to the nearest region",
+        "Guarantee strong consistency across all replicas",
+        "Compress DNS responses to save bandwidth"
+      ],
+      "correct": 1,
+      "explanation": "Because you control what a name resolves to, GeoDNS returns location-specific answers — sending European users to Frankfurt and Asian users to Singapore, for example. It's one of the levers DNS provides for load distribution and latency reduction."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why add a dedicated load balancer instead of just using DNS round-robin?",
+      "options": [
+        "DNS round-robin is illegal in most countries",
+        "A load balancer can react to failed servers in seconds and account for server load, which DNS cannot",
+        "Load balancers are cheaper than DNS",
+        "DNS cannot return more than one IP address"
+      ],
+      "correct": 1,
+      "explanation": "DNS round-robin is blunt: it can't quickly remove a dead server (bounded by TTL), can't see how busy each server is, and can't inspect requests. A load balancer health-checks backends, reacts in seconds, and applies smart distribution strategies."
+    },
+    {
+      "stage": "pre",
+      "question": "Round-robin sends requests to servers in turn. When does this strategy work poorly?",
+      "options": [
+        "When all servers are identical and all requests cost the same",
+        "When requests vary greatly in cost or servers vary in capacity",
+        "It always works perfectly",
+        "Only when there are exactly two servers"
+      ],
+      "correct": 1,
+      "explanation": "Round-robin assumes uniform requests and uniform servers. If one request is 100x heavier, or one server is much bigger, blindly cycling ignores reality — some servers get overloaded while others sit idle. Then least-connections or weighted is better."
+    },
+    {
+      "stage": "post",
+      "question": "What is the key difference between Layer 4 and Layer 7 load balancing?",
+      "options": [
+        "L4 is encrypted; L7 is plaintext",
+        "L4 routes by IP/port without reading content; L7 parses the HTTP request and can route by URL, header, or cookie",
+        "L4 is for databases; L7 is for web servers",
+        "There is no real difference"
+      ],
+      "correct": 1,
+      "explanation": "Layer 4 operates on TCP/UDP — fast and protocol-agnostic but blind to content. Layer 7 parses HTTP, enabling routing by path (/api vs /images), TLS termination, cookie-based stickiness, and retries — at slightly higher overhead."
+    },
+    {
+      "stage": "post",
+      "question": "In the simulation, a server starts with 50 active connections. Under least-connections, what happens?",
+      "options": [
+        "It immediately gets the most new requests",
+        "It receives very few new requests until the other servers catch up to its connection count",
+        "It is marked unhealthy and removed",
+        "All servers get exactly equal new requests regardless"
+      ],
+      "correct": 1,
+      "explanation": "Least-connections always picks the server with the fewest active connections. The busy server (50 active) is skipped until the others reach the same level, then distribution evens out. This is exactly how the strategy adapts to uneven load."
+    },
+    {
+      "stage": "post",
+      "question": "If all traffic flows through one load balancer, what risk have you introduced and how is it addressed?",
+      "options": [
+        "No risk; a load balancer never fails",
+        "The LB becomes a single point of failure; run it redundantly (active/passive pair, multiple LBs, or a managed redundant LB)",
+        "The risk is latency; fix it with a faster CPU",
+        "The risk is cost; fix it by removing health checks"
+      ],
+      "correct": 1,
+      "explanation": "A single load balancer just relocates the single point of failure. Production deployments make the LB itself redundant — e.g. an active/passive pair sharing a virtual IP, several LBs behind DNS, or a cloud LB that is internally redundant."
+    }
+  ]
+}
