@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the dominant access pattern of a URL shortener, and what does it imply?",
+      "options": [
+        "Write-heavy; needs a write-optimized log",
+        "Very read-heavy (~100:1); the design centers on caching and read replicas",
+        "Balanced reads and writes; no caching needed",
+        "Mostly range queries; needs range partitioning"
+      ],
+      "correct": 1,
+      "explanation": "Links are created once and followed many times, so reads dominate writes ~100:1. That single fact makes caching (and read replicas) the heart of the design — the redirect read path is where the system lives or dies."
+    },
+    {
+      "stage": "pre",
+      "question": "Why is base62 (counter-based) key generation collision-free without any collision check?",
+      "options": [
+        "Because base62 codes are random",
+        "Each code is the base62 encoding of a unique integer ID, so distinct IDs always produce distinct codes",
+        "Because collisions are simply ignored",
+        "Because the database rejects duplicates"
+      ],
+      "correct": 1,
+      "explanation": "Encoding a guaranteed-unique counter/ID in base62 yields a guaranteed-unique code — there's a one-to-one mapping. No collision check or retry is needed, unlike random/hash-based codes which can collide and must be checked."
+    },
+    {
+      "stage": "post",
+      "question": "How many unique codes does a 7-character base62 scheme provide?",
+      "options": [
+        "About 7 million",
+        "About 3.5 trillion (62^7)",
+        "Exactly 62",
+        "About 7 billion only"
+      ],
+      "correct": 1,
+      "explanation": "62^7 ≈ 3.5 trillion combinations using [0-9a-zA-Z]. That's far more than enough for billions of links, which is why 6-7 characters is the typical short-code length."
+    },
+    {
+      "stage": "post",
+      "question": "What is the real bottleneck of a URL shortener, and the deep-dive that addresses it?",
+      "options": [
+        "Key generation; solved by a faster CPU",
+        "The read (redirect) path; solved with caching and read replicas",
+        "Writes; solved by removing the database",
+        "Disk space; solved by compression"
+      ],
+      "correct": 1,
+      "explanation": "With reads outnumbering writes ~100:1, the redirect read path is the bottleneck. The deep dive is caching: a Redis cache of short→long serves ~99% of redirects in ~1ms, and read replicas (plus CDN-cached 301s) handle the rest, shielding the database."
+    },
+    {
+      "stage": "post",
+      "question": "What is the tradeoff between returning a 301 vs a 302 redirect?",
+      "options": [
+        "301 is faster to type",
+        "301 is cacheable by browsers/CDNs (offloads you but you can't easily count clicks); 302 routes every click through you (enables analytics) at higher load",
+        "302 is permanent and 301 is temporary",
+        "There is no difference"
+      ],
+      "correct": 1,
+      "explanation": "A 301 (permanent) can be cached downstream, so many clicks never reach you — great for offload, but you lose per-click counting and easy retargeting. A 302 (temporary) sends every click through your service, enabling analytics at the cost of more load. Choose by whether you need analytics or raw offload."
+    }
+  ]
+}

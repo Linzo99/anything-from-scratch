@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't a Twitter timeline just be generated with one query at page-load time at scale?",
+      "options": [
+        "SQL doesn't support ORDER BY",
+        "The workload is extremely read-heavy and the follow graph is hugely skewed, so merging posts from all followees per load is too slow at hundreds of millions of users",
+        "Timelines must be stored on the client",
+        "Queries are illegal at scale"
+      ],
+      "correct": 1,
+      "explanation": "At scale, timeline reads vastly outnumber posts and users follow thousands of accounts (some followed by 100M+). Running a merge query across all followees on every page-load is far too slow, so the feed must be precomputed and/or cached — and celebrities make naive precomputation explode."
+    },
+    {
+      "stage": "pre",
+      "question": "What does 'fan-out on write' (push) mean for a news feed?",
+      "options": [
+        "Reading the feed by querying every followee at read time",
+        "When a user posts, immediately pushing the post into every follower's precomputed timeline",
+        "Writing the post to disk once and never copying it",
+        "Deleting old posts on write"
+      ],
+      "correct": 1,
+      "explanation": "Fan-out on write pushes each new post into all followers' precomputed timelines at post time, so reads become a trivial lookup of a ready-made list. The cost is expensive writes — and a catastrophic one for users with huge follower counts."
+    },
+    {
+      "stage": "post",
+      "question": "What is the 'celebrity problem' in fan-out-on-write?",
+      "options": [
+        "Celebrities post too rarely",
+        "A user with 100M followers triggers 100M timeline inserts per post — a write-amplification bomb that overwhelms the system",
+        "Celebrities can't be followed",
+        "Their tweets are too long"
+      ],
+      "correct": 1,
+      "explanation": "Pushing every celebrity post into 100M+ follower timelines means one post causes 100M writes, which can take minutes and overwhelm the system. This write amplification is why pure fan-out-on-write fails for high-follower accounts."
+    },
+    {
+      "stage": "post",
+      "question": "How does the hybrid fan-out approach resolve the celebrity problem?",
+      "options": [
+        "It bans celebrities",
+        "Push for normal users (cheap fan-out, instant reads); for celebrities, don't fan out on write — store once and merge their recent posts in at read time",
+        "It uses pure fan-out-on-read for everyone",
+        "It caches the entire database"
+      ],
+      "correct": 1,
+      "explanation": "The hybrid splits by follower count: normal users' posts are pushed to followers' precomputed feeds, while celebrities' posts are stored once and pulled in at read time (only a few celebrities to merge per user). This caps write fan-out and keeps reads fast."
+    },
+    {
+      "stage": "post",
+      "question": "Why is eventual consistency appropriate for a news feed?",
+      "options": [
+        "Feeds require the strongest possible consistency",
+        "A tweet appearing a few seconds late harms no one, so trading strict freshness for availability and low latency is the right call",
+        "Because feeds never change",
+        "Because consistency models don't apply to feeds"
+      ],
+      "correct": 1,
+      "explanation": "A feed is a perfect fit for eventual consistency: nobody is harmed if a new tweet shows up a couple seconds later. Demanding strong consistency would hurt availability and latency for no real benefit, so the feed converges quickly rather than blocking."
+    }
+  ]
+}

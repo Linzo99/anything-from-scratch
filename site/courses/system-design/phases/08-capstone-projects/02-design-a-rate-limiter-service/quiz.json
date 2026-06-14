@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does a per-instance rate limiter fail behind a load balancer?",
+      "options": [
+        "Load balancers block rate limiters",
+        "Each server counts independently, so a client spread across N servers gets limit × N total",
+        "Per-instance limiters are too slow",
+        "It actually works correctly"
+      ],
+      "correct": 1,
+      "explanation": "If each of N servers keeps its own counter, a client limited to 100/min gets 100/min on every server it touches — up to 100N/min globally. The limit is silently N× too loose, defeating its purpose."
+    },
+    {
+      "stage": "pre",
+      "question": "What two things are required to enforce a correct global limit across many servers?",
+      "options": [
+        "Faster CPUs and more memory",
+        "A shared counter AND atomic read-modify-write on it",
+        "More servers and a bigger load balancer",
+        "Encryption and compression"
+      ],
+      "correct": 1,
+      "explanation": "You need one shared counter (so there's a single global count) and atomic updates (so concurrent requests can't race and overshoot). Shared state alone isn't enough — without atomicity you get the distributed lost-update bug."
+    },
+    {
+      "stage": "post",
+      "question": "With a shared but NON-atomic counter, how can the limit still be exceeded?",
+      "options": [
+        "It can't be exceeded",
+        "Two servers both read count=99, both decide 'under 100', both write 100 — letting 101 through (a lost update)",
+        "The counter resets randomly",
+        "Redis adds extra requests"
+      ],
+      "correct": 1,
+      "explanation": "This is the lost-update race from Phase 2, now distributed. Concurrent read-check-write operations interleave so multiple requests pass the check before any increment lands. Atomic operations (Redis INCR or a Lua script) serialize the whole step and prevent it."
+    },
+    {
+      "stage": "post",
+      "question": "What is the main cost of using a shared central counter for rate limiting?",
+      "options": [
+        "It makes the limit inaccurate",
+        "Every request does a network round trip to the shared store (adding latency) and the store becomes critical infrastructure on the hot path",
+        "It can only handle one client",
+        "It removes the need for a load balancer"
+      ],
+      "correct": 1,
+      "explanation": "The shared counter is consulted on every request, so each call pays a round trip (~0.5ms to Redis) and the store must be highly available — it's now on the hot path. This mirrors CAP: a central counter is consistent but adds latency/dependency, versus fast-but-inaccurate local counters."
+    },
+    {
+      "stage": "post",
+      "question": "If the shared rate-limiter store (Redis) goes down, why do most systems choose 'fail-open' (allow requests)?",
+      "options": [
+        "Because blocking is impossible",
+        "Rate limiting is a protection, not a gate — allowing traffic preserves user experience, accepting some overload risk, rather than taking the whole API down",
+        "Because fail-open is always more secure",
+        "Because Redis never goes down"
+      ],
+      "correct": 1,
+      "explanation": "A rate limiter exists to protect against abuse, not to authorize access. If it's unavailable, failing open keeps the service usable for everyone (risking overload) rather than failing closed and denying all legitimate traffic. Often paired with a local fallback limiter. (For a security gate, fail-closed may be right instead.)"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the dominant cost in a large video streaming platform?",
+      "options": [
+        "CPU for the web servers",
+        "Bandwidth (egress) — serving terabits/sec of video to viewers",
+        "The database license",
+        "RAM on the app servers"
+      ],
+      "correct": 1,
+      "explanation": "Serving video to millions of viewers means tens of terabits per second of egress, which dwarfs storage and compute costs. This is why a CDN isn't an optimization but the load-bearing decision that makes the economics viable."
+    },
+    {
+      "stage": "pre",
+      "question": "Why can't you just store the raw uploaded file and stream it to everyone?",
+      "options": [
+        "Raw files are illegal to store",
+        "Different devices/networks need different qualities (renditions + ABR), origin can't serve petabytes of egress (needs a CDN), and transcoding can't be done synchronously",
+        "Raw files are too small",
+        "You actually can with no changes"
+      ],
+      "correct": 1,
+      "explanation": "A single fixed-quality file fails across varied devices and fluctuating networks, can't be served at scale from origin, and can't be transcoded inline. You need multiple renditions with adaptive bitrate, a CDN for delivery, and an async transcoding pipeline."
+    },
+    {
+      "stage": "post",
+      "question": "What does adaptive bitrate streaming (ABR) do?",
+      "options": [
+        "Compresses all videos to one small size",
+        "Gives the player multiple quality renditions split into chunks, and the player picks the quality per chunk based on current bandwidth",
+        "Stores the video in the database",
+        "Encrypts each chunk separately"
+      ],
+      "correct": 1,
+      "explanation": "ABR provides a manifest listing the video at several qualities, each chunked. The player downloads chunk by chunk and switches quality (e.g. 1080p → 480p → 720p) as bandwidth changes — degrading quality instead of stopping, which is why modern streaming rarely buffers."
+    },
+    {
+      "stage": "post",
+      "question": "Why is transcoding done asynchronously with a worker fleet rather than during upload?",
+      "options": [
+        "To make uploads slower on purpose",
+        "Transcoding into many renditions is CPU-heavy and slow; doing it async via a queue + workers lets uploads return fast and absorbs spikes",
+        "Because it must run on the client",
+        "Because databases require it"
+      ],
+      "correct": 1,
+      "explanation": "Producing every rendition and chunking a video is expensive and slow. Doing it inline would make uploads time out and tie up servers. An async queue (Phase 6) accepts the upload immediately, drops a job, and a scalable worker fleet processes it in the background; the video flips to 'ready' when done."
+    },
+    {
+      "stage": "post",
+      "question": "Where should the video bytes and the video metadata each live?",
+      "options": [
+        "Both in the relational database",
+        "Video bytes in object storage behind a CDN; small queryable metadata in a database",
+        "Both in the CDN cache only",
+        "Bytes in the database, metadata in object storage"
+      ],
+      "correct": 1,
+      "explanation": "Large video blobs belong in object storage (S3) fronted by a CDN — cheap, durable, scalable, and offloaded to the edge. Only the small, queryable metadata (title, status, duration) goes in the database. Putting video in the DB would bloat it and wreck performance (Phase 2)."
+    }
+  ]
+}

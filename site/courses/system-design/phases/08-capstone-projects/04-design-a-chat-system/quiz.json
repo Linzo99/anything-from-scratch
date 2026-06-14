@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does a chat system need persistent WebSocket connections rather than polling?",
+      "options": [
+        "WebSockets are easier to code",
+        "Instant delivery requires the server to PUSH a message the moment it arrives; polling can't do that efficiently and wastes resources at scale",
+        "Polling can't carry text",
+        "WebSockets use less memory than any alternative"
+      ],
+      "correct": 1,
+      "explanation": "Chat must feel instant, which means the server pushes to the recipient immediately. Polling adds latency and, at millions of users, generates enormous wasteful traffic. A held-open WebSocket lets the server push the instant a message arrives (Phase 1)."
+    },
+    {
+      "stage": "pre",
+      "question": "Alice (on gateway server 3) sends a message to Bob (on gateway server 47). What's the core routing challenge?",
+      "options": [
+        "Bob's message is too large",
+        "Server 3 must find which server holds Bob's live connection and deliver to it — connections are spread across many machines",
+        "WebSockets can't cross servers at all",
+        "There is no challenge; one server holds everyone"
+      ],
+      "correct": 1,
+      "explanation": "With millions of connections spread over thousands of gateways, the recipient's socket is likely on a different server. You can't deliver by writing to a database — you need to locate Bob's gateway (a connection registry) and route the message to it (pub/sub)."
+    },
+    {
+      "stage": "post",
+      "question": "What is the connection registry's role?",
+      "options": [
+        "It stores all message history",
+        "It maps each user to the gateway server holding their connection, so messages can be routed to the right server",
+        "It rate-limits messages",
+        "It encrypts WebSocket traffic"
+      ],
+      "correct": 1,
+      "explanation": "The registry (in a fast shared store like Redis) records user_id → gateway_server so a sender's gateway can find where the recipient is connected and forward the message (via pub/sub) to that gateway, which pushes it down the recipient's socket."
+    },
+    {
+      "stage": "post",
+      "question": "Why should a chat system persist a message BEFORE attempting delivery?",
+      "options": [
+        "To make delivery faster",
+        "So a crash mid-delivery, or an offline recipient, never causes message loss — durability first, then deliver",
+        "Because databases require it",
+        "To avoid using WebSockets"
+      ],
+      "correct": 1,
+      "explanation": "If you push first and store later, a crash during delivery loses the message. Persisting first means an offline user gets it on reconnect and crashes don't drop messages — trading a tiny bit of latency for the reliable delivery the requirements demand."
+    },
+    {
+      "stage": "post",
+      "question": "How is correct per-conversation message ordering achieved?",
+      "options": [
+        "By requiring global ordering across all conversations",
+        "Using a time-sortable message ID (e.g. Snowflake) and partitioning the message store by conversation_id, so each conversation's messages store and read in order",
+        "By sending messages alphabetically",
+        "Ordering is impossible in distributed chat"
+      ],
+      "correct": 1,
+      "explanation": "Users only need messages within a conversation to be ordered, not a global order across all chats. A time-sortable ID plus partitioning by conversation_id gives each conversation a consistent, time-ordered sequence — cheaper than global ordering (Phase 5)."
+    }
+  ]
+}
